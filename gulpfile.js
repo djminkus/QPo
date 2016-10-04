@@ -25,10 +25,10 @@ gulp.task('htmlpage', function() {
 
 // JS concat, strip debugging and minify
 gulp.task('scripts', function() {
-  gulp.src(['./src/client/js/libs/require.js', './src/client/js/libs/*.js','./src/js/*.js'])
+  gulp.src(['./src/client/js/libs/*.js','./src/js/*.js'])
     .pipe(concat('script.js'))
     .pipe(stripDebug())
-    // .pipe(uglify())
+    .pipe(uglify())
     .pipe(gulp.dest('./build/'));
 });
 
@@ -42,16 +42,16 @@ gulp.task('styles', function() {
 });
 
 gulp.task('default', ['htmlpage', 'scripts', 'styles'], function(){
-  gulp.watch('./src/*.html', function(){
-    gulp.run('htmlpage')
-  })
-
-  //Note: libraries are not watched for changes.
-  gulp.watch('./src/js/*.js', function(){
-    gulp.run('scripts')
-  })
-
-  gulp.watch('./src/styles/*.css', function(){
-    gulp.run('styles')
-  })
+  // gulp.watch('./src/*.html', function(){
+  //   gulp.run('htmlpage')
+  // })
+  //
+  // //Note: libraries are not watched for changes.
+  // gulp.watch('./src/js/*.js', function(){
+  //   gulp.run('scripts')
+  // })
+  //
+  // gulp.watch('./src/styles/*.css', function(){
+  //   gulp.run('styles')
+  // })
 })
