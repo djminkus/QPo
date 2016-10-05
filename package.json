@@ -1,13 +1,28 @@
 {
   "name": "qpo",
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-changed": "^1.3.2",
-    "gulp-clean-css": "^2.0.13",
-    "gulp-concat": "^2.6.0",
-    "gulp-minify-css": "^1.2.4",
-    "gulp-minify-html": "^1.0.6",
-    "gulp-strip-debug": "^1.1.0"
+  "version": "0.7.0",
+  "description": "A competitive, collaborative strategy game for the browser.",
+  "author": "David J Garrett <djg@qpo.io>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djminkus/qpo"
   },
-  "scripts": {}
+  "dependencies": {
+    "raphael": "^2.2.6"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-nodeunit": "~0.4.1",
+    "grunt-contrib-uglify": "~0.5.0",
+    "raphael": "^2.2.6"
+  },
+  "scripts": {},
+  "keywords": [
+    "strategy",
+    "PvP",
+    "team"
+  ],
+  "license": "Express written consent required for replication or reuse"
 }
