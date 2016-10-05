@@ -29,7 +29,7 @@ qpo.Mission = function(args){
     qpo.activeGame.end('blue', this.number);
   }
   return this
-}
+};
 
 qpo.chapters = {
   'easy': {'missions': [false]},
