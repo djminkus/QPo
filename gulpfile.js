@@ -15,7 +15,7 @@ var cleanCSS = require('gulp-clean-css');
 // minify new or changed HTML pages
 gulp.task('htmlpage', function() {
   var htmlSrc = './src/client/*.html',
-      htmlDst = './build'
+      htmlDst = './build/served/'
 
   gulp.src(htmlSrc)
     .pipe(changed(htmlDst))
@@ -29,7 +29,14 @@ gulp.task('scripts', function() {
     .pipe(concat('script.js'))
     .pipe(stripDebug())
     // .pipe(uglify())
-    .pipe(gulp.dest('./build/'));
+    .pipe(gulp.dest('./build/served/')
+  );
+  gulp.src(['./src/server/server.js'])
+    .pipe(concat('server.js'))
+    // .pipe(stripDebug())
+    // .pipe(uglify())
+    .pipe(gulp.dest('./build/')
+  );
 });
 
 // CSS concat, auto-prefix and minify
@@ -38,7 +45,7 @@ gulp.task('styles', function() {
     .pipe(concat('style.css'))
     .pipe(autoprefix('last 2 versions'))
     .pipe(cleanCSS())
-    .pipe(gulp.dest('./build/'));
+    .pipe(gulp.dest('./build/served/'));
 });
 
 gulp.task('default', ['htmlpage', 'scripts', 'styles'], function(){
@@ -47,9 +54,9 @@ gulp.task('default', ['htmlpage', 'scripts', 'styles'], function(){
   // })
   //
   // //Note: libraries are not watched for changes.
-  // gulp.watch('./src/js/*.js', function(){
-  //   gulp.run('scripts')
-  // })
+  gulp.watch(['./src/client/js/*.js', './src/server/*.js'], function(){
+    gulp.run('scripts')
+  })
   //
   // gulp.watch('./src/styles/*.css', function(){
   //   gulp.run('styles')

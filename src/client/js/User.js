@@ -1,7 +1,19 @@
+qpo.randomHandle = function(){
+  var handle = '',
+    part1 = ['pro','noob','random','super','epic',
+      'slower','rapid','dextrous','power','uber'],
+    part2 = ['Arthur','Bilbo','Chris','Dave','Erin',
+      'Falco','Gil','Harry','Ichiban','Jake']
+  handle += part1[Math.floor(10*Math.random())]
+  handle += part2[Math.floor(10*Math.random())]
+  handle += Math.floor(1000*Math.random()).toString()
+  return handle
+}
+
 qpo.User = function(stats){ //An entity within the ranking system. Has a name, a level, a rank, and an exp value.
   // handle is a string like "djminkus"
   // [il, ir, ix] = [initial level, initial rank, initial exp]
-  if (stats != 'undefined'){ // a string, because localStorage is like that.
+  try { //build user from stats obj
     stats = JSON.parse(stats)
     console.log('user ' + stats.handle + ' loaded.')
     this.handle = stats.handle
@@ -10,9 +22,10 @@ qpo.User = function(stats){ //An entity within the ranking system. Has a name, a
     this.exp = stats.exp //experience points
     this.type = stats.type //human or one of four AI types (null, random, rigid, or neural)
     this.campaignProgress = stats.campaignProgress //booleans representing completion status of each campign mission
-  } else {
+  }
+  catch(e){ //create new user.
     console.log('new user created.')
-    this.handle = 'devMinx'
+    this.handle = qpo.randomHandle()
     this.level = 0
     this.rank = 0
     this.exp = 0 //experience points

@@ -109,7 +109,6 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.timeScale = 0.75; // Bigger means longer turns/slower gameplay; 1 is original 3-seconds-per-turn
   qpo.playMusic = false;
   qpo.trainingMode = false;
-  qpo.devMode = true;
   qpo.deflashLength = 200
   qpo.flashLength = qpo.timeScale*3000-qpo.deflashLength
   qpo.waitTime = 10; // minimum ms between move submission
@@ -942,20 +941,21 @@ qpo.sendMoveToServer = function(json){
 
 //LISTEN FOR INPUT
 $(window).keydown(function(event){
-  switch(event.keyCode){ //prevent defaults for backspace/delete, spacebar, and enter
-    case 8: //backspace/delete
-    case 32: //spacebar
-    case 13: //enter
-      event.preventDefault();
-      break;
-    default:
-      break;
-  }
+  // switch(event.keyCode){ //prevent defaults for backspace/delete, spacebar, and enter
+  //   case 8: //backspace/delete
+  //   case 32: //spacebar
+  //   case 13: //enter
+  //     event.preventDefault();
+  //     break;
+  //   default:
+  //     break;
+  // }
   if(qpo.ignoreInput){console.log('input ignored.'); return;}
   switch(qpo.mode){ //do the right thing based on what type of screen the user is in (menu, game, tutorial, etc)
     case "menu":
       switch(event.keyCode){
         case 8: // backspace/delete: return to the previous menu
+          event.preventDefault();
           if (qpo.activeMenu != "title") {qpo.menus[qpo.activeMenu].up();}
           break;
         case 32: // spacebar (fall through to enter/return)

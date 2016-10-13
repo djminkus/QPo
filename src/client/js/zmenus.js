@@ -1,6 +1,7 @@
 //Set up the menu objects and open the title screen.
 
 qpo.font = 'Orbitron'
+qpo.fontString = " '" + qpo.font + "',sans-serif"
 switch(qpo.font){ //for easy font switching
   case 'Righteous':{
     WebFontConfig = { google: { families: [ 'Righteous::latin' ] } };
@@ -47,7 +48,7 @@ c.customAttributes.qpoText = function(size, fill){ //style text white with Open 
   return {
     "font-size": size,
     "fill": (fill || "white"),
-    "font-family":" '" + qpo.font + "',sans-serif"
+    "font-family": qpo.fontString
     // "font-family":"'Poppins',sans-serif"
     // "font-family":"'Oxygen',sans-serif"
     // "font-family":"'Varela Round',sans-serif"
@@ -590,14 +591,12 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
   this.all.attr({'opacity':0});
   qpo.fadeIn(this.all);
 
-  this.close = function(){ //clear screen and make main menu
-    // this.all.stop();
-
-    var timeScale = 4
-    var totalLength = 500 //length of closing animation if timeScale is 1
-    var HW = c.width/2 //half width
-
-    var bitAnimLength = .2
+  this.close = function(){ //clear screen and make next menu
+    //PART THE SEA OF BITS:
+    var timeScale = 4,
+      totalLength = 500, //length of closing animation if timeScale is 1
+      HW = c.width/2, //half width
+      bitAnimLength = .2
     this.bitsLeft.forEach(function(item, index){
       var DISPLACEMENT = 1 - ( item.getBBox().x / HW ) // displacement from center
       var DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
@@ -615,7 +614,9 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
         item.animate({'transform':'t'+(HW + DISPLACEMENT + 20)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
       }.bind(this), DELAY)
     })
-    qpo.ignore(400*timeScale)
+
+    //FADE THINGS OUT:
+    qpo.ignore(400*timeScale) //ignore further input. (not perfect)
     this.promptt.stop();
     qpo.fadeOut(this.promptt, function(){}, .25*totalLength*timeScale);
     qpo.fadeOutGlow(qpo.glows, function(){}, .25*totalLength*timeScale);
@@ -624,13 +625,15 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
       '40%': {'opacity':.3},
       '100%': {'opacity':1}
     }, .4*totalLength*timeScale, function(){ qpo.glows.push( this.title.glow({'color':'white'}) ) }.bind(this) )
-    setTimeout(function(){ //clear canvas, open main menu
+
+    setTimeout(function(){ //clear canvas, open next menu
       qpo.fadeOutGlow(qpo.glows, function(){}, .6*totalLength*timeScale)
-      qpo.fadeOut(this.title, function(){ //clear canvas, open main menu
+      qpo.fadeOut(this.title, function(){ //clear canvas, open next menu
         c.clear();
         qpo.guiCoords.gameBoard.leftWall = 25;
         qpo.guiCoords.gameBoard.topWall = 75;
-        qpo.menus['main menu'].open();
+        qpo.login()
+        // qpo.menus['main menu'].open();
       }, .6*totalLength*timeScale)
     }.bind(this), .4*totalLength*timeScale)
   };
@@ -638,14 +641,48 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
 
   return this;
 }
+qpo.login = function(){ //prompt the user to create an account or log in.
+  qpo.mode='login'
+  $("#raphContainer").hide()
+  $("#raphContainer2").hide()
+  var form = document.createElement("form"),
+    spacer = document.createElement("div"),
+    inputUsername = document.createElement("input"),
+    inputPassword = document.createElement("input"),
+      // .attr({"type":"text", "name":"password"}),
+    inputSubmit = document.createElement("input")
+      // .attr({"type":"submit", "value":"Submit"});
+  // console.log(inputUsername)
+  // console.log($(inputUsername))
+  // console.log($("inputUsername"))
+  // console.log($("#inputUsername"))
+
+  $(spacer).css({"height":"200px"}).attr({"display":"block"})
+  $(inputUsername).attr({"type":"text", "autocomplete":"off", "autofocus":"on",
+    "name":"username", "placeholder":"username"})
+    .css({"display": "block", "margin":"auto", "font-size": 28, "border":"none", "text-align":"center",
+      "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['background']}),
+  $(inputPassword).attr({"type":"password", "autocomplete":"off",
+    "name":"password", "placeholder":"password"})
+    .css({"display": "block", "margin":"auto", "font-size": 28, "border":"none", "text-align":"center",
+    "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['background']}),
+  $(inputSubmit).attr({"type":"submit", "value":"Login", "method":"POST"})
+    .css({"display": "block", "margin":"auto", "font-size":20, "border":"none", "padding":"10px", "margin-top": "10px",
+    "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['green']}),
+
+  $("#raphContainer").after(spacer, form)
+  $("form").append(inputUsername, inputPassword, inputSubmit)
+}
 
 // ****** ENTRY POINT
 //CREATE TITLE SCREEN AND MENUS:
 qpo.titleScreen = new qpo.displayTitleScreen();
 qpo.makeMenus()
 
-qpo.freshUser = false
+qpo.freshUser = true
 if (qpo.freshUser){ localStorage['stats'] = undefined }
+qpo.devMode = true
+qpo.freshStart = true // for neural nets
 
 qpo.openingCode = function(){ //get an AI net ready, either from storage or fresh
   if(qpo.freshStart){ //delete Ali from local storage.

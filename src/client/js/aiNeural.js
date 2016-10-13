@@ -81,5 +81,3 @@ qpo.actions = ["moveLeft","moveUp","moveRight","moveDown","shoot","bomb","stay"]
 
 qpo.redRewardQueue = new Array()
 qpo.sixty = {"list" : new Array(), "cursor" : 0}
-
-qpo.freshStart = false

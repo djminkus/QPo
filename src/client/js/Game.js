@@ -248,9 +248,9 @@ qpo.Game = function(args){ //"Game" class.
       c.clear()
       qpo.shots = []
       qpo.bombs = []
-      qpo.units = []
-      (winner == "red") ? (qpo.ali.nn.backward(2)) : (qpo.ali.nn.backward(0)) //reward AI for winning, not losing
-      (winner == "tie") ? (qpo.ali.nn.backward(1)) : (qpo.ali.nn.backward(0)) //reward it a little for tying
+      qpo.units = [];
+      // (winner == "red") ? (qpo.ali.nn.value_net.backward(2)) : (qpo.ali.nn.value_net.backward(0)) //reward AI for winning, not losing
+      // (winner == "tie") ? (qpo.ali.nn.value_net.backward(1)) : (qpo.ali.nn.value_net.backward(0)) //reward it a little for tying
       try{qpo.activeSession.update(winner)} //add to the proper tally. Will throw error in tut mode.
       catch(e){;} //don't bother adding to the proper tally in tut mode.
       if(qpo.trainingMode){this.type='training'}
