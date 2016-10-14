@@ -12,7 +12,7 @@ var assert = require('assert');
 app.use(express.static(__dirname + "/served")); //Serve static files
 
 app.get('/', function(req, res){
-  res.sendFile('./index.html');
+  res.sendFile('./title.html');
 });
 
 io.on('connection', function(socket){
@@ -30,8 +30,8 @@ http.listen(8080, function(){
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded()); // to support URL-encoded bodies
 
-app.post('/',function(req, res){
-
+app.post('/menu',function(req, res){
+  
 })
 
 // MONGODB

@@ -657,6 +657,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
   // console.log($("inputUsername"))
   // console.log($("#inputUsername"))
 
+  $(form).attr({"action":"menu", "method":"POST"})
   $(spacer).css({"height":"200px"}).attr({"display":"block"})
   $(inputUsername).attr({"type":"text", "autocomplete":"off", "autofocus":"on",
     "name":"username", "placeholder":"username"})
