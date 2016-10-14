@@ -408,6 +408,102 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.centeredSquare = function(paper, cx, cy, s, atts){
     return paper.rect(cx-s/2, cy-s/2, s,s).attr(atts)
   }
+
+  //TITLE SCREEN STUFF: (previously in menus.js)
+  qpo.font = 'Orbitron'
+  qpo.fontString = " '" + qpo.font + "',sans-serif"
+  switch(qpo.font){ //for easy font switching
+    case 'Righteous':{
+      WebFontConfig = { google: { families: [ 'Righteous::latin' ] } };
+      break;
+    }
+    case 'Poppins':{
+      WebFontConfig = { google: { families: [ 'Poppins:400,300,500,600,700:latin' ] } };
+      break;
+    }
+    case 'Oxygen':{
+      WebFontConfig = { google: { families: [ 'Oxygen:300,400,700:latin' ] } };
+      break;
+    }
+    case 'Varela':{
+      WebFontConfig = { google: { families: [ 'Varela+Round::latin' ] } };
+      break;
+    }
+    case 'Questrial':{
+      WebFontConfig = { google: { families: [ 'Questrial::latin' ] } };
+      break;
+    }
+    case 'Orbitron':{
+      WebFontConfig = { google: { families: [ 'Orbitron:400,500,700,900:latin' ] } };
+      break;
+    }
+    case 'Open Sans':{
+      WebFontConfig = { google: { families: [ 'Open+Sans:300,400:latin' ] } };
+      break;
+    }
+  }
+  (function() { //inject the Google webfont script
+    var wf = document.createElement('script');
+    wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+  })();
+  qpo.activeMenuOptAtts = {'fill':qpo.COLOR_DICT['orange'], 'opacity':1}
+  qpo.inactiveMenuOptAtts = {'fill':'grey', 'opacity':1}
+  qpo.inactiveCampaignMenuOptAtts = {'fill':'white', 'opacity':1}
+
+  c.customAttributes.qpoText = function(size, fill){ //style text white with Open Sans family and "size" font-size.
+    return {
+      "font-size": size,
+      "fill": (fill || "white"),
+      "font-family": qpo.fontString
+      // "font-family":"'Poppins',sans-serif"
+      // "font-family":"'Oxygen',sans-serif"
+      // "font-family":"'Varela Round',sans-serif"
+      // "font-family":"'Questrial',sans-serif"
+      // "font-family":"'Orbitron',sans-serif"
+      // "font-family":"'Open Sans',sans-serif"
+      // "font-family":"sans-serif"
+    };
+  }
+  qpo.xtext = function(x, y, str, size, color){ //make a Raphael text el with its left end at x and centered vertically on y
+    var size = size || 10;
+    var color = color || qpo.COLOR_DICT['foreground'];
+    var el = c.text(x,y,str).attr({qpoText:[size, color]});
+    el.attr({'x':el.getBBox().x2});
+    // el.attr({'x':el.getBBox().x2, 'y':el.getBBox().y2}); //for y-adjusted text
+    return el;
+  }
+  qpo.makeBits = function(x1, y1, xRange, yRange, colors, number){
+    //colors is an array of color strings
+    var bits = c.set()
+    for(i=0; i<number; i++){
+      var size = 13 * Math.random() // 0 to 13
+      var time = 67 * size //blink time in ms
+
+      var x = x1 + xRange*Math.random()
+      var y = y1 + yRange*Math.random()
+
+      //make a new bit (circle or square)
+      var newBit
+      var b = Math.floor(2*Math.random()) // 0 or 1
+      if(b){ newBit = c.rect(x, y, size, size) }
+      else { newBit = c.circle(x, y, size/Math.sqrt(2)) }
+
+      //choose its color
+      var colorInd = Math.floor(colors.length*Math.random())
+      newBit.attr({'stroke':colors[colorInd]})
+
+      qpo.blink(newBit, time)
+
+      bits.push(newBit)
+    }
+    bits.attr({'fill':'none', 'stroke-width': 2})
+    return bits
+  }
+
 }();
 
 qpo.findSpawn = function(color){
