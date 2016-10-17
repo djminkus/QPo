@@ -112,7 +112,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
   var form = document.createElement("form"),
     spacer = document.createElement("div"),
     inputUsername = document.createElement("input"),
-    inputPassword = document.createElement("input"),
+    // inputPassword = document.createElement("input"),
     inputSubmit = document.createElement("input")
   // console.log(inputUsername)
   // console.log($(inputUsername))
@@ -125,16 +125,18 @@ qpo.login = function(){ //prompt the user to create an account or log in.
     "name":"username", "placeholder":"username"})
     .css({"display": "block", "margin":"auto", "font-size": 28, "border":"none", "text-align":"center",
       "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['background']}),
-  $(inputPassword).attr({"type":"password", "autocomplete":"off",
-    "name":"password", "placeholder":"password"})
-    .css({"display": "block", "margin":"auto", "font-size": 28, "border":"none", "text-align":"center",
-    "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['background']}),
-  $(inputSubmit).attr({"type":"submit", "value":"Login"})
+  // $(inputPassword).attr({"type":"password", "autocomplete":"off",
+  //   "name":"password", "placeholder":"password"})
+  //   .css({"display": "block", "margin":"auto", "font-size": 28, "border":"none", "text-align":"center",
+  //   "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['background']}),
+  $(inputSubmit).attr({"type":"submit", "value":"Play"})
     .css({"display": "block", "margin":"auto", "font-size":20, "border":"none", "padding":"10px", "margin-top": "10px",
     "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['green']}),
 
   $("#raphContainer").after(spacer, form)
-  $("form").append(inputUsername, inputPassword, inputSubmit)
+  $("form").append(inputUsername,
+    // inputPassword,
+    inputSubmit)
 }
 
 qpo.titleScreen = new qpo.displayTitleScreen();

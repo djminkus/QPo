@@ -30,7 +30,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ /
     this.all = c.set().push(this.layer1, this.layer2, this.doodad)
     for(var i=0; i < this.cl.length; i++){ this.all.push(this.cl.list[i].raphs) }
     qpo.fadeIn(this.all, 500);
-    qpo.fadeInGlow(qpo.glows);
+    // qpo.fadeInGlow(qpo.glows);
 
     this.and()
   }
@@ -43,7 +43,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ /
   this.close = function(obj, time){ //clear the canvas and open the next screen
     qpo.ignore(time)
     this.all.stop()
-    qpo.fadeOutGlow(qpo.glows, function(){}, time);
+    // qpo.fadeOutGlow(qpo.glows, function(){}, time);
     qpo.fadeOut(this.all, function(){ //clear canvas, do stuff based on "obj" argument
       c.clear();
       this.all = null; //remove reference to raphs too
@@ -195,7 +195,7 @@ qpo.CampaignChapterMenu = function(titleStr, itemList, parent, placeholder, make
     this.all = c.set().push(this.layer1, this.layer2, this.doodad);
     for(var i=0; i < this.cl.length; i++){ this.all.push(this.cl.list[i].raphs); }
     qpo.fadeIn(this.all, 500);
-    qpo.fadeInGlow(qpo.glows);
+    // qpo.fadeInGlow(qpo.glows);
   }
 
   this.parent = qpo.menus[parent.toLowerCase()] || 'title'
@@ -204,7 +204,7 @@ qpo.CampaignChapterMenu = function(titleStr, itemList, parent, placeholder, make
   this.close = function(obj, time){ //clear the canvas and open the next screen
     qpo.ignore(time)
     this.all.stop()
-    qpo.fadeOutGlow(qpo.glows, function(){}, time);
+    // qpo.fadeOutGlow(qpo.glows, function(){}, time);
     qpo.fadeOut(this.all, function(){ //clear canvas, do stuff based on "obj" argument
       c.clear();
       this.all = null; //remove reference to raphs too
@@ -440,11 +440,18 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
   ], 'Main Menu', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)});
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
 }
+qpo.loadUser = function(){
+  //get user data from server:
+  
+  qpo.user = new qpo.User()
+}
 
 // ****** ENTRY POINT
 qpo.makeMenus()
+qpo.loadUser()
 qpo.menus['main menu'].open()
 
+//-------------OLD CODE: onload not called with new Node routing-----------------
 qpo.freshUser = true
 if (qpo.freshUser){ localStorage['stats'] = undefined }
 qpo.devMode = true
@@ -456,6 +463,8 @@ qpo.openingCode = function(){ //get an AI net ready, either from storage or fres
     console.log("Ali was deleted")
   }
   if(qpo.devMode){qpo.user = new qpo.User(localStorage['stats'])}
+
+  console.log('opening code!')
 
   try { //retrieve saved AI or generate new one
     qpo.ali = {'nn': null,  "team": "red"}

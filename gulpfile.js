@@ -25,8 +25,14 @@ gulp.task('htmlpage', function() {
 
 // JS concat, strip debugging and minify
 gulp.task('scripts', function() {
-  gulp.src(['./src/client/js/libs/*.js','./src/client/js/qpo.js', './src/client/js/*.js'])
-    .pipe(concat('script.js'))
+  gulp.src(['./src/client/js/libs/*.js', './src/client/js/qpo.js', './src/client/js/missions.js', './src/client/js/title/title.js'])
+    .pipe(concat('title_script.js'))
+    .pipe(stripDebug())
+    // .pipe(uglify())
+    .pipe(gulp.dest('./build/served/')
+  );
+  gulp.src(['./src/client/js/libs/*.js', './src/client/js/qpo.js', './src/client/js/*.js', './src/client/js/menu/menu.js'])
+    .pipe(concat('menu_script.js'))
     .pipe(stripDebug())
     // .pipe(uglify())
     .pipe(gulp.dest('./build/served/')
@@ -54,7 +60,7 @@ gulp.task('default', ['htmlpage', 'scripts', 'styles'], function(){
   // })
   //
   // //Note: libraries are not watched for changes.
-  gulp.watch(['./src/client/js/*.js', './src/server/*.js'], function(){
+  gulp.watch(['./src/client/js/*.js', '/src/client/js/title/*.js', '/src/client/js/menu/*.js', './src/server/*.js'], function(){
     gulp.run('scripts')
   })
   //
