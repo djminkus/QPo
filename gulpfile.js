@@ -1,5 +1,5 @@
 // include gulp
-var gulp = require('gulp');
+var gulp = require('gulp')
 
 // include plug-ins
 var changed = require('gulp-changed')
@@ -9,8 +9,8 @@ var concat = require('gulp-concat')
 var stripDebug = require('gulp-strip-debug')
 var uglify = require('gulp-uglify')
 
-var autoprefix = require('gulp-autoprefixer');
-var cleanCSS = require('gulp-clean-css');
+var autoprefix = require('gulp-autoprefixer')
+var cleanCSS = require('gulp-clean-css')
 
 // minify new or changed HTML pages
 gulp.task('htmlpage', function() {
@@ -51,7 +51,8 @@ gulp.task('styles', function() {
     .pipe(concat('style.css'))
     .pipe(autoprefix('last 2 versions'))
     .pipe(cleanCSS())
-    .pipe(gulp.dest('./build/served/'));
+    .pipe(gulp.dest('./build/served/')
+  );
 });
 
 gulp.task('default', ['htmlpage', 'scripts', 'styles'], function(){

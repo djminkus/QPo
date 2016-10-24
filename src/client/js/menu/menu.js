@@ -329,7 +329,13 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
   ], 'title', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
     qpo.leftPane = $("#raphContainer")
     qpo.leftPane.css({'float': 'left', 'margin-left': '50px'})
-    qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)
+    try{
+      (qpo.user.leveller) ? (console.log(1)) : (console.log(2))
+      console.log('here')
+    } catch(err) {
+      qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)
+      console.log('there')
+    }
   })
   qpo.menus['main menu'].up = function(){/*qpo.menus['main menu'].close({'destination':'title'})*/}
   qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close('campaign') }
@@ -442,7 +448,6 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
 }
 qpo.loadUser = function(){
   //get user data from server:
-  
   qpo.user = new qpo.User()
 }
 
