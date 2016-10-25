@@ -221,7 +221,7 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.bombSize = 2*qpo.guiDimens.squareSize;
 
   //MAKE MUSIC (or don't)
-  (qpo.playMusic) ? (qpo.menuMusic()) : (console.log("no music mode!"));
+  (qpo.playMusic) ? (qpo.menuMusic()) : (false);
 
   //DEFINE SOME NICE FUNCTIONS...
   qpo.add = function(a,b){ return (a+b); }

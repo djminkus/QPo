@@ -328,14 +328,9 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.MenuOption(x, yStart + 4*yInt,'Settings', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
   ], 'title', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
     qpo.leftPane = $("#raphContainer")
-    qpo.leftPane.css({'float': 'left', 'margin-left': '50px'})
-    try{
-      (qpo.user.leveller) ? (console.log(1)) : (console.log(2))
-      console.log('here')
-    } catch(err) {
-      qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)
-      console.log('there')
-    }
+    qpo.leftPane.css({'float': 'left', 'margin-left': '50px'});
+    if (qpo.user.leveller === undefined) {qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)}
+    else (console.log(qpo.user.leveller))
   })
   qpo.menus['main menu'].up = function(){/*qpo.menus['main menu'].close({'destination':'title'})*/}
   qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close('campaign') }
@@ -447,7 +442,19 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
 }
 qpo.loadUser = function(){
-  //get user data from server:
+  //TODO: get user data from server:
+
+  // From http://stackoverflow.com/a/4033310/3658320 :
+  (function(theUrl, callback){
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous
+    xmlHttp.send(null);
+  })(/*url*/, function(){})
+
   qpo.user = new qpo.User()
 }
 
@@ -456,7 +463,7 @@ qpo.makeMenus()
 qpo.loadUser()
 qpo.menus['main menu'].open()
 
-//-------------OLD CODE: onload not called with new Node routing-----------------
+//----------OLD LOCAL MODE STUFF---------
 qpo.freshUser = true
 if (qpo.freshUser){ localStorage['stats'] = undefined }
 qpo.devMode = true
@@ -465,11 +472,10 @@ qpo.freshStart = true // for neural nets
 qpo.openingCode = function(){ //get an AI net ready, either from storage or fresh
   if(qpo.freshStart){ //delete Ali from local storage.
     localStorage['aliNN']=null
-    console.log("Ali was deleted")
+    // console.log("Ali was deleted")
   }
-  if(qpo.devMode){qpo.user = new qpo.User(localStorage['stats'])}
 
-  console.log('opening code!')
+  // console.log('opening code!')
 
   try { //retrieve saved AI or generate new one
     qpo.ali = {'nn': null,  "team": "red"}
@@ -481,7 +487,7 @@ qpo.openingCode = function(){ //get an AI net ready, either from storage or fres
       // (JSON.stringify(qpo.ali.nn.value_net.toJSON()) == localStorage['aliCopy2']) ? (console.log("ali value net successfully reconstructed.")) : console.log("ali value net reconstruction failed.");
     }
     else { //make Ali from scratch.
-      console.log("no net found in localStorage. making new one.") //no net found in localStorage
+      // console.log("no net found in localStorage. making new one.") //no net found in localStorage
       var brain = new deepqlearn.Brain(num_inputs, num_actions, opt) // start fresh
       // console.log(brain);
       qpo.ali = {  "nn" : brain, "team" : "red" }

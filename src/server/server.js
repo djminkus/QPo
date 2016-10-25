@@ -34,29 +34,30 @@ http.listen(8080, function(){
 app.use(bodyParser.json())       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded()) // to support URL-encoded bodies
 
+mongoose.connect(url)
+var db = mongoose.connection;
+var User = (function(){ //get reference to the mongoose model: 'User'
+  var userSchema = mongoose.Schema({
+    _id: String,
+    level: Number,
+    rank: Number,
+    exp: Number,
+    type: String,
+    campaignProgress: {
+      easy: Array,
+      medium: Array,
+      hard: Array
+    }
+  })
+  return mongoose.model('User', userSchema)
+})()
 app.post('/menu', function(req, res){
   var username = req.param('username')
   console.log('username "'+username+'" parsed from form')
 
-  mongoose.connect(url)
   //check the database for a user with that name:
-  var db = mongoose.connection;
   db.on('error', console.error);
   db.once('open', function() {
-    var userSchema = mongoose.Schema({
-      _id: String,
-      level: Number,
-      rank: Number,
-      exp: Number,
-      type: String,
-      campaignProgress: {
-        easy: Array,
-        medium: Array,
-        hard: Array
-      }
-    })
-    var User = mongoose.model('User', userSchema)
-
     User.findOne({_id: username}, function(err, user){
       if (err) {console.log("The user search caused an error")}
       if (user === null) {
