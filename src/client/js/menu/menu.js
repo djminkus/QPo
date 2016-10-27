@@ -45,6 +45,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ /
     this.all.stop()
     // qpo.fadeOutGlow(qpo.glows, function(){}, time);
     qpo.fadeOut(this.all, function(){ //clear canvas, do stuff based on "obj" argument
+      this.cl.select(0)
       c.clear();
       this.all = null; //remove reference to raphs too
       switch(obj.destination){ //go to title screen, parent menu, mission, or game
@@ -320,6 +321,8 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
   bitsXR = 270,
   bitsYR = 400
 
+  qpo.loadUser()
+
   //make all the menus:
   qpo.menus['main menu'] = new qpo.Menu('Main Menu', [
     new qpo.MenuOption(x, yStart + yInt,'Campaign', function(){}, 'Main Menu', true, 'stay', 'blue', 0),
@@ -330,7 +333,6 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     qpo.leftPane = $("#raphContainer")
     qpo.leftPane.css({'float': 'left', 'margin-left': '50px'});
     if (qpo.user.leveller === undefined) {qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)}
-    else (console.log(qpo.user.leveller))
   })
   qpo.menus['main menu'].up = function(){/*qpo.menus['main menu'].close({'destination':'title'})*/}
   qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close('campaign') }
@@ -362,13 +364,14 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.CampaignMissionOption(xSq, yStart + yInt,'1', function(){}, 'easy', true, false, 0, qpo.chapters.easy.missions[1]),
     new qpo.CampaignMissionOption(xSq, yStart + 2*yInt,'2', function(){}, 'easy', false, false, 1, qpo.chapters.easy.missions[2]),
     new qpo.CampaignMissionOption(xSq, yStart + 3*yInt,'3', function(){}, 'easy', false, false, 2, qpo.chapters.easy.missions[3]),
-    new qpo.MenuOption(x, yStart + 5*yInt,'Main Menu', function(){}, 'easy', false, 'stay', 'blue', 3)
+    new qpo.MenuOption(x, yStart + 5*yInt,'Back', function(){}, 'easy', false, 'stay', 'blue', 3)
   ], 'Campaign', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)})
   qpo.menus['campaign'].children.easy.cl.list[0].action = function(){ qpo.menus['campaign'].children.easy.close({
     'destination':'mission',
     'missionChapter':'easy',
     'missionNumber':1
   }, 1000); }
+  qpo.menus['campaign'].children.easy.cl.list[3].action = qpo.menus['campaign'].children.easy.up.bind(qpo.menus['campaign'].children.easy)
   // qpo.menus['Campaign'].cl.list[1].action = function(){ qpo.menus['Campaign'].close({
   //   'destination':'mission',
   //   'missionChapter':'easy',
@@ -440,28 +443,31 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.MenuOption(x, yStart + 1*yInt, 'Main Menu', function(){}, 'Match Complete', true, 'stay', 'blue', 0)
   ], 'Main Menu', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)});
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
+
+  qpo.menus['main menu'].open()
 }
 qpo.loadUser = function(){
   //TODO: get user data from server:
 
   // From http://stackoverflow.com/a/4033310/3658320 :
-  (function(theUrl, callback){
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
-  })(/*url*/, function(){})
+  // (function(theUrl, callback){
+  //   var xmlHttp = new XMLHttpRequest();
+  //   xmlHttp.onreadystatechange = function() {
+  //       if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+  //           callback(xmlHttp.responseText);
+  //   }
+  //   xmlHttp.open("GET", theUrl, true); // true for asynchronous
+  //   xmlHttp.send(null);
+  // })(/*url*/, function(){})
+
+  //THE USER'S DETAILS SHOULD ARRIVE IN THE RESPONSE TO THE "POST" REQUEST -- SEE app.post() in server.js
 
   qpo.user = new qpo.User()
 }
 
 // ****** ENTRY POINT
-qpo.makeMenus()
-qpo.loadUser()
-qpo.menus['main menu'].open()
+// qpo.makeMenus()
+// qpo.menus['main menu'].open()
 
 //----------OLD LOCAL MODE STUFF---------
 qpo.freshUser = true

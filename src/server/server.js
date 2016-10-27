@@ -35,10 +35,12 @@ app.use(bodyParser.json())       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded()) // to support URL-encoded bodies
 
 mongoose.connect(url)
-var db = mongoose.connection;
-var User = (function(){ //get reference to the mongoose model: 'User'
+var db = mongoose.connection
+db.on('error', console.error)
+var User
+db.once('open', function() {
   var userSchema = mongoose.Schema({
-    _id: String,
+    handle: String,
     level: Number,
     rank: Number,
     exp: Number,
@@ -49,35 +51,40 @@ var User = (function(){ //get reference to the mongoose model: 'User'
       hard: Array
     }
   })
-  return mongoose.model('User', userSchema)
-})()
+  // userSchema.statics.findOne = function(id, callback){
+  //   return this.findOne({ _id: new RegExp(id, 'i') }, callback);
+  // }
+  User = mongoose.model('User', userSchema)
+
+  // db.close()
+})
+
 app.post('/menu', function(req, res){
   var username = req.param('username')
   console.log('username "'+username+'" parsed from form')
 
   //check the database for a user with that name:
-  db.on('error', console.error);
-  db.once('open', function() {
-    User.findOne({_id: username}, function(err, user){
-      if (err) {console.log("The user search caused an error")}
-      if (user === null) {
-        console.log("No user by name %s found--creating new user", username)
-        var newUser = new User({_id: username, level:0, rank:0, exp:0, type: 'human',
-          campaignProgress: {easy:[false,false,false], medium:[false,false,false], hard:[false,false,false]}
-        })
-        //Add the new user to the database
-        newUser.save(function (err, newUser) {
-          if (err) return console.error(err);
-          console.log("New user %s saved to database", username)
-        })
-      } else {
-        console.log("User %s found.", username)
-        //TODO: Attach the user's details to the response
-      }
-    })
-    db.close()
+  User.findOne({handle: username}, function(err, user){
+    if (err) {console.log("The user search caused an error")}
+    if (user === null) {
+      console.log("No user by name %s found--creating new user", username)
+      var newUser = new User({handle: username, level:0, rank:0, exp:0, type: 'human',
+        campaignProgress: {easy:[false,false,false], medium:[false,false,false], hard:[false,false,false]}
+      })
+      //Add the new user to the database
+      newUser.save(function (err, newUser) {
+        if (err) return console.error(err);
+        console.log("New user %s saved to database", username)
+      })
+    } else {
+      console.log("User %s found.", username)
+      console.log(user)
+      console.dir(user)
+      res.json(user)
+      //TODO: Attach the user's details to the response
+    }
   })
 
   db.once('close', function(){console.log("database closed.")})
-  res.sendFile('./menu.html', {root: __dirname+"/served"})
+  // res.sendFile('./menu.html', {root: __dirname+"/served"})
 });

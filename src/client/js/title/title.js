@@ -119,7 +119,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
   // console.log($("inputUsername"))
   // console.log($("#inputUsername"))
 
-  $(form).attr({"action":"menu", "method":"POST"})
+  // $(form).attr({"action":"menu", "method":"POST"})
   $(spacer).css({"height":"200px"}).attr({"display":"block"})
   $(inputUsername).attr({"type":"text", "autocomplete":"off", "autofocus":"on",
     "name":"username", "placeholder":"username"})
@@ -131,7 +131,14 @@ qpo.login = function(){ //prompt the user to create an account or log in.
   //   "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['background']}),
   $(inputSubmit).attr({"type":"submit", "value":"Play"})
     .css({"display": "block", "margin":"auto", "font-size":20, "border":"none", "padding":"10px", "margin-top": "10px",
-    "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['green']}),
+    "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['green']})
+    .click(function(){
+      $.post("/menu", function(data, status){
+        // alert("Data: " + data + " \nStatus: " + status);
+        qpo.user = JSON.parse(data)
+        qpo.makeMenus()
+      })
+    }),
 
   $("#raphContainer").after(spacer, form)
   $("form").append(inputUsername,
