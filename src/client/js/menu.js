@@ -308,6 +308,7 @@ qpo.makeMuteButton = function(){ //make an icon that can mute the music when cli
 }
 
 qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Raphael elements, except the Main Menu's)
+  console.log('making menus')
   qpo.mode = "menu" // Type of screen that's active -- can be "menu", "game", "tut", or "other"
 
   qpo.menus = {}
@@ -321,7 +322,7 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
   bitsXR = 270,
   bitsYR = 400
 
-  qpo.loadUser()
+  // qpo.loadUser()
 
   //make all the menus:
   qpo.menus['main menu'] = new qpo.Menu('Main Menu', [
@@ -512,8 +513,8 @@ qpo.closingCode = function(){ //save the net
     localStorage['aliCopy2'] = JSON.stringify(qpo.ali.nn.value_net.toJSON())
   }
   catch(err){ console.log("uh-oh. Looks like there's no network to store.") }
-  localStorage['stats'] = JSON.stringify(qpo.user.getStats())
-  localStorage['yes'] = 'YES'
+  // localStorage['stats'] = JSON.stringify(qpo.user.getStats())
+  // localStorage['yes'] = 'YES'
   return null
 }
 window.onbeforeunload = qpo.closingCode

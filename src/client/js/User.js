@@ -14,7 +14,8 @@ qpo.User = function(stats){ //An entity within the ranking system. Has a name, a
   // handle is a string like "djminkus"
   // [il, ir, ix] = [initial level, initial rank, initial exp]
   try { //build user from stats obj
-    stats = JSON.parse(stats)
+    if (typeof stats === 'string' ) {stats = JSON.parse(stats)} //else it's already an obj
+    // console.log(typeof stats)
     console.log('user ' + stats.handle + ' loaded.')
     this.handle = stats.handle
     this.level = stats.level

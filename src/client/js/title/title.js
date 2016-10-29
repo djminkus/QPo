@@ -107,6 +107,9 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
 }
 qpo.login = function(){ //prompt the user to create an account or log in.
   qpo.mode='login'
+  // $("#raphContainer").css({"display":"none"})
+  // $("#raphContainer2").css({"display":"none"})
+
   $("#raphContainer").hide()
   $("#raphContainer2").hide()
   var form = document.createElement("form"),
@@ -132,11 +135,30 @@ qpo.login = function(){ //prompt the user to create an account or log in.
   $(inputSubmit).attr({"type":"submit", "value":"Play"})
     .css({"display": "block", "margin":"auto", "font-size":20, "border":"none", "padding":"10px", "margin-top": "10px",
     "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['green']})
-    .click(function(){
-      $.post("/menu", function(data, status){
+    .click(function(e){
+      e.preventDefault()
+
+      var username = $(inputUsername).val()
+      // console.log(username)
+      $.post("/menu", {'username': username}, function(data, status){
         // alert("Data: " + data + " \nStatus: " + status);
-        qpo.user = JSON.parse(data)
+        console.log('1')
+        // console.log('other one')
+        // console.log(data)
+        // qpo.user = JSON.parse(data)
+        qpo.user = new qpo.User(data)
+
+        $("form").hide()
+        $(spacer).hide()
+        // $("#raphContainer").css({"display":"inline"})
+        // $("#raphContainer2").css({"display":"inline"})
+        $("#raphContainer").show()
+        $("#raphContainer2").show()
+
+
+        console.log('2')
         qpo.makeMenus()
+        console.log('3')
       })
     }),
 
