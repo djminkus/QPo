@@ -643,17 +643,18 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   var x2 = 40 //curve x endpoint
   var y1 = 40 //curve y adjuster/anchor
   var y2 = 40 //curve y endpoint
-  this.leftCharger = c.path('M'+(this.lw-x2)+','+(this.tw+y2)+'l0,'+this.height)
-  this.rightCharger = c.path('M'+(this.rw+x2)+','+(this.tw+y2)+'l0,'+this.height)
+  this.chargerHeight = this.height - 2*y2
+  this.leftCharger = c.path('M'+(this.lw-x2)+','+(this.tw+y2)+'l0,'+this.chargerHeight)
+  this.rightCharger = c.path('M'+(this.rw+x2)+','+(this.tw+y2)+'l0,'+this.chargerHeight)
   this.chargers = c.set(this.leftCharger, this.rightCharger).attr({'stroke': qpo.COLOR_DICT['foreground'], 'opacity':0})
   this.all.push(this.chargers)
 
   // this.lo = c.path('M'+this.lw+','+this.bw+'s-'+x1+',-'+y1+',-'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'s'+x1+','+y1+','+x2+','+y2+'z') // left occluder
   // this.ro = c.path('M'+this.rw+','+this.bw+'s'+x1+',-'+y1+','+(x2+2)+',-'+y2+'l0,'+(2*y2)+'s-'+x1+','+y1+',-'+x2+','+y2+'z') // right occluder
-  this.lo = c.path('M'+this.lw+','+this.bw+'l-'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l'+x2+','+y2+'z') // left occluder
-  this.ro = c.path('M'+this.rw+','+this.bw+'l'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l-'+x2+','+y2+'z') // right occluder
-  this.occluders=c.set(this.lo, this.ro).attr({'stroke':'none','fill':qpo.COLOR_DICT['background']})
-  this.all.push(this.occluders)
+  // this.lo = c.path('M'+this.lw+','+this.bw+'l-'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l'+x2+','+y2+'z') // left occluder
+  // this.ro = c.path('M'+this.rw+','+this.bw+'l'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l-'+x2+','+y2+'z') // right occluder
+  // this.occluders=c.set(this.lo, this.ro).attr({'stroke':'none','fill':qpo.COLOR_DICT['background']})
+  // this.all.push(this.occluders)
 
   // this.tlc = c.path('M'+this.lw+','+this.tw+'s-'+x1+','+y1+',-'+x2+','+y2) //top left curve
   // this.blc = c.path('M'+this.lw+','+this.bw+'s-'+x1+',-'+y1+',-'+x2+',-'+y2) //bottom left curve
@@ -745,6 +746,16 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     }
     setTimeout(function(){ //"charging" animation
       //SCALING TRACE:
+      this.leftCharger.animate({'transform':'t'+x2+',0s'+(this.height/this.chargerHeight), 'opacity':1},
+        qpo.flashLength, '<', function(){ //reset the transform
+          this.leftCharger.attr({'transform':'', 'opacity':0.1})
+        }.bind(this)
+      )
+      this.rightCharger.animate({'transform':'t-'+x2+',0s'+(this.height/this.chargerHeight), 'opacity':1},
+        qpo.flashLength, '<', function(){ //reset the transform
+          this.rightCharger.attr({'transform':'', 'opacity':0.1})
+        }.bind(this)
+      )
 
       //LINEAR TRACE, NO SCALING:
       // this.leftCharger.animate({'transform':('t'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
