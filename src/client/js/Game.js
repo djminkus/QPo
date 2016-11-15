@@ -1,17 +1,30 @@
 qpo.Game = function(args){ //"Game" class.
-  //{q, po, type, turns, ppt, customScript}
+  //{q, po, type, turns, ppt, customScript, teams}
   qpo.mode = 'game'
-
-  //Grab the arguments (and fill in missing ones with default values):
-  this.q = args.q || 7 // Number of rows, columns on the board
-  this.po = args.po || 3 // Number of units on each team
-  this.type = args.type || 'single' //What kind of game is this? (tutorial, single, multi, campaign)
-  this.turns = (args.turns || 50) //How many turns does this game consist of?
-  this.ppt = args.ppt || 1 //players per team
-  this.customScript = args.customScript || function(){}
-  this.teams = { //instantiate red and blue teams
-    'red': new qpo.Team({'color':'red', 'players': args.redPlayers}),
-    'blue': new qpo.Team({'color':'blue', 'players': args.bluePlayers})
+  if (args != undefined) { // Grab args for custom game
+    //Grab the arguments (and fill in missing ones with default values):
+    this.q = args.q || 7 // Number of rows, columns on the board
+    this.po = args.po || 3 // Number of units on each team
+    this.type = args.type || 'single' //What kind of game is this? (tutorial, single, multi, campaign)
+    this.turns = (args.turns || 50) //How many turns does this game consist of?
+    this.ppt = args.ppt || 1 //players per team
+    this.customScript = args.customScript || function(){}
+    this.teams = { //instantiate red and blue teams
+      'red': new qpo.Team({'color':'red', 'players': args.redPlayers}),
+      'blue': new qpo.Team({'color':'blue', 'players': args.bluePlayers})
+    }
+  }
+  else { // No args, start a 2-po game against CPU
+    this.q = 7
+    this.po = 2
+    this.type = 'single'
+    this.turns = 50
+    this.ppt = 1
+    this.customScript = function(){}
+    this.teams = {
+      'red': new qpo.Team({'color':'red'}),
+      'blue': new qpo.Team({'color':'blue', 'players': qpo.user.toPlayer({'team':'blue', 'number': 0}) })
+    }
   }
 
   // Do some things with the args:

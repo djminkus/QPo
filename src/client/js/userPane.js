@@ -27,7 +27,12 @@ qpo.Leveller = function(cx, cy, r, user){
   })
   this.lvtxt = p.text(cx,cy-20, 'lv.').attr({qpoText:[15]})
   this.levelText = p.text(cx,cy+10, this.user.level).attr({qpoText:[40]})
-  this.userName = p.text(cx, cy-r-25, this.user.handle).attr({qpoText:[40]})
+  this.userName = p.text(cx, cy-r-25, this.user.username).attr({qpoText:[40]})
 
   this.all = p.set(this.circle, this.square, this.lvtxt, this.levelText, this.userName)
+
+  // var rotation = Raphael.animation({'transform:'})
+  // this.square.animate({"transform":"r360"}, 1000, )
+  var anim = new Raphael.animation({'transform':'r360'}, 9000, 'linear', function(){this.square.attr({'transform':'r0'})}.bind(this)).repeat(Infinity)
+  this.square.animate(anim)
 }

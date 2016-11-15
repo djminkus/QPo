@@ -155,7 +155,7 @@ qpo.setup = function(){ // set up global vars and stuff
     40: 'down'
   };
   qpo.userExpLevels = new Array();
-  for(var i=0; i<100; i++){qpo.userExpLevels[i] = 100*i + Math.pow(2, i/5)}
+  for(var i=0; i<100; i++){qpo.userExpLevels[i] = 100 * Math.sqrt(i)}
   qpo.missions = new Array();
 
   // NEURAL STUFF:
@@ -478,7 +478,8 @@ qpo.setup = function(){ // set up global vars and stuff
   }
   qpo.makeBits = function(x1, y1, xRange, yRange, colors, number){
     //colors is an array of color strings
-    var bits = c.set()
+    var bitsObj = {'circles':c.set(), 'squares':c.set(), 'bye': function(){}, 'x1': x1, 'y1': y1, 'xRange': xRange, 'yRange': yRange}
+    var allBits = c.set()
     for(i=0; i<number; i++){
       var size = 13 * Math.random() // 0 to 13
       var time = 67 * size //blink time in ms
@@ -489,8 +490,8 @@ qpo.setup = function(){ // set up global vars and stuff
       //make a new bit (circle or square)
       var newBit
       var b = Math.floor(2*Math.random()) // 0 or 1
-      if(b){ newBit = c.rect(x, y, size, size) }
-      else { newBit = c.circle(x, y, size/Math.sqrt(2)) }
+      if(b){ newBit = c.rect(x, y, size, size) } // if 1, square
+      else { newBit = c.circle(x, y, size/Math.sqrt(2)) } //if 0, cirlce
 
       //choose its color
       var colorInd = Math.floor(colors.length*Math.random())
@@ -498,10 +499,37 @@ qpo.setup = function(){ // set up global vars and stuff
 
       qpo.blink(newBit, time)
 
-      bits.push(newBit)
+      allBits.push(newBit)
+      if(b){ bitsObj.squares.push(newBit)}
+      else { bitsObj.circles.push(newBit)}
     }
-    bits.attr({'fill':'none', 'stroke-width': 2})
-    return bits
+    allBits.attr({'fill':'none', 'stroke-width': 2})
+
+    bitsObj.bye = function(){
+      // var x1 = this.x1, xRange = this.xRange, y1 = this.y1, yRange = this.yRange
+      // console.log(this)
+      // console.log(x1, y1)
+      var DELAY, DISPLACEMENT
+      var timeScale = 4,
+        totalLength = 500, //length of closing animation if timeScale is 1
+        bitAnimLength = .2
+
+      bitsObj.circles.forEach(function(item,index){
+        DISPLACEMENT = 1 - ( (item.getBBox().x - bitsObj.x1) / bitsObj.xRange ) // A number from 0 to 1. 0 means centered, 1 means far left.
+        DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
+        setTimeout(function(){
+          item.animate({'transform':'t'+(xRange + 100)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
+        }.bind(this), DELAY)
+      })
+      bitsObj.squares.forEach(function(item,index){
+        DISPLACEMENT = 1 - ( (item.getBBox().y - bitsObj.y1) / bitsObj.yRange ) // A number from 0 to 1. 0 means centered, 1 means far left.
+        DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
+        setTimeout(function(){
+          item.animate({'transform':'t0,'+(yRange + 120)}, (bitAnimLength*totalLength*timeScale), '>')
+        }.bind(this), DELAY)
+      })
+    }
+    return bitsObj
   }
 
 }();
@@ -587,11 +615,6 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   this.centerX = this.lw + this.width/2
   this.centerY = this.tw + this.height/2
 
-  // var bulge = 25; //for curved sides experiment
-  // this.lw1 = this.lw - bulge;
-  // this.rw1 = this.rw + bulge;
-  // this.vm = (this.tw + this.bw)/2 //vertical middle
-
   this.notify = function(str, color){
     var color = color || qpo.COLOR_DICT['foreground']
     var notification = c.text(this.centerX, this.centerY, str).attr({qpoText:[72, color]})
@@ -601,14 +624,14 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     setTimeout(function(){notification.remove()}.bind(this), 2000)
   }
 
-  var vo = 20; //vertical offset
+  var vo = 20; //vertical offset (for zs)
   var ho = 20; //horizontal offset
 
   this.background = c.rect(this.lw-ho, this.tw-5, this.width+ho*2, this.height+10)
     .attr({'fill':qpo.COLOR_DICT['background'], 'stroke-width':0});
   this.all.push(this.background)
 
-  this.surface = c.rect(this.lw, this.tw, this.width, this.height).attr({
+  this.surface = c.rect(this.lw, this.tw, this.width, this.height).attr({ //the white flash
     'fill':qpo.COLOR_DICT['foreground'],
     'stroke-width':0,
     'opacity':0
@@ -616,19 +639,45 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   this.all.push(this.surface);
   if(qpo.mode == 'menu'){this.surface.attr({'transform':'t-1000,-1000'})}
 
-  // var i = 10; //intermediate value
-  this.leftZ = c.path('M'+this.lw+','+this.tw+  'l-'+ho+','+vo+  'v'+(this.height-2*vo)+'l'+ho+','+vo+'z')
-  this.rightZ = c.path('M'+this.rw+','+this.tw+  'l'+ho+','+vo+  'v'+(this.height-2*vo)+'l-'+ho+','+vo+'z')
-  this.zs = c.set(this.leftZ, this.rightZ).attr({'stroke':qpo.COLOR_DICT['foreground'],
-    'fill': qpo.COLOR_DICT['foreground'], 'opacity':0});
-  this.all.push(this.zs);
+  var x1 = 20 //curve x adjuster/anchor
+  var x2 = 40 //curve x endpoint
+  var y1 = 40 //curve y adjuster/anchor
+  var y2 = 40 //curve y endpoint
+  this.leftCharger = c.path('M'+(this.lw-x2)+','+(this.tw+y2)+'l0,'+this.height)
+  this.rightCharger = c.path('M'+(this.rw+x2)+','+(this.tw+y2)+'l0,'+this.height)
+  this.chargers = c.set(this.leftCharger, this.rightCharger).attr({'stroke': qpo.COLOR_DICT['foreground'], 'opacity':0})
+  this.all.push(this.chargers)
+
+  // this.lo = c.path('M'+this.lw+','+this.bw+'s-'+x1+',-'+y1+',-'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'s'+x1+','+y1+','+x2+','+y2+'z') // left occluder
+  // this.ro = c.path('M'+this.rw+','+this.bw+'s'+x1+',-'+y1+','+(x2+2)+',-'+y2+'l0,'+(2*y2)+'s-'+x1+','+y1+',-'+x2+','+y2+'z') // right occluder
+  this.lo = c.path('M'+this.lw+','+this.bw+'l-'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l'+x2+','+y2+'z') // left occluder
+  this.ro = c.path('M'+this.rw+','+this.bw+'l'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l-'+x2+','+y2+'z') // right occluder
+  this.occluders=c.set(this.lo, this.ro).attr({'stroke':'none','fill':qpo.COLOR_DICT['background']})
+  this.all.push(this.occluders)
+
+  // this.tlc = c.path('M'+this.lw+','+this.tw+'s-'+x1+','+y1+',-'+x2+','+y2) //top left curve
+  // this.blc = c.path('M'+this.lw+','+this.bw+'s-'+x1+',-'+y1+',-'+x2+',-'+y2) //bottom left curve
+  // this.trc = c.path('M'+this.rw+','+this.tw+'s'+x1+','+y1+','+x2+','+y2) //top left curve
+  // this.brc = c.path('M'+this.rw+','+this.bw+'s'+x1+',-'+y1+','+x2+',-'+y2) //bottom left curve
+  this.tlc = c.path('M'+this.lw+','+this.tw+'l-'+x2+','+y2) //top left curve
+  this.blc = c.path('M'+this.lw+','+this.bw+'l-'+x2+',-'+y2) //bottom left curve
+  this.trc = c.path('M'+this.rw+','+this.tw+'l'+x2+','+y2) //top left curve
+  this.brc = c.path('M'+this.rw+','+this.bw+'l'+x2+',-'+y2) //bottom left curve
+  this.curves = c.set(this.tlc, this.blc, this.trc, this.brc).attr({'stroke':qpo.COLOR_DICT['foreground'], 'stroke-width':2})
+  this.all.push(this.curves)
+
+  // this.leftZ = c.path('M'+this.lw+','+this.tw+  'l-'+ho+','+vo+  'v'+(this.height-2*vo)+'l'+ho+','+vo+'z')
+  // this.rightZ = c.path('M'+this.rw+','+this.tw+  'l'+ho+','+vo+  'v'+(this.height-2*vo)+'l-'+ho+','+vo+'z')
+  // this.zs = c.set(this.leftZ, this.rightZ).attr({'stroke':qpo.COLOR_DICT['foreground'],
+  //   'fill': qpo.COLOR_DICT['foreground'], 'opacity':0});
+  // this.all.push(this.zs);
 
   // var leftWall = c.path('M'+this.lw+','+(this.tw-1) + 'Q'+this.lw1+','+this.vm+','+this.lw+','+(this.bw+1));
   // var rightWall = c.path('M'+this.rw+','+(this.tw-1) + 'Q'+this.rw1+','+this.vm+','+this.rw+','+(this.bw+1));
   this.leftWall = c.path('M'+this.lw+','+(this.tw-1) + 'V'+(this.bw+1));
   this.rightWall = c.path('M'+this.rw+','+(this.tw-1) + 'V'+(this.bw+1));
   var sideWalls = c.set(this.leftWall, this.rightWall)
-      .attr({'stroke-width':3, 'stroke':qpo.COLOR_DICT['background'], 'opacity':1})
+      .attr({'stroke-width':1, 'stroke':qpo.COLOR_DICT['foreground'], 'opacity':0.6})
       // .transform('t0,-1000');
   this.all.push(sideWalls);
   this.moveWalls = function(){
@@ -674,6 +723,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   this.all.push(this.dots);
   this.dnz = c.set(this.dots, this.zs)
 
+  //ANIMATION FOR GAME BOARD CREATION:
   if(qpo.mode=='game'){ //slide the walls in from off-screen
     sideWalls.transform('t0,-900');
     goalLines.transform('t-700,0');
@@ -693,14 +743,35 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
         '100%':{'opacity' : 0}
       }, qpo.deflashLength)
     }
-    this.zs.attr({'opacity':0});
-    this.zs.animate({ //make side 'charge up' (with a low-resolution stab at keyframes for now)
-      '0%'   : {'opacity':0},
-      '90%'  : {'opacity':.7},
-      '95%'  : {'opacity':.8},
-      '98%'  : {'opacity':.9},
-      '100%' : {'opacity' : 1}
-    }, qpo.flashLength)
+    setTimeout(function(){ //"charging" animation
+      //SCALING TRACE:
+
+      //LINEAR TRACE, NO SCALING:
+      // this.leftCharger.animate({'transform':('t'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+      //   this.leftCharger.attr({'transform':'', 'opacity':0.1})
+      // }.bind(this))
+      // this.rightCharger.animate({'transform':('t-'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+      //   this.rightCharger.attr({'transform':'', 'opacity':0.1})
+      // }.bind(this))
+
+      //CURVED TRACE (doesn't work.):
+      // this.leftCharger.animate({'transform':('...t0,-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+      //   this.leftCharger.attr({'transform':'', 'opacity':0.1})
+      // }.bind(this))
+      // this.rightCharger.animate({'transform':('...t0,-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+      //   this.rightCharger.attr({'transform':'', 'opacity':0.1})
+      // }.bind(this))
+      // this.leftCharger.animate({'transform':('...t'+x2+',0')}, qpo.flashLength)
+      // this.rightCharger.animate({'transform':('...t-'+x2+',0')}, qpo.flashLength)
+    }.bind(this), qpo.deflashLength)
+    // this.zs.attr({'opacity':0});
+    // this.zs.animate({ //make side 'charge up' (with a low-resolution stab at keyframes for now)
+    //   '0%'   : {'opacity':0},
+    //   '90%'  : {'opacity':.7},
+    //   '95%'  : {'opacity':.8},
+    //   '98%'  : {'opacity':.9},
+    //   '100%' : {'opacity' : 1}
+    // }, qpo.flashLength)
    }
 
   return this; //return the constructed Board object

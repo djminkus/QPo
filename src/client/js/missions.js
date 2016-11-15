@@ -22,6 +22,7 @@ qpo.Mission = function(args){
     if (success){
       text = 'Clear!'
       qpo.user.campaignProgress[this.chapter][this.number-1] = true
+      qpo.user.post('campaignProgress')
     } else {
       text = 'Fail.'
     }

@@ -3,6 +3,32 @@ body{
   overflow:hidden;
 }
 
+#mainPane {
+  margin:0px;
+  /*padding:5px;*/
+  padding:00px;
+  height:100vw;
+  background-color: black;
+}
+
+#raphContainer {
+  padding: 0px;
+  width: 600px;
+  height: 600px;
+  margin: auto;
+  /*margin-left: 50px;*/
+  /*float: left;*/
+}
+
+#raphContainer2 {
+  padding: 0px;
+  width: 400px;
+  height: 600px;
+  /*margin: auto;*/
+  margin-left: 50px;
+  float: left;
+}
+
 /*failed color ribbon*/
 /*body::before {
   content: '';
@@ -53,29 +79,3 @@ body{
 .nav{
   font-family: "Open Sans",sans-serif;
 }*/
-
-#mainPane {
-  margin:0px;
-  /*padding:5px;*/
-  padding:00px;
-  height:100vw;
-  background-color: black;
-}
-
-#raphContainer {
-  padding: 0px;
-  width: 600px;
-  height: 600px;
-  margin: auto;
-  /*margin-left: 50px;*/
-  /*float: left;*/
-}
-
-#raphContainer2 {
-  padding: 0px;
-  width: 400px;
-  height: 600px;
-  /*margin: auto;*/
-  margin-left: 50px;
-  float: left;
-}

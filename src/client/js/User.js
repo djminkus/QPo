@@ -11,22 +11,22 @@ qpo.randomHandle = function(){
 }
 
 qpo.User = function(stats){ //An entity within the ranking system. Has a name, a level, a rank, and an exp value.
-  // handle is a string like "djminkus"
+  // username is a string like "djminkus"
   // [il, ir, ix] = [initial level, initial rank, initial exp]
   try { //build user from stats obj
     if (typeof stats === 'string' ) {stats = JSON.parse(stats)} //else it's already an obj
     // console.log(typeof stats)
-    console.log('user ' + stats.handle + ' loaded.')
-    this.handle = stats.handle
+    this.username = stats.username
     this.level = stats.level
     this.rank = stats.rank
     this.exp = stats.exp //experience points
     this.type = stats.type //human or one of four AI types (null, random, rigid, or neural)
     this.campaignProgress = stats.campaignProgress //booleans representing completion status of each campign mission
+    console.log('user ' + this.username + ' loaded.')
   }
   catch(e){ //create new user.
     console.log('new user created.')
-    this.handle = qpo.randomHandle()
+    this.username = qpo.randomHandle()
     this.level = 0
     this.rank = 0
     this.exp = 0 //experience points
@@ -37,11 +37,20 @@ qpo.User = function(stats){ //An entity within the ranking system. Has a name, a
   this.levelUp = function(){this.level++}
   this.rankUp = function(){this.rank++}
   this.rankDown = function(){this.rank--}
-  this.addExp = function(amt){this.exp += amt}
+  this.addExp = function(amt){
+    this.exp += amt
+  }
+
+  this.post = function(what){
+    var statsObj = this.getStats()
+    $.post('/user', {'what': what, 'user': statsObj}, function(data, status){
+      console.log('callback 12345 executed')
+    })
+  }
 
   this.player = null
   this.toPlayer = function(args){ //returns a newly created Player object
-    this.player = new qpo.Player(args.unitList, this.handle, this.type, args.team, args.number)
+    this.player = new qpo.Player(args.unitList, this.username, this.type, args.team, args.number)
     return this.player
   }
   this.minUnit = null //minimum index in
@@ -53,13 +62,13 @@ qpo.User = function(stats){ //An entity within the ranking system. Has a name, a
     // Deactivate the old active unit. Find the next living unit and activate it.
     // Update this.activeUnit.
     var oldAU, newAU;
-    var po = qpo.activeGame.po;
+    var po = qpo.activeGame.po
     this.minUnit =  this.player.num   * qpo.activeGame.unitsPerPlayer
     this.maxUnit = (this.player.num+1)* qpo.activeGame.unitsPerPlayer - 1
 
-    var findingUnit = true;
-    var tries = 0;
-    var ind = this.activeUnit.num + 1; //first index to look at
+    var findingUnit = true
+    var tries = 0
+    var ind = this.activeUnit.num + 1 //first index to look at
     while (findingUnit) { // keep looking until you find the new active unit.
       // debugger;
       if (ind > this.maxUnit) { ind = this.minUnit; }
@@ -86,7 +95,7 @@ qpo.User = function(stats){ //An entity within the ranking system. Has a name, a
 
   this.getStats = function(){
     return {
-      'handle': this.handle,
+      'username': this.username,
       'level': this.level,
       'rank': this.rank,
       'exp': this.exp,

@@ -43,6 +43,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ /
   this.close = function(obj, time){ //clear the canvas and open the next screen
     qpo.ignore(time)
     this.all.stop()
+    this.doodad.bye()
     // qpo.fadeOutGlow(qpo.glows, function(){}, time);
     qpo.fadeOut(this.all, function(){ //clear canvas, do stuff based on "obj" argument
       this.cl.select(0)
@@ -181,10 +182,6 @@ qpo.CampaignChapterMenu = function(titleStr, itemList, parent, placeholder, make
 
     qpo.makeMuteButton();
 
-    // this.board = new qpo.Board(1, 7, 200, 120, 40);
-    // qpo.board = this.board;
-    // this.layer2 = c.set().push(this.board.all);
-
     this.cl.render();
     this.cl.select(h);
 
@@ -205,6 +202,7 @@ qpo.CampaignChapterMenu = function(titleStr, itemList, parent, placeholder, make
   this.close = function(obj, time){ //clear the canvas and open the next screen
     qpo.ignore(time)
     this.all.stop()
+    this.doodad.bye()
     // qpo.fadeOutGlow(qpo.glows, function(){}, time);
     qpo.fadeOut(this.all, function(){ //clear canvas, do stuff based on "obj" argument
       c.clear();
@@ -239,7 +237,7 @@ qpo.CampaignMissionOption = function(x, y, textStr, action, menu, active, comple
 
   this.render = function(){ //do all the stuff that creates or changes Raph els
     this.menu = qpo.menus[menu.toLowerCase()]; //the menu object that it belongs to
-    this.complete = qpo.user.campaignProgress[this.mission.chapter][this.mission.number-1]
+    this.complete = (qpo.user.campaignProgress[this.mission.chapter][this.mission.number-1] == "true" ) || (qpo.user.campaignProgress[this.mission.chapter][this.mission.number-1] === true)
 
     this.square = c.rect(this.x, this.y, mtr, mtr).attr({
       'stroke': (this.active ? (qpo.COLOR_DICT['orange']) : (qpo.COLOR_DICT['blue'])),
@@ -322,15 +320,13 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
   bitsXR = 270,
   bitsYR = 400
 
-  // qpo.loadUser()
-
   //make all the menus:
   qpo.menus['main menu'] = new qpo.Menu('Main Menu', [
     new qpo.MenuOption(x, yStart + yInt,'Campaign', function(){}, 'Main Menu', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'vs. CPU', function(){}, 'Main Menu', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'Multiplayer', function(){}, 'Main Menu', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Settings', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
-  ], 'title', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
+  ], 'title', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
     qpo.leftPane = $("#raphContainer")
     qpo.leftPane.css({'float': 'left', 'margin-left': '50px'});
     if (qpo.user.leveller === undefined) {qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)}
@@ -346,7 +342,7 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.MenuOption(x, yStart + 2*yInt,'Medium', function(){}, 'Campaign', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'Hard', function(){}, 'Campaign', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'Campaign', false, 'stay', 'blue', 3)
-  ], 'Main Menu', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)});
+  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)});
   qpo.menus['campaign'].cl.list[0].action = function(){ qpo.menus['campaign'].close({
     'destination':'child',
     'childName':'easy'
@@ -366,7 +362,7 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.CampaignMissionOption(xSq, yStart + 2*yInt,'2', function(){}, 'easy', false, false, 1, qpo.chapters.easy.missions[2]),
     new qpo.CampaignMissionOption(xSq, yStart + 3*yInt,'3', function(){}, 'easy', false, false, 2, qpo.chapters.easy.missions[3]),
     new qpo.MenuOption(x, yStart + 5*yInt,'Back', function(){}, 'easy', false, 'stay', 'blue', 3)
-  ], 'Campaign', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)})
+  ], 'Campaign', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)})
   qpo.menus['campaign'].children.easy.cl.list[0].action = function(){ qpo.menus['campaign'].children.easy.close({
     'destination':'mission',
     'missionChapter':'easy',
@@ -387,7 +383,7 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.MenuOption(x, yStart + 2*yInt,'2-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'3-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'vs. CPU', false, 'stay', 'blue', 3)
-  ], 'Main Menu', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29)});
+  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29)});
   qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({
     'destination':'game',
     'gameArgs': {
@@ -416,7 +412,7 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.MenuOption(x, yStart + 2*yInt,'3-Po', function(){}, 'Multiplayer', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'4-Po', function(){}, 'Multiplayer', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'Multiplayer', false, 'stay', 'blue', 3)
-  ], 'Main Menu', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.green], 29)});
+  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.green], 29)});
   qpo.menus['multiplayer'].cl.list[0].action = function(){ qpo.menus['multiplayer'].close({
     'destination':'game',
     'type':'multi', 'q':6, 'po':2
@@ -435,35 +431,17 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
     new qpo.MenuOption(x, yStart + 1*yInt,'coming', function(){}, 'Settings', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'soon', function(){}, 'Settings', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'Main Menu', function(){}, 'Settings', false, 'stay', 'blue', 2)
-  ], 'Main Menu', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.orange], 29)});
+  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.orange], 29)});
   qpo.menus['settings'].cl.list[0].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
   qpo.menus['settings'].cl.list[1].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
   qpo.menus['settings'].cl.list[2].action = qpo.menus['settings'].up.bind(qpo.menus['settings'])
 
   qpo.menus['match complete'] = new qpo.Menu('Match Complete',[
     new qpo.MenuOption(x, yStart + 1*yInt, 'Main Menu', function(){}, 'Match Complete', true, 'stay', 'blue', 0)
-  ], 'Main Menu', false, function(){qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)});
+  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)});
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
 
   qpo.menus['main menu'].open()
-}
-qpo.loadUser = function(){
-  //TODO: get user data from server:
-
-  // From http://stackoverflow.com/a/4033310/3658320 :
-  // (function(theUrl, callback){
-  //   var xmlHttp = new XMLHttpRequest();
-  //   xmlHttp.onreadystatechange = function() {
-  //       if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-  //           callback(xmlHttp.responseText);
-  //   }
-  //   xmlHttp.open("GET", theUrl, true); // true for asynchronous
-  //   xmlHttp.send(null);
-  // })(/*url*/, function(){})
-
-  //THE USER'S DETAILS SHOULD ARRIVE IN THE RESPONSE TO THE "POST" REQUEST -- SEE app.post() in server.js
-
-  qpo.user = new qpo.User()
 }
 
 // ****** ENTRY POINT
