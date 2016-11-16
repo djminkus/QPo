@@ -217,21 +217,23 @@ qpo.Game = function(args){ //"Game" class.
     qpo.inputForNeural = qpo.convertStateToInputs(this.state)
 
     //// MOVE GENERATION/EXECUTION SECTION
-    for (var i=0; i<this.po; i++){ //snap all units into their correct positions prior to executing new moves
-      if(qpo.blue.units[i].alive){ qpo.blue.units[i].snap() }
-      if(qpo.red.units[i].alive){ qpo.red.units[i].snap() }
-    }
-    var po = this.po //for convenience
-    for (var i=0; i<po; i++){ //Generate AI moves & execute all moves
-      var ru = this.teams.red.units[i]  // Shorten the reference to the red unit, for convenience
-      var bu = this.teams.blue.units[i] // ^^^ same for blue
-      if (ru.player.type != 'human') { ru.generateMove() }
-      if (bu.player.type != 'human') { bu.generateMove() }
-      ru.executeMove()
-      bu.executeMove()
-      bu.resetIcon() //reset the icons for the player's team
-      ru.updateLevel()
-      bu.updateLevel()
+    if(this.turnNumber != this.turns){ //unless it's the end of the game, generate and execute moves.
+      for (var i=0; i<this.po; i++){ //snap all units into their correct positions prior to executing new moves
+        if(qpo.blue.units[i].alive){ qpo.blue.units[i].snap() }
+        if(qpo.red.units[i].alive){ qpo.red.units[i].snap() }
+      }
+      var po = this.po //for convenience
+      for (var i=0; i<po; i++){ //Generate AI moves & execute all moves
+        var ru = this.teams.red.units[i]  // Shorten the reference to the red unit, for convenience
+        var bu = this.teams.blue.units[i] // ^^^ same for blue
+        if (ru.player.type != 'human') { ru.generateMove() }
+        if (bu.player.type != 'human') { bu.generateMove() }
+        ru.executeMove()
+        bu.executeMove()
+        bu.resetIcon() //reset the icons for the player's team
+        ru.updateLevel()
+        bu.updateLevel()
+      }
     }
 
     if(this.turnNumber == this.turns-1){ // Prepare to end the game. Set a timeout to call Game.end().
