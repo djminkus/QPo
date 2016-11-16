@@ -18,12 +18,12 @@ qpo.Game = function(args){ //"Game" class.
     this.q = 7
     this.po = 2
     this.type = 'single'
-    this.turns = 50
+    this.turns = 3
     this.ppt = 1
     this.customScript = function(){}
     this.teams = {
       'red': new qpo.Team({'color':'red'}),
-      'blue': new qpo.Team({'color':'blue', 'players': qpo.user.toPlayer({'team':'blue', 'number': 0}) })
+      'blue': new qpo.Team({'color':'blue', 'players': [qpo.user.toPlayer({'team':'blue', 'number': 0})] })
     }
   }
 
@@ -162,14 +162,15 @@ qpo.Game = function(args){ //"Game" class.
     qpo.bombs = new Array()
 
     this.drawGUI(this.xAdj, this.yAdj)
+    var GUI_TIME = 1500
     setTimeout(function(){ // After 1500 ms, make the units and capture initial state
       qpo.makeUnits() // puts the units on the board (with 1000 ms fade-in)
       this.state = this.getState()
-    }.bind(this), 1500)
+    }.bind(this), GUI_TIME)
 
-    setTimeout(function(){qpo.board.notify('3')}, 3000)
-    setTimeout(function(){qpo.board.notify('2')}, 4500)
-    setTimeout(function(){qpo.board.notify('1')}, 6000)
+    setTimeout(function(){qpo.board.notify('3')}, 1500+GUI_TIME)
+    setTimeout(function(){qpo.board.notify('2')}, 3000+GUI_TIME)
+    setTimeout(function(){qpo.board.notify('1')}, 4500+GUI_TIME)
     // setTimeout(function(){qpo.board.notify('Go')}, 3000)
 
     setTimeout(function(){ // After 6000 ms, activate user's first unit in prep for game and flash it three times
@@ -178,14 +179,14 @@ qpo.Game = function(args){ //"Game" class.
       setTimeout(function(){qpo.blue.units[0].activate()},   200)
       setTimeout(function(){qpo.blue.units[0].deactivate()}, 300)
       setTimeout(function(){qpo.blue.units[0].activate()},   400)
-    }.bind(this), 6000)
+    }.bind(this), 4500+GUI_TIME)
 
     setTimeout(function(){ //After 7500 ms, start the game in earnest: Set up the newTurn interval, and the collision detection
       qpo.turnStarter = setInterval(this.newTurn.bind(this), 3000*qpo.timeScale)
-      this.board.flash(true)
+      this.board.flash(true, false)
       // setTimeout(function(){this.board.flash()}.bind(this), 3000*qpo.timeScale-qpo.flashLengths.flash);
       qpo.collisionDetector = setInterval(function(){qpo.detectCollisions(qpo.activeGame.po)}, 50)
-    }.bind(this), 7500)
+    }.bind(this), 6000+GUI_TIME)
 
     console.log('NEW GAME')
   }
@@ -233,27 +234,33 @@ qpo.Game = function(args){ //"Game" class.
       bu.updateLevel()
     }
 
-    if(this.turnNumber == this.turns-1){ //End the game, if it's time.
-      if (this.isEnding == false){ //find the winner and store to winner
-        for(var i=0; i<qpo.blue.units.length; i++){qpo.blue.units[i].deactivate()}
-        var winner
+    if(this.turnNumber == this.turns-1){ // Prepare to end the game. Set a timeout to call Game.end().
+      if (this.isEnding == false){ //prevent further input
         qpo.blueActiveUnit = 50
         qpo.redActiveUnit = 50
-        if (qpo.scoreboard.redScore == qpo.scoreboard.blueScore) { winner = "tie" }
-        else if (qpo.scoreboard.redScore > qpo.scoreboard.blueScore) { winner = "red" }
-        else { winner = "blue" }
+        for(var i=0; i<qpo.blue.units.length; i++){
+          qpo.blue.units[i].deactivate()
+          qpo.red.units[i].deactivate()
+        }
         this.isEnding = true
-        setTimeout(function(){qpo.activeGame.end(winner)}, 3000*qpo.timeScale)
+        setTimeout(function(){qpo.activeGame.end()}, 3000*qpo.timeScale)
+        this.board.flash(false, true)
       }
     }
-    this.board.flash(false)
+    else { this.board.flash(false, false)}
   }
-  this.end = function(winner, h){
+  this.end = function(h){
+    var winner
+    if (qpo.scoreboard.redScore == qpo.scoreboard.blueScore) { winner = "tie" }
+    else if (qpo.scoreboard.redScore > qpo.scoreboard.blueScore) { winner = "red" }
+    else { winner = "blue" }
+
     qpo.user.activeUnit = null
     var h = h || 0
     clearInterval(qpo.clockUpdater)
     clearInterval(qpo.collisionDetector)
     clearInterval(qpo.turnStarter)
+    clearInterval(qpo.flashTimeout)
     qpo.gui.stop()
     qpo.gui.animate({'opacity':0}, 2000, 'linear')
     qpo.fadeOutGlow(qpo.glows, function(){ //clear GUI, reset arrays, and bring up the next screen

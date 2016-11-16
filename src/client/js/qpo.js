@@ -109,7 +109,7 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.timeScale = 0.75; // Bigger means longer turns/slower gameplay; 1 is original 3-seconds-per-turn
   qpo.playMusic = false;
   qpo.trainingMode = false;
-  qpo.deflashLength = 200
+  qpo.deflashLength = 400
   qpo.flashLength = qpo.timeScale*3000-qpo.deflashLength
   qpo.waitTime = 10; // minimum ms between move submission
   qpo.unitStroke = 3;
@@ -649,13 +649,6 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   this.chargers = c.set(this.leftCharger, this.rightCharger).attr({'stroke': qpo.COLOR_DICT['foreground'], 'opacity':0})
   this.all.push(this.chargers)
 
-  // this.lo = c.path('M'+this.lw+','+this.bw+'s-'+x1+',-'+y1+',-'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'s'+x1+','+y1+','+x2+','+y2+'z') // left occluder
-  // this.ro = c.path('M'+this.rw+','+this.bw+'s'+x1+',-'+y1+','+(x2+2)+',-'+y2+'l0,'+(2*y2)+'s-'+x1+','+y1+',-'+x2+','+y2+'z') // right occluder
-  // this.lo = c.path('M'+this.lw+','+this.bw+'l-'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l'+x2+','+y2+'z') // left occluder
-  // this.ro = c.path('M'+this.rw+','+this.bw+'l'+(x2+2)+',-'+y2+'l0,'+(2*y2)+'l-'+x2+','+y2+'z') // right occluder
-  // this.occluders=c.set(this.lo, this.ro).attr({'stroke':'none','fill':qpo.COLOR_DICT['background']})
-  // this.all.push(this.occluders)
-
   // this.tlc = c.path('M'+this.lw+','+this.tw+'s-'+x1+','+y1+',-'+x2+','+y2) //top left curve
   // this.blc = c.path('M'+this.lw+','+this.bw+'s-'+x1+',-'+y1+',-'+x2+',-'+y2) //bottom left curve
   // this.trc = c.path('M'+this.rw+','+this.tw+'s'+x1+','+y1+','+x2+','+y2) //top left curve
@@ -721,68 +714,79 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     }
   }
   this.dots.attr({'fill':qpo.COLOR_DICT['foreground'], 'stroke-width':0, 'opacity':0});
-  this.all.push(this.dots);
-  this.dnz = c.set(this.dots, this.zs)
+  this.all.push(this.dots)
+
+  this.lowOpacity = 0.3
 
   //ANIMATION FOR GAME BOARD CREATION:
   if(qpo.mode=='game'){ //slide the walls in from off-screen
-    sideWalls.transform('t0,-900');
-    goalLines.transform('t-700,0');
-    this.outline.animate({'transform':''}, 1000, '');
-    setTimeout(function(){ //fade in dots and show glows
-      qpo.fadeIn(this.dnz, 1000);
-      setTimeout(function(){qpo.glows.show()}, 2000);
-    }.bind(this), 500);
+    // sideWalls.transform('t0,-900');
+    // goalLines.transform('t-700,0');
+    this.all.scale(.01, .01, this.lw+this.width/2, this.tw+this.height/2)
+    this.all.animate({'transform':''}, 1500, 'bounce', function(){
+      // qpo.fadeIn(this.dots, 1000);
+      this.dots.animate({'opacity': this.lowOpacity}, 1000)
+      setTimeout(function(){qpo.glows.show()}, 1000);
+    }.bind(this));
   }
   else{ qpo.glows.show(); }
   qpo.gui.push(this.all);
 
-  this.flash = function(first){
-    if(!first) { //don't deflash surface on first turn
+  this.flash = function(first, last){
+    if(!first) { //Flash (and deflash) the surface, unless it's the start of the game
       this.surface.animate({
-        '0%'  :{'opacity' : 1},
+        '0%'  :{'opacity' : 0},
+        '20%' :{'opacity' : 1},
         '100%':{'opacity' : 0}
       }, qpo.deflashLength)
     }
-    setTimeout(function(){ //"charging" animation
-      //SCALING TRACE:
-      this.leftCharger.animate({'transform':'t'+x2+',0s'+(this.height/this.chargerHeight), 'opacity':1},
-        qpo.flashLength, '<', function(){ //reset the transform
-          this.leftCharger.attr({'transform':'', 'opacity':0.1})
-        }.bind(this)
-      )
-      this.rightCharger.animate({'transform':'t-'+x2+',0s'+(this.height/this.chargerHeight), 'opacity':1},
-        qpo.flashLength, '<', function(){ //reset the transform
-          this.rightCharger.attr({'transform':'', 'opacity':0.1})
-        }.bind(this)
-      )
+    if(!last) { //Start "charging" the board again, unless it's the end of the game
+      qpo.flashTimeout = setTimeout(function(){ //"charging" animation: after the flash/deflash, start charging back up
+        this.dots.animate({'opacity':1}, qpo.flashLength, '<', function(){
+          this.dots.attr({'opacity': this.lowOpacity})
+        }.bind(this))
 
-      //LINEAR TRACE, NO SCALING:
-      // this.leftCharger.animate({'transform':('t'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
-      //   this.leftCharger.attr({'transform':'', 'opacity':0.1})
-      // }.bind(this))
-      // this.rightCharger.animate({'transform':('t-'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
-      //   this.rightCharger.attr({'transform':'', 'opacity':0.1})
-      // }.bind(this))
+        //SCALING TRACE:
+        this.leftCharger.animate({'transform':'t'+x2+',0s'+(this.height/this.chargerHeight), 'opacity':1, 'stroke-width':3},
+          qpo.flashLength, '<', function(){ //reset the transform
+            this.leftCharger.attr({'transform':'', 'opacity':0.15, 'stroke-width':1})
+          }.bind(this)
+        )
+        this.rightCharger.animate({'transform':'t-'+x2+',0s'+(this.height/this.chargerHeight), 'opacity':1, 'stroke-width':3},
+          qpo.flashLength, '<', function(){ //reset the transform
+            this.rightCharger.attr({'transform':'', 'opacity':0.15, 'stroke-width':1})
+          }.bind(this)
+        )
 
-      //CURVED TRACE (doesn't work.):
-      // this.leftCharger.animate({'transform':('...t0,-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
-      //   this.leftCharger.attr({'transform':'', 'opacity':0.1})
-      // }.bind(this))
-      // this.rightCharger.animate({'transform':('...t0,-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
-      //   this.rightCharger.attr({'transform':'', 'opacity':0.1})
-      // }.bind(this))
-      // this.leftCharger.animate({'transform':('...t'+x2+',0')}, qpo.flashLength)
-      // this.rightCharger.animate({'transform':('...t-'+x2+',0')}, qpo.flashLength)
-    }.bind(this), qpo.deflashLength)
-    // this.zs.attr({'opacity':0});
-    // this.zs.animate({ //make side 'charge up' (with a low-resolution stab at keyframes for now)
-    //   '0%'   : {'opacity':0},
-    //   '90%'  : {'opacity':.7},
-    //   '95%'  : {'opacity':.8},
-    //   '98%'  : {'opacity':.9},
-    //   '100%' : {'opacity' : 1}
-    // }, qpo.flashLength)
+        //LINEAR TRACE, NO SCALING:
+        // this.leftCharger.animate({'transform':('t'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+        //   this.leftCharger.attr({'transform':'', 'opacity':0.1})
+        // }.bind(this))
+        // this.rightCharger.animate({'transform':('t-'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+        //   this.rightCharger.attr({'transform':'', 'opacity':0.1})
+        // }.bind(this))
+
+        //CURVED TRACE (doesn't work.):
+        // this.leftCharger.animate({'transform':('...t0,-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+        //   this.leftCharger.attr({'transform':'', 'opacity':0.1})
+        // }.bind(this))
+        // this.rightCharger.animate({'transform':('...t0,-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
+        //   this.rightCharger.attr({'transform':'', 'opacity':0.1})
+        // }.bind(this))
+        // this.leftCharger.animate({'transform':('...t'+x2+',0')}, qpo.flashLength)
+        // this.rightCharger.animate({'transform':('...t-'+x2+',0')}, qpo.flashLength)
+      }.bind(this), qpo.deflashLength)
+
+      // OLDER CHARGING ANIMATION:
+      // this.zs.attr({'opacity':0});
+      // this.zs.animate({ //make side 'charge up' (with a low-resolution stab at keyframes for now)
+      //   '0%'   : {'opacity':0},
+      //   '90%'  : {'opacity':.7},
+      //   '95%'  : {'opacity':.8},
+      //   '98%'  : {'opacity':.9},
+      //   '100%' : {'opacity' : 1}
+      // }, qpo.flashLength)
+      }
    }
 
   return this; //return the constructed Board object
@@ -906,7 +910,7 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
 
   this.all = c.set().push(this.redSection, this.gameClockText, this.blueSection).attr({'opacity':0});
 
-  setTimeout(function(){qpo.fadeIn(this.all, 1500);}.bind(this), 3000);
+  setTimeout(function(){qpo.fadeIn(this.all, 1500);}.bind(this), 1500);
   qpo.gui.push(this.all);
   return this;
 };

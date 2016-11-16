@@ -305,9 +305,7 @@ qpo.makeMuteButton = function(){ //make an icon that can mute the music when cli
   }
 }
 
-qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Raphael elements, except the Main Menu's)
-  console.log('making menus')
-  qpo.mode = "menu" // Type of screen that's active -- can be "menu", "game", "tut", or "other"
+qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating Raphael elements, except the Main Menu's)
 
   qpo.menus = {}
   var x = 50,
@@ -441,12 +439,11 @@ qpo.makeMenus = function(){ //Lay out the menu skeletons (without creating Rapha
   ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)});
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
 
-  qpo.menus['main menu'].open()
+  if(render) { //Open the main menu and set qpo.mode to "menu"
+    qpo.menus['main menu'].open()
+    qpo.mode = "menu" // Type of screen that's active -- can be "menu", "game", "tut", or "other"
+  }
 }
-
-// ****** ENTRY POINT
-// qpo.makeMenus()
-// qpo.menus['main menu'].open()
 
 //----------OLD LOCAL MODE STUFF---------
 qpo.freshUser = true

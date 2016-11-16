@@ -132,10 +132,10 @@ qpo.login = function(){ //prompt the user to create an account or log in.
   //   "name":"password", "placeholder":"password"})
   //   .css({"display": "block", "margin":"auto", "font-size": 28, "border":"none", "text-align":"center",
   //   "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['background']}),
-  $(inputSubmit).attr({"type":"submit", "value":"Play"})
+  $(inputSubmit).attr({"type":"submit", "value":"Play"}) // ** MENUS START HERE ** -----------
     .css({"display": "block", "margin":"auto", "font-size":20, "border":"none", "padding":"10px", "margin-top": "10px",
     "font-family":qpo.fontString, "color":qpo.COLOR_DICT['foreground'], "background-color":qpo.COLOR_DICT['green']})
-    .click(function(e){
+    .click(function(e){ // SUBMIT FORM, MAKE MENUS
       e.preventDefault() //keeps URL from changing
 
       var username = $(inputUsername).val()
@@ -149,7 +149,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
         $("#raphContainer").show()
         $("#raphContainer2").show()
 
-        qpo.makeMenus()
+        qpo.makeMenus(true)
       })
     }),
 
@@ -160,26 +160,27 @@ qpo.login = function(){ //prompt the user to create an account or log in.
 }
 
 qpo.devOption = 'game'
-switch(qpo.devOption){ //ENTRY POINT
-  case 'main': {
+switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
+  case 'main': { //open main menu
     qpo.user = new qpo.User()
-    qpo.makeMenus()
+    qpo.makeMenus(true)
     break
   }
-  case 'title': {
+  case 'title': { //show title screen
     qpo.titleScreen = new qpo.displayTitleScreen()
     break
   }
-  case 'login': {
+  case 'login': { //show login screen
     qpo.login()
     break
   }
-  case 'easy': {
+  case 'easy': { //show "easy" campaign chapter menu (not implemented)
     break
   }
-  case 'game': {
+  case 'game': { //start a game immediately
     qpo.user = new qpo.User()
     qpo.activeGame = new qpo.Game()
+    qpo.makeMenus(false)
     break
   }
   default: {
