@@ -476,7 +476,7 @@ qpo.setup = function(){ // set up global vars and stuff
     // el.attr({'x':el.getBBox().x2, 'y':el.getBBox().y2}); //for y-adjusted text
     return el;
   }
-  qpo.makeBits = function(x1, y1, xRange, yRange, colors, number){
+  qpo.makeBits = function(x1, y1, xRange, yRange, colors, number, bye){
     //colors is an array of color strings
     var bitsObj = {'circles':c.set(), 'squares':c.set(), 'bye': function(){}, 'x1': x1, 'y1': y1, 'xRange': xRange, 'yRange': yRange}
     var allBits = c.set()
@@ -505,30 +505,33 @@ qpo.setup = function(){ // set up global vars and stuff
     }
     allBits.attr({'fill':'none', 'stroke-width': 2})
 
-    bitsObj.bye = function(){
-      // var x1 = this.x1, xRange = this.xRange, y1 = this.y1, yRange = this.yRange
-      // console.log(this)
-      // console.log(x1, y1)
-      var DELAY, DISPLACEMENT
-      var timeScale = 4,
-        totalLength = 500, //length of closing animation if timeScale is 1
-        bitAnimLength = .2
+    if (bye === undefined) { //default 'bye' function
+      bitsObj.bye = function(){
+        // var x1 = this.x1, xRange = this.xRange, y1 = this.y1, yRange = this.yRange
+        // console.log(this)
+        // console.log(x1, y1)
+        var DELAY, DISPLACEMENT
+        var timeScale = 4,
+          totalLength = 500, //length of closing animation if timeScale is 1
+          bitAnimLength = .2
 
-      bitsObj.circles.forEach(function(item,index){
-        DISPLACEMENT = 1 - ( (item.getBBox().x - bitsObj.x1) / bitsObj.xRange ) // A number from 0 to 1. 0 means centered, 1 means far left.
-        DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
-        setTimeout(function(){
-          item.animate({'transform':'t'+(xRange + 100)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
-        }.bind(this), DELAY)
-      })
-      bitsObj.squares.forEach(function(item,index){
-        DISPLACEMENT = 1 - ( (item.getBBox().y - bitsObj.y1) / bitsObj.yRange ) // A number from 0 to 1. 0 means centered, 1 means far left.
-        DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
-        setTimeout(function(){
-          item.animate({'transform':'t0,'+(yRange + 120)}, (bitAnimLength*totalLength*timeScale), '>')
-        }.bind(this), DELAY)
-      })
-    }
+        bitsObj.circles.forEach(function(item,index){
+          DISPLACEMENT = 1 - ( (item.getBBox().x - bitsObj.x1) / bitsObj.xRange ) // A number from 0 to 1. 0 means far right, 1 means far left.
+          DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
+          setTimeout(function(){
+            item.animate({'transform':'t'+(xRange + 100)+',0'}, (bitAnimLength*totalLength*timeScale), '>', item.remove)
+          }.bind(this), DELAY)
+        })
+        bitsObj.squares.forEach(function(item,index){
+          DISPLACEMENT = 1 - ( (item.getBBox().y - bitsObj.y1) / bitsObj.yRange ) // A number from 0 to 1. 0 means bottom, 1 means top.
+          DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
+          setTimeout(function(){
+            item.animate({'transform':'t0,'+(yRange + 120)}, (bitAnimLength*totalLength*timeScale), '>', item.remove)
+          }.bind(this), DELAY)
+        })
+      }
+    } else { bitsObj.bye = bye.bind(bitsObj) }
+
     return bitsObj
   }
 
@@ -670,10 +673,10 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   // var rightWall = c.path('M'+this.rw+','+(this.tw-1) + 'Q'+this.rw1+','+this.vm+','+this.rw+','+(this.bw+1));
   this.leftWall = c.path('M'+this.lw+','+(this.tw-1) + 'V'+(this.bw+1));
   this.rightWall = c.path('M'+this.rw+','+(this.tw-1) + 'V'+(this.bw+1));
-  var sideWalls = c.set(this.leftWall, this.rightWall)
+  this.sideWalls = c.set(this.leftWall, this.rightWall)
       .attr({'stroke-width':1, 'stroke':qpo.COLOR_DICT['foreground'], 'opacity':0.6})
       // .transform('t0,-1000');
-  this.all.push(sideWalls);
+  this.all.push(this.sideWalls);
   this.moveWalls = function(){
     var amt = 20;
     var easing = 'bounce';
@@ -691,17 +694,17 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     this.rightWall.animate(rwAnim);
   }
 
-  var blueGoal = c.path('M'+this.lw+','+(this.tw-3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['blue']});
-  var redGoal = c.path('M'+this.lw +','+(this.bw+3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['red']});
-  var goalLines = c.set().push(blueGoal, redGoal).attr({'stroke-width':3, 'opacity':1})
-  this.all.push(goalLines);
+  this.blueGoal = c.path('M'+this.lw+','+(this.tw-3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['blue']});
+  this.redGoal = c.path('M'+this.lw +','+(this.bw+3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['red']});
+  this.goalLines = c.set().push(this.blueGoal, this.redGoal).attr({'stroke-width':3, 'opacity':1})
+  this.all.push(this.goalLines);
   // sideWalls.toFront();
 
-  var blueGlow = blueGoal.glow({'color':qpo.COLOR_DICT['blue']})
-  var redGlow = redGoal.glow({'color':qpo.COLOR_DICT['red']})
+  var blueGlow = this.blueGoal.glow({'color':qpo.COLOR_DICT['blue']})
+  var redGlow = this.redGoal.glow({'color':qpo.COLOR_DICT['red']})
   qpo.glows = c.set(blueGlow, redGlow).hide(); //the raphael glow sets
 
-  this.outline = c.set(sideWalls, goalLines);
+  this.outline = c.set(this.sideWalls, this.goalLines);
 
   var dotSize = 2;
   this.dots = c.set();
@@ -716,14 +719,19 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   this.dots.attr({'fill':qpo.COLOR_DICT['foreground'], 'stroke-width':0, 'opacity':0});
   this.all.push(this.dots)
 
+  this.mains = c.set().push(this.goalLines, this.sideWalls, this.curves)
+
   this.lowOpacity = 0.3
 
   //ANIMATION FOR GAME BOARD CREATION:
   if(qpo.mode=='game'){ //slide the walls in from off-screen
     // sideWalls.transform('t0,-900');
     // goalLines.transform('t-700,0');
+    var ANIM_TIME = 1500
     this.all.scale(.01, .01, this.lw+this.width/2, this.tw+this.height/2)
-    this.all.animate({'transform':''}, 1500, 'bounce', function(){
+    this.all.attr({'opacity':0})
+    this.mains.animate({'opacity':1}, ANIM_TIME)
+    this.all.animate({'transform':''}, ANIM_TIME, '<', function(){
       // qpo.fadeIn(this.dots, 1000);
       this.dots.animate({'opacity': this.lowOpacity}, 1000)
       setTimeout(function(){qpo.glows.show()}, 1000);
@@ -891,7 +899,7 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
   this.redScore = 0;
   this.blueScore = 0;
   this.gameClock = initialClockValue;
-  var y = 30;
+  var y = this.y = 30;
   var xOff = 100;
 
   this.redScoreText = c.text(300-xOff, y+yAdj, "0").attr({qpoText: [25, qpo.COLOR_DICT["red"]]});
@@ -909,6 +917,18 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
   }
 
   this.all = c.set().push(this.redSection, this.gameClockText, this.blueSection).attr({'opacity':0});
+
+  this.gameEnd = function(){ //move down, hide clock
+    qpo.fadeOut(this.gameClockText, function(){ // Move and enlarge the scores
+      this.all.animate({'transform':('t0,50'+'s3')}, 500, '<')
+      var redPortion = this.redScore / (this.redScore+this.blueScore)
+      redPortion = .4 //for testing
+      var bluePortion = 1-redPortion
+      qpo.makeBits(0,0, redPortion*c.width, c.height, [qpo.COLOR_DICT['red']], Math.floor(47*redPortion))
+      qpo.makeBits(redPortion*c.width, 0, bluePortion*c.width, c.height, [qpo.COLOR_DICT['blue']], Math.floor(47*bluePortion))
+      this.all.toFront()
+    }.bind(this), 2000)
+  }
 
   setTimeout(function(){qpo.fadeIn(this.all, 1500);}.bind(this), 1500);
   qpo.gui.push(this.all);

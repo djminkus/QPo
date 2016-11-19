@@ -263,11 +263,12 @@ qpo.Game = function(args){ //"Game" class.
     clearInterval(qpo.collisionDetector)
     clearInterval(qpo.turnStarter)
     clearInterval(qpo.flashTimeout)
+
     qpo.gui.stop()
+    qpo.gui.exclude(qpo.scoreboard.all)
     qpo.gui.animate({'opacity':0}, 2000, 'linear')
+    qpo.scoreboard.gameEnd() //move the text down and stuff
     qpo.fadeOutGlow(qpo.glows, function(){ //clear GUI, reset arrays, and bring up the next screen
-      qpo.gui.clear()
-      c.clear()
       qpo.shots = []
       qpo.bombs = []
       qpo.units = [];
@@ -275,41 +276,48 @@ qpo.Game = function(args){ //"Game" class.
       // (winner == "tie") ? (qpo.ali.nn.value_net.backward(1)) : (qpo.ali.nn.value_net.backward(0)) //reward it a little for tying
       try{qpo.activeSession.update(winner)} //add to the proper tally. Will throw error in tut mode.
       catch(e){;} //don't bother adding to the proper tally in tut mode.
-      if(qpo.trainingMode){this.type='training'}
-      switch(this.type){ //do the right thing depending on context (type) of game
-        case 'tut': { //set mode back to 'tut' and show the next tutorial scene
-          qpo.mode = 'tut'
-          qpo.tut.tutFuncs.enter()
-          break;
-        }
-        case 'training': { //If in training mode, decide whether to train another game.
-          qpo.trainingCounter++
-          if (qpo.trainingCounter >= qpo.gamesToTrain){ // If game counter satisfied, check batch
-            qpo.batchCounter++
-            // var newBatch = new qpo.Batch(qpo.activeSession);
-            // qpo.trainingData.push(newBatch);
-            qpo.trainingData.push(new qpo.Batch(qpo.activeSession))
-            console.log("we got here...")
-            if (qpo.batchCounter >= qpo.batchesToTrain){ // If batch counter satisfied, exit trainingMode
-              qpo.trainingMode = false
-              qpo.menus["Match Complete"].open()
-              for (var i=0; i<qpo.batchesToTrain; i++){ // log each batch's data to console
-                console.log(qpo.trainingData[i])
-              }
-            }
-            else { qpo.retrain() }// If batch counter not exceeded, train another batch
+
+      setTimeout(function(){ // Clear the paper and display menu or start another game
+        qpo.gui.clear()
+
+        qpo.gui.push(qpo.scoreboard.all)
+
+        if(qpo.trainingMode){this.type='training'}
+        switch(this.type){ // Display menu or start another game
+          case 'tut': { //set mode back to 'tut' and show the next tutorial scene
+            qpo.mode = 'tut'
+            qpo.tut.tutFuncs.enter()
+            break;
           }
-          else { qpo.startGame([8,4]) }// If game counter not satisfied, train another game
-          break
+          case 'training': { //If in training mode, decide whether to train another game.
+            qpo.trainingCounter++
+            if (qpo.trainingCounter >= qpo.gamesToTrain){ // If game counter satisfied, check batch
+              qpo.batchCounter++
+              // var newBatch = new qpo.Batch(qpo.activeSession);
+              // qpo.trainingData.push(newBatch);
+              qpo.trainingData.push(new qpo.Batch(qpo.activeSession))
+              console.log("we got here...")
+              if (qpo.batchCounter >= qpo.batchesToTrain){ // If batch counter satisfied, exit trainingMode
+                qpo.trainingMode = false
+                qpo.menus["Match Complete"].open()
+                for (var i=0; i<qpo.batchesToTrain; i++){ // log each batch's data to console
+                  console.log(qpo.trainingData[i])
+                }
+              }
+              else { qpo.retrain() }// If batch counter not exceeded, train another batch
+            }
+            else { qpo.startGame([8,4]) }// If game counter not satisfied, train another game
+            break
+          }
+          case 'campaign': { //If in campaign mode, reopen the campaign menu, with the next mission highlighted.
+            qpo.menus[qpo.activeMission.chapter].open(h)
+            break
+          }
+          default: { //We're not in tutorial, training, or campaign. Open the match complete menu
+            qpo.menus["match complete"].open()
+          }
         }
-        case 'campaign': { //If in campaign mode, reopen the campaign menu, with the next mission highlighted.
-          qpo.menus[qpo.activeMission.chapter].open(h)
-          break
-        }
-        default: { //We're not in tutorial, training, or campaign. Open the match complete menu
-          qpo.menus["match complete"].open()
-        }
-      }
+      }.bind(this), 2000)
     }.bind(this), 2000)
 
     // qpo.activeGame.song.pause()

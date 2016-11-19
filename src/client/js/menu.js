@@ -14,7 +14,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ /
     qpo.mode = 'menu';
     qpo.activeMenu = this.titleStr.toLowerCase();
 
-    this.background = c.rect(0,0, c.width, c.height).attr({'fill':qpo.COLOR_DICT['background']});
+    // this.background = c.rect(0,0, c.width, c.height).attr({'fill':qpo.COLOR_DICT['background']});
     this.title = c.text(c.width/2, 60, this.titleStr).attr({qpoText:[this.TITLE_SIZE, qpo.COLOR_DICT['foreground']]});
     this.layer1 = c.set().push(this.background, this.title);
 
@@ -43,7 +43,8 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ /
   this.close = function(obj, time){ //clear the canvas and open the next screen
     qpo.ignore(time)
     this.all.stop()
-    this.doodad.bye()
+    try{this.doodad.bye()}
+    catch(err){console.log('no doodad to do doodad.bye()')}
     // qpo.fadeOutGlow(qpo.glows, function(){}, time);
     qpo.fadeOut(this.all, function(){ //clear canvas, do stuff based on "obj" argument
       this.cl.select(0)
@@ -434,9 +435,15 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['settings'].cl.list[1].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
   qpo.menus['settings'].cl.list[2].action = qpo.menus['settings'].up.bind(qpo.menus['settings'])
 
-  qpo.menus['match complete'] = new qpo.Menu('Match Complete',[
-    new qpo.MenuOption(x, yStart + 1*yInt, 'Main Menu', function(){}, 'Match Complete', true, 'stay', 'blue', 0)
-  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)});
+  qpo.menus['match complete'] = new qpo.Menu('Match Complete',
+    [new qpo.MenuOption(x, yStart + 1*yInt, 'Main Menu', function(){}, 'Match Complete', true, 'stay', 'blue', 0)],
+    'Main Menu', false,
+    function(){
+      console.log('doodad not made...')
+    /* return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)*/
+    },
+    function(){ qpo.menus['match complete'].title.hide() }
+  );
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
 
   if(render) { //Open the main menu and set qpo.mode to "menu"
