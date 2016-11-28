@@ -118,6 +118,7 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.pinchAmount = 20; //pixels for pinch animaton
   qpo.SHOT_LENGTH = 0.5; //ratio of shot length to unit length
   qpo.SHOT_WIDTH = 0.1; //ratio of shot width to unit length
+  qpo.MAX_BIT_SIZE = 27;
 
   // (DNA): STATIC DICTS N ARRAYS
   qpo.spawnTimers = [null, 1,2,2,2,3,3,3,4]; //index is po
@@ -481,7 +482,7 @@ qpo.setup = function(){ // set up global vars and stuff
     var bitsObj = {'circles':c.set(), 'squares':c.set(), 'bye': function(){}, 'x1': x1, 'y1': y1, 'xRange': xRange, 'yRange': yRange}
     var allBits = c.set()
     for(i=0; i<number; i++){
-      var size = 13 * Math.random() // 0 to 13
+      var size = qpo.MAX_BIT_SIZE * Math.random() // 0 to 13
       var time = 67 * size //blink time in ms
 
       var x = x1 + xRange*Math.random()
@@ -918,14 +919,15 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
 
   this.all = c.set().push(this.redSection, this.gameClockText, this.blueSection).attr({'opacity':0});
 
-  this.gameEnd = function(){ //move down, hide clock
-    qpo.fadeOut(this.gameClockText, function(){ // Move and enlarge the scores
+  this.gameEnd = function(){ //move text down and enlarge, hide clock, make bits
+    qpo.fadeOut(this.gameClockText, function(){
       this.all.animate({'transform':('t0,50'+'s3')}, 500, '<')
       var redPortion = this.redScore / (this.redScore+this.blueScore)
       redPortion = .4 //for testing
       var bluePortion = 1-redPortion
-      qpo.makeBits(0,0, redPortion*c.width, c.height, [qpo.COLOR_DICT['red']], Math.floor(47*redPortion))
-      qpo.makeBits(redPortion*c.width, 0, bluePortion*c.width, c.height, [qpo.COLOR_DICT['blue']], Math.floor(47*bluePortion))
+      qpo.menus['match complete'].doodad = new qpo.Bits2(redPortion*c.width, true)
+      // qpo.makeBits(0,0, redPortion*c.width, c.height, [qpo.COLOR_DICT['red']], Math.floor(47*redPortion))
+      // qpo.makeBits(redPortion*c.width, 0, bluePortion*c.width, c.height, [qpo.COLOR_DICT['blue']], Math.floor(47*bluePortion))
       this.all.toFront()
     }.bind(this), 2000)
   }
@@ -1152,7 +1154,7 @@ $(window).keydown(function(event){
   //   default:
   //     break;
   // }
-  if(qpo.ignoreInput){console.log('input ignored.'); return;}
+  if(qpo.ignoreInput){return;}
   switch(qpo.mode){ //do the right thing based on what type of screen the user is in (menu, game, tutorial, etc)
     case "menu":
       switch(event.keyCode){

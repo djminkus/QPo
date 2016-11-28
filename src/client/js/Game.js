@@ -267,7 +267,7 @@ qpo.Game = function(args){ //"Game" class.
     qpo.gui.stop()
     qpo.gui.exclude(qpo.scoreboard.all)
     qpo.gui.animate({'opacity':0}, 2000, 'linear')
-    qpo.scoreboard.gameEnd() //move the text down and stuff
+    qpo.scoreboard.gameEnd() //move the text down, make the bits, and stuff
     qpo.fadeOutGlow(qpo.glows, function(){ //clear GUI, reset arrays, and bring up the next screen
       qpo.shots = []
       qpo.bombs = []
@@ -310,7 +310,7 @@ qpo.Game = function(args){ //"Game" class.
             break
           }
           case 'campaign': { //If in campaign mode, reopen the campaign menu, with the next mission highlighted.
-            qpo.menus[qpo.activeMission.chapter].open(h)
+            qpo.menus[qpo.activeMission.chapter].open(qpo.activeMission.number)
             break
           }
           default: { //We're not in tutorial, training, or campaign. Open the match complete menu

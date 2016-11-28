@@ -11,34 +11,8 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
   // qpo.makeMuteButton();
 
   //2ND LAYER (foreground) :
-  this.bits = c.set()
-  this.bitsLeft = c.set()
-  this.bitsRight = c.set()
-  var colors = [qpo.COLOR_DICT['green'], qpo.COLOR_DICT['purple']]
-  for (var i=0; i<23; i++){ //generate some pixelly starlike things.
-    var size = 13 * Math.random()
-    var time = 67*size
-
-    var ind = Math.floor(2*Math.random())
-    var color1 = colors[ind]
-    var color2
-    ind ? (color2 = colors[ind-1]) : (color2 = colors[ind+1])
-
-    var x = c.width/2*Math.random()
-    var y = c.height*Math.random()
-
-
-    var newBit1 = c.rect(x, y, size, size).attr({'stroke':color1}).data('i', i)
-    qpo.blink(newBit1, time)
-    var newBit2 = c.circle(c.width-x, c.height-y, size/Math.sqrt(2)).attr({'stroke':color2}).data('i', i)
-    qpo.blink(newBit2, time)
-
-    this.bits.push(newBit1, newBit2)
-    this.bitsLeft.push(newBit1)
-    this.bitsRight.push(newBit2)
-  }
-  this.bits.attr({'fill':'none', 'stroke-width': 2})
-  this.layer2 = c.set().push(this.bits)
+  this.bits = new qpo.Bits2(c.width/2, false, [qpo.COLOR_DICT['green'], qpo.COLOR_DICT['purple']])
+  this.layer2 = c.set().push(this.bits.all)
 
   //3rd layer (board, title, and prompt)
   var m = 100
@@ -56,26 +30,10 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
 
   this.close = function(){ //clear screen and make next menu
     this.all.unclick() //disable further clicks
-    //PART THE SEA OF BITS:
+    this.bits.bye()
+
     var timeScale = 4,
-      totalLength = 500, //length of closing animation if timeScale is 1
-      HW = c.width/2, //half width
-      bitAnimLength = .2
-    var DISPLACEMENT, DELAY
-    this.bitsLeft.forEach(function(item, index){
-      DISPLACEMENT = 1 - ( item.getBBox().x / HW ) // A number from 0 to 1. 0 means centered, 1 means far left.
-      DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
-      setTimeout(function(){
-        item.animate({'transform':'t-'+(HW + DISPLACEMENT + 20)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
-      }.bind(this), DELAY)
-    })
-    this.bitsRight.forEach(function(item, index){
-      DISPLACEMENT = 1 - (c.width-item.getBBox().x2)/HW
-      DELAY = DISPLACEMENT * (1-bitAnimLength * timeScale)
-      setTimeout(function(){
-        item.animate({'transform':'t'+(HW + DISPLACEMENT + 20)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
-      }.bind(this), DELAY)
-    })
+      totalLength = 500 //length of closing animation if timeScale is 1
 
     //FADE THINGS OUT:
     qpo.ignore(400*timeScale) //ignore further keyboard input.
@@ -140,8 +98,8 @@ qpo.login = function(){ //prompt the user to create an account or log in.
 
       var username = $(inputUsername).val()
       // console.log(username)
-      $.post("/menu", {'username': username}, function(data, status){
-        console.log(data)
+      $.post("/menu", {'username': username}, function(data, status){ //create user on client from data received
+        // console.log(data)
         qpo.user = new qpo.User(data)
 
         $("form").hide()
@@ -159,7 +117,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
     inputSubmit)
 }
 
-qpo.devOption = 'game'
+qpo.devOption = 'title'
 switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
   case 'main': { //open main menu
     qpo.user = new qpo.User()

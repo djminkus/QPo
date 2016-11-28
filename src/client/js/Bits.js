@@ -1,6 +1,7 @@
-qpo.Bits = function(x1, y1, xRange, yRange, colors, number, bye){
+qpo.Bits1 = function(x1, y1, xRange, yRange, colors, number, bye){
   //colors is an array of color strings
 
+  this.allBits = c.set()
   this.circles = c.set()
   this.squares = c.set()
   this.x1 = x1
@@ -8,9 +9,8 @@ qpo.Bits = function(x1, y1, xRange, yRange, colors, number, bye){
   this.xRange = xRange
   this.yRange = yRange
 
-  this.allBits = c.set()
   for(i=0; i<number; i++){
-    var size = 13 * Math.random() // 0 to 13
+    var size = qpo.MAX_BIT_SIZE * Math.random() // 0 to 13
     var time = 67 * size //blink time in ms
 
     var x = x1 + xRange*Math.random()
@@ -60,6 +60,107 @@ qpo.Bits = function(x1, y1, xRange, yRange, colors, number, bye){
       })
     }
   } else { this.bye = bye.bind(this) }
+
+  return this
+}
+
+qpo.Bits2 = function(midpoint, segregated, colors){
+  this.colors = colors //an ARRAY of colors.
+  this.midpoint = midpoint //horizontal coordinate of where they will part.
+  this.segregated = segregated //boolean telling us if they're separated by color.
+
+  this.all = c.set()
+  this.bitsLeft = c.set()
+  this.bitsRight = c.set()
+
+  if(this.segregated){ //generate bits separated by color, as in end-game menu
+    var numLeft = Math.floor(47 * midpoint/c.width) //how many bits on the left?
+    var numRight = 47 - numLeft //how many bits on the right?
+
+    var i, size, time, x, y, newBit, b
+    for (i=0; i<numLeft; i++){ // Make left (red) bits:
+      size = qpo.MAX_BIT_SIZE * Math.random() // 0 to 13
+      time = 67 * size //blink time in ms
+
+      x = midpoint*Math.random()
+      y = c.height*Math.random()
+
+      b = Math.floor(2*Math.random()) // random choice of 0 or 1
+      if(b){ newBit = c.rect(x, y, size, size) } // if 1, square
+      else { newBit = c.circle(x, y, size/Math.sqrt(2)) } //if 0, circle
+
+      newBit.attr({'stroke':qpo.COLOR_DICT['red']})
+
+      qpo.blink(newBit, time)
+
+      this.all.push(newBit)
+      this.bitsLeft.push(newBit)
+    }
+    for (i=0; i<numRight; i++){ // Make right (blue) bits:
+      size = qpo.MAX_BIT_SIZE * Math.random() // 0 to 13
+      time = 67 * size //blink time in ms
+
+      x = midpoint + (c.width-midpoint * Math.random())
+      y = c.height*Math.random()
+
+      b = Math.floor(2*Math.random()) // random choice of 0 or 1
+      if(b){ newBit = c.rect(x, y, size, size) } // if 1, square
+      else { newBit = c.circle(x, y, size/Math.sqrt(2)) } //if 0, circle
+
+      newBit.attr({'stroke':qpo.COLOR_DICT['blue']})
+
+      qpo.blink(newBit, time)
+
+      this.all.push(newBit)
+      this.bitsRight.push(newBit)
+    }
+    this.all.attr({'fill':'none', 'stroke-width': 2})
+  } else { //generate bits of mixed color with rotational symmetry applied, as in title screen
+    for (var i=0; i<23; i++){
+      var size = 13 * Math.random()
+      var time = 67*size
+
+      var ind = Math.floor(2*Math.random()) // Random choice between 0 and 1
+      var color1 = colors[ind]
+      var color2
+      ind ? (color2 = colors[ind-1]) : (color2 = colors[ind+1])
+
+      var x = c.width/2*Math.random()
+      var y = c.height*Math.random()
+
+      var newBit1 = c.rect(x, y, size, size).attr({'stroke':color1}).data('i', i)
+      qpo.blink(newBit1, time)
+      var newBit2 = c.circle(c.width-x, c.height-y, size/Math.sqrt(2)).attr({'stroke':color2}).data('i', i)
+      qpo.blink(newBit2, time)
+
+      this.all.push(newBit1, newBit2)
+      this.bitsLeft.push(newBit1)
+      this.bitsRight.push(newBit2)
+    }
+  }
+
+  this.all.attr({'fill':'none', 'stroke-width': 2})
+
+  this.bye = function(){
+    var timeScale = 4,
+      totalLength = 500, //length of closing animation if timeScale is 1
+      bitAnimLength = .2
+    var DISPLACEMENT, DELAY
+    this.bitsLeft.forEach(function(item, index){
+      DISPLACEMENT = 1 - ( item.getBBox().x / this.midpoint ) // A number from 0 to 1. 0 means centered, 1 means far left.
+      DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
+      setTimeout(function(){
+        item.animate({'transform':'t-'+(this.midpoint + DISPLACEMENT + 20)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
+      }.bind(this), DELAY)
+    }.bind(this))
+    this.bitsRight.forEach(function(item, index){
+      DISPLACEMENT = 1 - (c.width-item.getBBox().x2)/(c.width-this.midpoint)
+      DELAY = DISPLACEMENT * (1-bitAnimLength * timeScale)
+      setTimeout(function(){
+        item.animate({'transform':'t'+((c.width-this.midpoint) + DISPLACEMENT + 20)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
+      }.bind(this), DELAY)
+    }.bind(this))
+  }
 
   return this
 }

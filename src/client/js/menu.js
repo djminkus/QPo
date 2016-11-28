@@ -386,7 +386,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({
     'destination':'game',
     'gameArgs': {
-      'type':'single', 'q':6, 'po':2, 'ppt': 2,
+      'type':'single', 'q':6, 'po':2, 'ppt': 2, 'turns':5,
       'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
     }
   }, 1000); }
