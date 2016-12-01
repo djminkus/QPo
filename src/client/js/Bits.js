@@ -1,7 +1,7 @@
 qpo.Bits1 = function(x1, y1, xRange, yRange, colors, number, bye){
   //colors is an array of color strings
 
-  this.allBits = c.set()
+  this.all = c.set()
   this.circles = c.set()
   this.squares = c.set()
   this.x1 = x1
@@ -28,17 +28,14 @@ qpo.Bits1 = function(x1, y1, xRange, yRange, colors, number, bye){
 
     qpo.blink(newBit, time)
 
-    this.allBits.push(newBit)
+    this.all.push(newBit)
     if(b){ this.squares.push(newBit)}
     else { this.circles.push(newBit)}
   }
-  this.allBits.attr({'fill':'none', 'stroke-width': 2})
+  this.all.attr({'fill':'none', 'stroke-width': 2})
 
   if (bye === undefined) { //default 'bye' function
     this.bye = function(){
-      // var x1 = this.x1, xRange = this.xRange, y1 = this.y1, yRange = this.yRange
-      // console.log(this)
-      // console.log(x1, y1)
       var DELAY, DISPLACEMENT
       var timeScale = 4,
         totalLength = 500, //length of closing animation if timeScale is 1
@@ -48,6 +45,7 @@ qpo.Bits1 = function(x1, y1, xRange, yRange, colors, number, bye){
         DISPLACEMENT = 1 - ( (item.getBBox().x - this.x1) / this.xRange ) // A number from 0 to 1. 0 means far right, 1 means far left.
         DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
         setTimeout(function(){
+          item.stop()
           item.animate({'transform':'t'+(xRange + 100)+',0'}, (bitAnimLength*totalLength*timeScale), '>', item.remove)
         }.bind(this), DELAY)
       })
@@ -55,9 +53,15 @@ qpo.Bits1 = function(x1, y1, xRange, yRange, colors, number, bye){
         DISPLACEMENT = 1 - ( (item.getBBox().y - this.y1) / this.yRange ) // A number from 0 to 1. 0 means bottom, 1 means top.
         DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
         setTimeout(function(){
+          item.stop()
           item.animate({'transform':'t0,'+(yRange + 120)}, (bitAnimLength*totalLength*timeScale), '>', item.remove)
         }.bind(this), DELAY)
       })
+      setTimeout(function(){ // Clear all sets to make unreachable and prep for garbage collection
+        this.all.clear()
+        this.circles.clear()
+        this.squares.clear()
+      }.bind(this), totalLength*timeScale)
     }
   } else { this.bye = bye.bind(this) }
 
@@ -79,7 +83,7 @@ qpo.Bits2 = function(midpoint, segregated, colors){
 
     var i, size, time, x, y, newBit, b
     for (i=0; i<numLeft; i++){ // Make left (red) bits:
-      size = qpo.MAX_BIT_SIZE * Math.random() // 0 to 13
+      size = qpo.MAX_BIT_SIZE * Math.random()
       time = 67 * size //blink time in ms
 
       x = midpoint*Math.random()
@@ -97,10 +101,10 @@ qpo.Bits2 = function(midpoint, segregated, colors){
       this.bitsLeft.push(newBit)
     }
     for (i=0; i<numRight; i++){ // Make right (blue) bits:
-      size = qpo.MAX_BIT_SIZE * Math.random() // 0 to 13
+      size = qpo.MAX_BIT_SIZE * Math.random()
       time = 67 * size //blink time in ms
 
-      x = midpoint + (c.width-midpoint * Math.random())
+      x = midpoint + ((c.width-midpoint) * Math.random())
       y = c.height*Math.random()
 
       b = Math.floor(2*Math.random()) // random choice of 0 or 1
@@ -114,7 +118,6 @@ qpo.Bits2 = function(midpoint, segregated, colors){
       this.all.push(newBit)
       this.bitsRight.push(newBit)
     }
-    this.all.attr({'fill':'none', 'stroke-width': 2})
   } else { //generate bits of mixed color with rotational symmetry applied, as in title screen
     for (var i=0; i<23; i++){
       var size = 13 * Math.random()
@@ -150,6 +153,7 @@ qpo.Bits2 = function(midpoint, segregated, colors){
       DISPLACEMENT = 1 - ( item.getBBox().x / this.midpoint ) // A number from 0 to 1. 0 means centered, 1 means far left.
       DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
       setTimeout(function(){
+        item.stop()
         item.animate({'transform':'t-'+(this.midpoint + DISPLACEMENT + 20)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
       }.bind(this), DELAY)
     }.bind(this))
@@ -157,9 +161,15 @@ qpo.Bits2 = function(midpoint, segregated, colors){
       DISPLACEMENT = 1 - (c.width-item.getBBox().x2)/(c.width-this.midpoint)
       DELAY = DISPLACEMENT * (1-bitAnimLength * timeScale)
       setTimeout(function(){
+        item.stop()
         item.animate({'transform':'t'+((c.width-this.midpoint) + DISPLACEMENT + 20)+',0'}, (bitAnimLength*totalLength*timeScale), '>')
       }.bind(this), DELAY)
     }.bind(this))
+    setTimeout(function(){ //clear all the sets to remove references and make unreachable
+      this.all.clear()
+      this.bitsLeft.clear()
+      this.bitsRight.clear()
+    }.bind(this), timeScale*totalLength)
   }
 
   return this

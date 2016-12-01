@@ -118,7 +118,7 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.pinchAmount = 20; //pixels for pinch animaton
   qpo.SHOT_LENGTH = 0.5; //ratio of shot length to unit length
   qpo.SHOT_WIDTH = 0.1; //ratio of shot width to unit length
-  qpo.MAX_BIT_SIZE = 27;
+  qpo.MAX_BIT_SIZE = 23;
 
   // (DNA): STATIC DICTS N ARRAYS
   qpo.spawnTimers = [null, 1,2,2,2,3,3,3,4]; //index is po
@@ -275,9 +275,7 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.fadeIn = function(set, time, extra, excluded){ //fade in a Raph set and do something after it's been faded in
     var TIME = time || 500; //ms
     var func = extra || function(){};
-    // debugger;
     if(excluded){var check=set.exclude(excluded); console.log(excluded, check)}
-    // debugger;
     set.attr({'opacity':0});
     set.show();
     var anim = Raphael.animation({'opacity':1}, TIME);
@@ -477,65 +475,6 @@ qpo.setup = function(){ // set up global vars and stuff
     // el.attr({'x':el.getBBox().x2, 'y':el.getBBox().y2}); //for y-adjusted text
     return el;
   }
-  qpo.makeBits = function(x1, y1, xRange, yRange, colors, number, bye){
-    //colors is an array of color strings
-    var bitsObj = {'circles':c.set(), 'squares':c.set(), 'bye': function(){}, 'x1': x1, 'y1': y1, 'xRange': xRange, 'yRange': yRange}
-    var allBits = c.set()
-    for(i=0; i<number; i++){
-      var size = qpo.MAX_BIT_SIZE * Math.random() // 0 to 13
-      var time = 67 * size //blink time in ms
-
-      var x = x1 + xRange*Math.random()
-      var y = y1 + yRange*Math.random()
-
-      //make a new bit (circle or square)
-      var newBit
-      var b = Math.floor(2*Math.random()) // 0 or 1
-      if(b){ newBit = c.rect(x, y, size, size) } // if 1, square
-      else { newBit = c.circle(x, y, size/Math.sqrt(2)) } //if 0, cirlce
-
-      //choose its color
-      var colorInd = Math.floor(colors.length*Math.random())
-      newBit.attr({'stroke':colors[colorInd]})
-
-      qpo.blink(newBit, time)
-
-      allBits.push(newBit)
-      if(b){ bitsObj.squares.push(newBit)}
-      else { bitsObj.circles.push(newBit)}
-    }
-    allBits.attr({'fill':'none', 'stroke-width': 2})
-
-    if (bye === undefined) { //default 'bye' function
-      bitsObj.bye = function(){
-        // var x1 = this.x1, xRange = this.xRange, y1 = this.y1, yRange = this.yRange
-        // console.log(this)
-        // console.log(x1, y1)
-        var DELAY, DISPLACEMENT
-        var timeScale = 4,
-          totalLength = 500, //length of closing animation if timeScale is 1
-          bitAnimLength = .2
-
-        bitsObj.circles.forEach(function(item,index){
-          DISPLACEMENT = 1 - ( (item.getBBox().x - bitsObj.x1) / bitsObj.xRange ) // A number from 0 to 1. 0 means far right, 1 means far left.
-          DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
-          setTimeout(function(){
-            item.animate({'transform':'t'+(xRange + 100)+',0'}, (bitAnimLength*totalLength*timeScale), '>', item.remove)
-          }.bind(this), DELAY)
-        })
-        bitsObj.squares.forEach(function(item,index){
-          DISPLACEMENT = 1 - ( (item.getBBox().y - bitsObj.y1) / bitsObj.yRange ) // A number from 0 to 1. 0 means bottom, 1 means top.
-          DELAY = DISPLACEMENT * ( (1-bitAnimLength) * timeScale)
-          setTimeout(function(){
-            item.animate({'transform':'t0,'+(yRange + 120)}, (bitAnimLength*totalLength*timeScale), '>', item.remove)
-          }.bind(this), DELAY)
-        })
-      }
-    } else { bitsObj.bye = bye.bind(bitsObj) }
-
-    return bitsObj
-  }
-
 }();
 
 qpo.findSpawn = function(color){
@@ -922,10 +861,12 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
   this.gameEnd = function(){ //move text down and enlarge, hide clock, make bits
     qpo.fadeOut(this.gameClockText, function(){
       this.all.animate({'transform':('t0,50'+'s3')}, 500, '<')
-      var redPortion = this.redScore / (this.redScore+this.blueScore)
-      redPortion = .4 //for testing
-      var bluePortion = 1-redPortion
-      qpo.menus['match complete'].doodad = new qpo.Bits2(redPortion*c.width, true)
+      if (this.redScore + this.blueScore == 0) { var redPortion = .5 } //in case total is 0
+      else { var redPortion = this.redScore / (this.redScore+this.blueScore) }
+      qpo.passer = redPortion * c.width
+      // redPortion = .4 //for testing
+      // var bluePortion = 1-redPortion
+      // qpo.menus['match complete'].doodad = new qpo.Bits2(redPortion*c.width, true)
       // qpo.makeBits(0,0, redPortion*c.width, c.height, [qpo.COLOR_DICT['red']], Math.floor(47*redPortion))
       // qpo.makeBits(redPortion*c.width, 0, bluePortion*c.width, c.height, [qpo.COLOR_DICT['blue']], Math.floor(47*bluePortion))
       this.all.toFront()

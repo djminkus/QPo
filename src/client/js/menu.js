@@ -1,8 +1,8 @@
 //Set up the menu objects and open the title screen.
-qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ // A Menu contains a CursorList of MenuOptions
+qpo.Menu = function(titleStr, itemList, parent, placeholder, unwrapDoodad, and){ // A Menu contains a CursorList of MenuOptions
   this.titleStr = titleStr
   this.TITLE_SIZE = 40
-  this.makeDoodad = makeDoodad || function(){return c.circle(-5,-5, 1)} // A function that returns a raph set
+  this.unwrapDoodad = unwrapDoodad || function(){return c.circle(-5,-5, 1)} // A function that returns a raph set
   this.and = and || function(){} //callback to be called when this menu is opened
 
   this.isPlaceholder = placeholder || false
@@ -22,12 +22,12 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, makeDoodad, and){ /
 
     this.cl.render();
 
-    this.doodad = this.makeDoodad()
+    this.doodad = this.unwrapDoodad()
 
     this.next = this.cl.next
     this.previous = this.cl.previous
 
-    this.all = c.set().push(this.layer1, this.layer2, this.doodad)
+    this.all = c.set().push(this.layer1, this.layer2, this.doodad.all)
     for(var i=0; i < this.cl.length; i++){ this.all.push(this.cl.list[i].raphs) }
     qpo.fadeIn(this.all, 500);
     // qpo.fadeInGlow(qpo.glows);
@@ -325,7 +325,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
     new qpo.MenuOption(x, yStart + 2*yInt,'vs. CPU', function(){}, 'Main Menu', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'Multiplayer', function(){}, 'Main Menu', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Settings', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
-  ], 'title', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
+  ], 'title', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
     qpo.leftPane = $("#raphContainer")
     qpo.leftPane.css({'float': 'left', 'margin-left': '50px'});
     if (qpo.user.leveller === undefined) {qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)}
@@ -337,11 +337,11 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['main menu'].cl.list[3].action = function(){ qpo.menus['main menu'].close('settings') }
 
   qpo.menus['campaign'] = new qpo.Menu('Campaign', [
-    new qpo.MenuOption(x, yStart + yInt,'Easy', function(){}, 'Campaign', true, 'stay', 'blue', 0),
-    new qpo.MenuOption(x, yStart + 2*yInt,'Medium', function(){}, 'Campaign', false, 'stay', 'blue', 1),
-    new qpo.MenuOption(x, yStart + 3*yInt,'Hard', function(){}, 'Campaign', false, 'stay', 'blue', 2),
-    new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'Campaign', false, 'stay', 'blue', 3)
-  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)});
+    new qpo.MenuOption(x, yStart + yInt, 'Easy', function(){}, 'Campaign', true, 'stay', 'blue', 0),
+    new qpo.MenuOption(x, yStart + 2*yInt, 'Medium', function(){}, 'Campaign', false, 'stay', 'blue', 1),
+    new qpo.MenuOption(x, yStart + 3*yInt, 'Hard', function(){}, 'Campaign', false, 'stay', 'blue', 2),
+    new qpo.MenuOption(x, yStart + 4*yInt, 'Main Menu', function(){}, 'Campaign', false, 'stay', 'blue', 3)
+  ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)});
   qpo.menus['campaign'].cl.list[0].action = function(){ qpo.menus['campaign'].close({
     'destination':'child',
     'childName':'easy'
@@ -361,7 +361,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
     new qpo.CampaignMissionOption(xSq, yStart + 2*yInt,'2', function(){}, 'easy', false, false, 1, qpo.chapters.easy.missions[2]),
     new qpo.CampaignMissionOption(xSq, yStart + 3*yInt,'3', function(){}, 'easy', false, false, 2, qpo.chapters.easy.missions[3]),
     new qpo.MenuOption(x, yStart + 5*yInt,'Back', function(){}, 'easy', false, 'stay', 'blue', 3)
-  ], 'Campaign', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)})
+  ], 'Campaign', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.blue], 29)})
   qpo.menus['campaign'].children.easy.cl.list[0].action = function(){ qpo.menus['campaign'].children.easy.close({
     'destination':'mission',
     'missionChapter':'easy',
@@ -382,7 +382,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
     new qpo.MenuOption(x, yStart + 2*yInt,'2-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'3-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'vs. CPU', false, 'stay', 'blue', 3)
-  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29)});
+  ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29)});
   qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({
     'destination':'game',
     'gameArgs': {
@@ -411,7 +411,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
     new qpo.MenuOption(x, yStart + 2*yInt,'3-Po', function(){}, 'Multiplayer', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'4-Po', function(){}, 'Multiplayer', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'Multiplayer', false, 'stay', 'blue', 3)
-  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.green], 29)});
+  ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.green], 29)});
   qpo.menus['multiplayer'].cl.list[0].action = function(){ qpo.menus['multiplayer'].close({
     'destination':'game',
     'type':'multi', 'q':6, 'po':2
@@ -430,7 +430,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
     new qpo.MenuOption(x, yStart + 1*yInt,'coming', function(){}, 'Settings', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'soon', function(){}, 'Settings', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'Main Menu', function(){}, 'Settings', false, 'stay', 'blue', 2)
-  ], 'Main Menu', false, function(){return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.orange], 29)});
+  ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.orange], 29)});
   qpo.menus['settings'].cl.list[0].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
   qpo.menus['settings'].cl.list[1].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
   qpo.menus['settings'].cl.list[2].action = qpo.menus['settings'].up.bind(qpo.menus['settings'])
@@ -438,11 +438,11 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['match complete'] = new qpo.Menu('Match Complete',
     [new qpo.MenuOption(x, yStart + 1*yInt, 'Main Menu', function(){}, 'Match Complete', true, 'stay', 'blue', 0)],
     'Main Menu', false,
+    function(){ return new qpo.Bits2(qpo.passer, true) },
     function(){
-      console.log('doodad not made...')
-    /* return qpo.makeBits(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.purple], 29)*/
-    },
-    function(){ qpo.menus['match complete'].title.hide() }
+      qpo.menus['match complete'].title.hide()
+      qpo.menus['match complete'].all.toFront()
+    }
   );
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
 
