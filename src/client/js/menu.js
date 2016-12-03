@@ -323,8 +323,8 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['main menu'] = new qpo.Menu('Main Menu', [
     new qpo.MenuOption(x, yStart + yInt,'Campaign', function(){}, 'Main Menu', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'vs. CPU', function(){}, 'Main Menu', false, 'stay', 'blue', 1),
-    new qpo.MenuOption(x, yStart + 3*yInt,'Multiplayer', function(){}, 'Main Menu', false, 'stay', 'blue', 2),
-    new qpo.MenuOption(x, yStart + 4*yInt,'Settings', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
+    new qpo.MenuOption(x, yStart + 3*yInt,'Multiplayer', function(){}, 'Main Menu', false, 'stay', 'blue', 2)
+    // , new qpo.MenuOption(x, yStart + 4*yInt,'Settings', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
   ], 'title', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
     qpo.leftPane = $("#raphContainer")
     qpo.leftPane.css({'float': 'left', 'margin-left': '50px'});
@@ -334,7 +334,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close('campaign') }
   qpo.menus['main menu'].cl.list[1].action = function(){ qpo.menus['main menu'].close('vs. cpu') }
   qpo.menus['main menu'].cl.list[2].action = function(){ qpo.menus['main menu'].close('multiplayer') }
-  qpo.menus['main menu'].cl.list[3].action = function(){ qpo.menus['main menu'].close('settings') }
+  // qpo.menus['main menu'].cl.list[3].action = function(){ qpo.menus['main menu'].close('settings') }
 
   qpo.menus['campaign'] = new qpo.Menu('Campaign', [
     new qpo.MenuOption(x, yStart + yInt, 'Easy', function(){}, 'Campaign', true, 'stay', 'blue', 0),
@@ -426,14 +426,14 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   }, 1000); }
   qpo.menus['multiplayer'].cl.list[3].action = qpo.menus['multiplayer'].up.bind(qpo.menus['multiplayer'])
 
-  qpo.menus['settings'] = new qpo.Menu('Settings', [
-    new qpo.MenuOption(x, yStart + 1*yInt,'coming', function(){}, 'Settings', true, 'stay', 'blue', 0),
-    new qpo.MenuOption(x, yStart + 2*yInt,'soon', function(){}, 'Settings', false, 'stay', 'blue', 1),
-    new qpo.MenuOption(x, yStart + 3*yInt,'Main Menu', function(){}, 'Settings', false, 'stay', 'blue', 2)
-  ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.orange], 29)});
-  qpo.menus['settings'].cl.list[0].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
-  qpo.menus['settings'].cl.list[1].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
-  qpo.menus['settings'].cl.list[2].action = qpo.menus['settings'].up.bind(qpo.menus['settings'])
+  // qpo.menus['settings'] = new qpo.Menu('Settings', [
+  //   new qpo.MenuOption(x, yStart + 1*yInt,'coming', function(){}, 'Settings', true, 'stay', 'blue', 0),
+  //   new qpo.MenuOption(x, yStart + 2*yInt,'soon', function(){}, 'Settings', false, 'stay', 'blue', 1),
+  //   new qpo.MenuOption(x, yStart + 3*yInt,'Main Menu', function(){}, 'Settings', false, 'stay', 'blue', 2)
+  // ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.orange], 29)});
+  // qpo.menus['settings'].cl.list[0].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
+  // qpo.menus['settings'].cl.list[1].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
+  // qpo.menus['settings'].cl.list[2].action = qpo.menus['settings'].up.bind(qpo.menus['settings'])
 
   qpo.menus['match complete'] = new qpo.Menu('Match Complete',
     [new qpo.MenuOption(x, yStart + 1*yInt, 'Main Menu', function(){}, 'Match Complete', true, 'stay', 'blue', 0)],
