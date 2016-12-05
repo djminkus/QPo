@@ -55,7 +55,12 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, unwrapDoodad, and){
         case 'parent' : { this.parent.open(); break; }
         case 'child' : { this.children[obj.childName].open(); break;}
         case 'mission' : { qpo.missions[obj.missionChapter][obj.missionNumber].begin(); break;}
-        case 'game' : { qpo.activeGame = new qpo.Game(obj.gameArgs); break; }
+        case 'game' : {
+          // qpo.fadeOut(qpo.leveller.all, function(){ //center the main panel
+          //
+          // })
+          qpo.activeGame = new qpo.Game(obj.gameArgs); break;
+        }
         default : {
           try{qpo.menus[obj].open();}
           catch(e){console.log(obj, qpo.menus[obj])}
@@ -386,7 +391,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({
     'destination':'game',
     'gameArgs': {
-      'type':'single', 'q':6, 'po':2, 'ppt': 2, 'turns':5,
+      'type':'single', 'q':6, 'po':2, 'ppt': 2,
       'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
     }
   }, 1000); }

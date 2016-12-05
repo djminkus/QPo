@@ -144,7 +144,48 @@ qpo.Game = function(args){ //"Game" class.
     return arr
   };
 
+  this.prep = function(){ //show the pregame screen.
+    $("#raphContainer").attr('style', 'display: block; float: none; margin: auto;')
+    $("#raphContainer2").attr('style','display: block; width: 0px; float: none')
+    // p.remove()
+    qpo.user.leveller.all.remove()
+    qpo.user.leveller = null
+
+    // $('#raphContainer2').remove()
+
+    this.bluePrepElements = c.set()
+    this.redPrepElements = c.set()
+
+    for (var i=0; i<this.ppt; i++){
+      this.bluePrepElements.push(c.text(c.width/2, 100+40*i, qpo.blue.players[i].handle))
+      this.redPrepElements.push(c.text(c.width/2, 400+40*i, qpo.red.players[i].handle))
+    }
+
+    //center each group of text elements in the proper location:
+    var box = this.bluePrepElements.getBBox()
+    var adj = c.height/4 - (box.y + box.height/2)
+    // var transformString = 't0,'+adj
+    this.bluePrepElements.attr({'transform':('t0,'+adj)})
+    box = this.redPrepElements.getBBox()
+    adj = c.height*3/4 - (box.y + box.height/2)
+    // transformString = 't0,'+adj
+    this.redPrepElements.attr({'transform':('t0,'+adj)})
+
+    this.bluePrepElements.attr({qpoText:[30, qpo.COLOR_DICT['blue']]})
+    this.redPrepElements.attr({qpoText:[30, qpo.COLOR_DICT['red']]})
+
+    this.vs = c.text(c.width/2, c.height/2, 'vs.').attr({qpoText:30})
+
+    this.prepElements = c.set(this.vs, this.bluePrepElements, this.redPrepElements)
+    qpo.fadeIn(this.prepElements, 1000)
+    setTimeout(function(){ //after 3 seconds, fade out prep elements and start the game
+      qpo.fadeOut(this.prepElements, function(){ //start the game once the prep elements are faded out
+        this.start()
+      }.bind(this), 1000)
+    }.bind(this), 3000)
+  }
   this.start = function(){
+
     // Draw the board, clear the arrays, place the units and start the game
     if(qpo.playMusic == true){ // stop menu song and play game song. (implement when game song acquired)
       try { this.song.remove() } //try removing the previously existing song
@@ -328,7 +369,8 @@ qpo.Game = function(args){ //"Game" class.
   //Start actually doing things:
   qpo.activeGame = this
   this.customScript()
-  this.start()
+  // this.start()
+  this.prep()
 
   return this
 }

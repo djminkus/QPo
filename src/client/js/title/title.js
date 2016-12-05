@@ -75,10 +75,6 @@ qpo.login = function(){ //prompt the user to create an account or log in.
     inputUsername = document.createElement("input"),
     // inputPassword = document.createElement("input"),
     inputSubmit = document.createElement("input")
-  // console.log(inputUsername)
-  // console.log($(inputUsername))
-  // console.log($("inputUsername"))
-  // console.log($("#inputUsername"))
 
   // $(form).attr({"action":"menu", "method":"POST"})
   $(spacer).css({"height":"200px"}).attr({"display":"block"})
@@ -98,7 +94,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
 
       var username = $(inputUsername).val()
       // console.log(username)
-      $.post("/menu", {'username': username}, function(data, status){ //create user on client from data received
+      $.post("/menu", {'username': username}, function(data, status){ //create user on client, from data received
         // console.log(data)
         qpo.user = new qpo.User(data)
 
@@ -133,7 +129,7 @@ switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
     break
   }
   case 'easy': { //show "easy" campaign chapter menu (not implemented)
-    break
+    break;
   }
   case 'game': { //start a game immediately
     qpo.user = new qpo.User()

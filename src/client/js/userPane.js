@@ -1,6 +1,6 @@
 var p = new Raphael("raphContainer2", 400, 600) //create another Raphael canvas
 
-p.customAttributes.qpoText = function(size, fill){ //style text white with Open Sans family and "size" font-size.
+p.customAttributes.qpoText = function(size, fill){ //use the qpo font and white color by default.
   return {
     "font-size": size,
     "fill": (fill || "white"),
