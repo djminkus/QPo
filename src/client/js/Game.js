@@ -145,13 +145,11 @@ qpo.Game = function(args){ //"Game" class.
   };
 
   this.prep = function(){ //show the pregame screen.
-    $("#raphContainer").attr('style', 'display: block; float: none; margin: auto;')
-    $("#raphContainer2").attr('style','display: block; width: 0px; float: none')
-    // p.remove()
-    qpo.user.leveller.all.remove()
-    qpo.user.leveller = null
-
-    // $('#raphContainer2').remove()
+    // $("#raphContainer").attr('style', 'display: block; float: none; margin: auto;')
+    // $("#raphContainer2").attr('style','display: block; width: 0px; float: none')
+    // qpo.user.leveller.all.remove()
+    // qpo.user.leveller = null
+    qpo.viewToggler.toggle()
 
     this.bluePrepElements = c.set()
     this.redPrepElements = c.set()
@@ -292,14 +290,13 @@ qpo.Game = function(args){ //"Game" class.
     }
     else { this.board.flash(false, false)}
   }
-  this.end = function(h){
+  this.end = function(){
     var winner
     if (qpo.scoreboard.redScore == qpo.scoreboard.blueScore) { winner = "tie" }
     else if (qpo.scoreboard.redScore > qpo.scoreboard.blueScore) { winner = "red" }
     else { winner = "blue" }
 
     qpo.user.activeUnit = null
-    var h = h || 0
     clearInterval(qpo.clockUpdater)
     clearInterval(qpo.collisionDetector)
     clearInterval(qpo.turnStarter)
@@ -369,8 +366,10 @@ qpo.Game = function(args){ //"Game" class.
   //Start actually doing things:
   qpo.activeGame = this
   this.customScript()
-  // this.start()
-  this.prep()
+  if(this.type=='tutorial'){
+    this.start()
+  }
+  else { this.prep() } //initialize it with pregame screen.
 
   return this
 }

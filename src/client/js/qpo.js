@@ -262,11 +262,12 @@ qpo.setup = function(){ // set up global vars and stuff
     raph.animate(anim1);
   }
   qpo.fadeOut = function(set, extra, time){ //fade out a Raph set and do an extra function after it fades
-    var TIME = time || 300; //ms
-    var set = set;
-    set.attr({'opacity':1}); //
-    var anim = Raphael.animation({'opacity':0}, TIME);
-    set.animate(anim);
+    var set = set
+    var extra = extra || function(){}
+    var TIME = time || 300 //ms
+    set.attr({'opacity':1}) //
+    var anim = Raphael.animation({'opacity':0}, TIME)
+    set.animate(anim)
     setTimeout(function(){ //after delay, remove set and do extra()
       set.remove();
       extra();

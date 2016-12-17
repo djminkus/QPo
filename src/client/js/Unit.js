@@ -31,24 +31,24 @@ qpo.Unit = function(color, gx, gy, num, player, belongs){ //DEFINE UNIT TYPE/CLA
   // player is the Player that owns this unit
   // belongs is a boolean -- true if this unit belongs to this client.
 
-  var mtr = qpo.guiDimens.squareSize; //mtr for meter, meaning one 'unit' of length
-  this.mtr = mtr; // side length of unit with coating
-  this.inner = mtr - 6; // side length of unit without coating
+  var mtr = qpo.guiDimens.squareSize //mtr for meter, meaning one 'unit' of length
+  this.mtr = mtr // side length of unit with coating
+  this.inner = mtr - 6 // side length of unit without coating
 
-  var lw = qpo.board.lw; //left wall, for convenience
-  var tw = qpo.board.tw; //top wall
+  var lw = qpo.board.lw //left wall, for convenience
+  var tw = qpo.board.tw //top wall
   var xo = lw+3 //x origin of inner rect (this.rect)
   var yo = tw+3 //y origin of inner rect
 
-  this.team = color; //"red" or "blue"
-  this.belongsToUser = belongs;
-  this.player = player; //the Player that this unit belongs to
+  this.team = color //"red" or "blue"
+  this.belongsToUser = belongs
+  this.player = player //the Player that this unit belongs to
 
-  this.x = gx; // grid position. (column number, 0 to q-1)
-  this.y = gy; // grid position (row number, 0 to q-1)
+  this.x = gx // grid position. (column number, 0 to q-1)
+  this.y = gy // grid position (row number, 0 to q-1)
 
-  this.nx = null; //next x
-  this.ny = null; //nexy y
+  this.nx = null //next x
+  this.ny = null //nexy y
 
   this.rect = c.rect(lw+3, tw+3, this.inner, this.inner).attr({
       "fill":qpo.COLOR_DICT[color],
@@ -63,7 +63,7 @@ qpo.Unit = function(color, gx, gy, num, player, belongs){ //DEFINE UNIT TYPE/CLA
   this.coating = c.rect(lw,tw,mtr,mtr)
     .attr({'fill':'none', 'stroke-width':2, 'stroke':'none'})
     .data('type','none')
-  this.phys = c.set(this.rect, this.coating);
+  this.phys = c.set(this.rect, this.coating)
   this.all = c.set(this.phys)
   if(this.belongsToUser){ //make the icons and add them to the phys
     this.icons = {
@@ -72,16 +72,26 @@ qpo.Unit = function(color, gx, gy, num, player, belongs){ //DEFINE UNIT TYPE/CLA
       'moveDown': qpo.arrow(lw+mtr/2, tw+mtr/2, qpo.COLOR_DICT[color], 'down'),
       'moveLeft': qpo.arrow(lw+mtr/2, tw+mtr/2, qpo.COLOR_DICT[color], 'left'),
       'moveRight': qpo.arrow(lw+mtr/2, tw+mtr/2, qpo.COLOR_DICT[color], 'right'),
-      'shoot': c.rect(lw+mtr/2-2, tw+mtr/2-7.5, 4, 15, 2).attr({
+      'shoot': c.circle(lw + mtr/2, tw + mtr/2, 5).attr({
         // "fill":qpo.COLOR_DICT['green'],
         'stroke':qpo.COLOR_DICT['green'],
         'stroke-width':2
       }),
-      'bomb': c.rect(lw+mtr/2 - 5, tw+mtr/2 - 5, 10*mtr/50, 10*mtr/50, 2).attr({
-        // "fill":qpo.COLOR_DICT['purple'],
+      'bomb': c.circle(lw + mtr/2, tw + mtr/2, 5).attr({
+        // "fill":qpo.COLOR_DICT['green'],
         'stroke':qpo.COLOR_DICT['purple'],
-        'stroke-width':3
+        'stroke-width':2
       })
+      // 'shoot': c.rect(lw+mtr/2-2, tw+mtr/2-7.5, 4, 15, 2).attr({
+      //   // "fill":qpo.COLOR_DICT['green'],
+      //   'stroke':qpo.COLOR_DICT['green'],
+      //   'stroke-width':2
+      // }),
+      // 'bomb': c.rect(lw+mtr/2 - 5, tw+mtr/2 - 5, 10*mtr/50, 10*mtr/50, 2).attr({
+      //   // "fill":qpo.COLOR_DICT['purple'],
+      //   'stroke':qpo.COLOR_DICT['purple'],
+      //   'stroke-width':3
+      // })
     }
     this.iconsSet = c.set(this.icons.stay, this.icons.moveUp, this.icons.moveDown, this.icons.moveLeft,
       this.icons.moveRight, this.icons.shoot, this.icons.bomb).hide()
@@ -93,15 +103,15 @@ qpo.Unit = function(color, gx, gy, num, player, belongs){ //DEFINE UNIT TYPE/CLA
     this.icon = c.rect(-500,0, 1,1)
   }
 
-  this.level = 1;
-  this.turnsToNextLevel = qpo.levelTurns[0];
+  this.level = 1
+  this.turnsToNextLevel = qpo.levelTurns[0]
 
-  this.num = num || 0; //which unit is it? (# on team)
-  this.alive = true;
-  this.active = false; //is it highlighted?
-  this.movingForward = false; //checked when this unit fires a shot, for animation purposes
-  this.willScore = false;
-  this.spawnTimer = -1; //how many turns until this unit spawns? (-1 if alive)
+  this.num = num || 0 //which unit is it? (# on team)
+  this.alive = true
+  this.active = false //is it highlighted?
+  this.movingForward = false //checked when this unit fires a shot, for animation purposes
+  this.willScore = false
+  this.spawnTimer = -1 //how many turns until this unit spawns? (-1 if alive)
   if (qpo.mode !== 'menu' && color == qpo.playerTeam){ // Make the spawn icon.
     var bit = qpo.guiCoords.gameBoard.width/qpo.activeGame.po;
     var six = lw + (this.num*bit) + bit/2 ; //spawn icon x center
@@ -118,10 +128,10 @@ qpo.Unit = function(color, gx, gy, num, player, belongs){ //DEFINE UNIT TYPE/CLA
     qpo.gui.push(this.spawnIconSet);
   }
 
-  this.rects = c.set(this.rect, this.spawnIcon);
-  this.nextAction = 'stay';
+  this.rects = c.set(this.rect, this.spawnIcon)
+  this.nextAction = 'stay'
 
-  this.snap();
+  this.snap()
   try{ //record the unit's initial spawn to the game record, loading blue coords in first
     switch(color){
       case "blue": {
@@ -140,7 +150,7 @@ qpo.Unit = function(color, gx, gy, num, player, belongs){ //DEFINE UNIT TYPE/CLA
   }
   catch(err){;} //in menu; no active game defined, so catch the error that generates and do nothing.
 
-  qpo.gui.push(this.phys);
+  qpo.gui.push(this.phys)
 
   var self = this
   this.actions = {
@@ -285,7 +295,7 @@ qpo.Unit.prototype.ntx = function(){return this.mtr*this.nx}; //next transform x
 qpo.Unit.prototype.nty = function(){return this.mtr*this.ny}; //next transform x
 qpo.Unit.prototype.ntrans = function(){return ('t'+this.ntx()+','+this.nty())};
 
-qpo.Unit.prototype.snap = function(){this.all.attr({'transform':this.trans()});} //.bind(this) if glitchy
+qpo.Unit.prototype.snap = function(){this.all.attr({'transform':this.trans()});}
 
 qpo.Unit.prototype.applyCoating = function(which){
   this.coating.data('type', which);
@@ -353,6 +363,7 @@ qpo.Unit.prototype.showSpawnIcon = function(){ //change the digit and fade in th
 }
 
 qpo.Unit.prototype.order = function(order){ // Set this unit's icon and update its .nextAction, then update the user's active unit
+  if(qpo.tutorial.status==6 && order =='stay'){qpo.tutorial.next()}
   if(order == 'bomb' && this.level == 1){ false } //lv. 1 units can't bomb.
   else {
     this.setIcon(order)
@@ -414,6 +425,7 @@ qpo.Unit.prototype.setIcon = function(order){
     this.icon = this.icons[order]
     this.phys.push(this.icon)
     this.icon.show()
+    this.icon.attr({'opacity':1})
   }
 }
 qpo.Unit.prototype.resetIcon = function(){
@@ -457,55 +469,42 @@ qpo.Unit.prototype.deactivate = function(){
 
 qpo.Unit.prototype.score = function(why){
   // console.log('scored via ' + why + ' on turn ' + qpo.activeGame.turnNumber);
+  if (qpo.tutorial.status==1) { qpo.tutorial.next() }
   this.alive = false
   this.willScore = false
   this.scores++
   this.deactivate()
-  if(qpo.activeGame.type == 'campaign' && qpo.activeMission.number==1){ qpo.activeMission.end(true) }
-  else{ // set spawn timer, show spawn icon, update scoreboard, end game if necessary
-    this.spawnTimer = qpo.spawnTimers[qpo.activeGame.unitsPerPlayer]
-    if (this.team==qpo.playerTeam){this.showSpawnIcon()}
-    if(qpo.mode == "game"){ //deal with scoreboard, AI, spawn, and ending game
-      qpo[this.team].addPoint()
-      switch(this.team){ // update scoreboard, prep to reward AI
-        case qpo.otherTeam: //enemy team ("red" until server implementation)
-          qpo.redRewardQueue.push(-1) //is this backwards?
-          break
-        case qpo.playerTeam: //player team ("blue" until server implementation)
-          qpo.redRewardQueue.push(1) //is this backwards?
-          if(this.active){qpo.updateBlueAU(qpo.activeGame.po)}
-          break
-      }
-      if (qpo.scoreboard.blueScore >= qpo.activeGame.scoreToWin  //if score limit reached, disable respawn
-        || qpo.scoreboard.redScore >= qpo.activeGame.scoreToWin){
-        qpo.activeGame.respawnEnabled = false
-      }
-      if (qpo.activeGame.type != 'elimination') { this.nextAction = 'recharge' } //start counting down spawn timer
-      else if (qpo.scoreboard.redScore >= qpo.activeGame.scoreToWin // otherwise, end the game, if score limit reached.
-        || qpo.scoreboard.blueScore >= qpo.activeGame.scoreToWin && qpo.activeGame.isEnding == false){
-        var winner
-        setTimeout(function(){ //set winner to "tie","blue",or "red" (after 20 ms to account for performance issues)
-          if(qpo.scoreboard.redScore==qpo.scoreboard.blueScore){
-            winner = "tie"
-          } else if (qpo.scoreboard.blueScore > qpo.scoreboard.redScore) {
-            winner = "blue"
-          } else {
-            winner = "red"
-          }
-        }, 2000*qpo.timeScale)
-        qpo.activeGame.isEnding = true
-        setTimeout(function(){qpo.activeGame.end(winner)}, 2000*qpo.timeScale);
-      }
+  this.spawnTimer = qpo.spawnTimers[qpo.activeGame.unitsPerPlayer]
+  if (this.team==qpo.playerTeam){this.showSpawnIcon()}
+  if(qpo.mode == "game"){ //deal with scoreboard, AI, spawn, and ending game
+    qpo[this.team].addPoint()
+    switch(this.team){ // update scoreboard, prep to reward AI
+      case qpo.otherTeam: //enemy team ("red" until server implementation)
+        qpo.redRewardQueue.push(-1) //is this backwards?
+        break
+      case qpo.playerTeam: //player team ("blue" until server implementation)
+        qpo.redRewardQueue.push(1) //is this backwards?
+        if(this.active){qpo.updateBlueAU(qpo.activeGame.po)}
+        break
+    }
+    if (qpo.scoreboard.blueScore >= qpo.activeGame.scoreToWin  //if score limit reached, disable respawn
+      || qpo.scoreboard.redScore >= qpo.activeGame.scoreToWin){
+      qpo.activeGame.respawnEnabled = false
+    }
+    if (qpo.activeGame.type != 'elimination') { this.nextAction = 'recharge' } //start counting down spawn timer
+    else if (qpo.scoreboard.redScore >= qpo.activeGame.scoreToWin // otherwise, end the game, if score limit reached.
+      || qpo.scoreboard.blueScore >= qpo.activeGame.scoreToWin && qpo.activeGame.isEnding == false){
+      qpo.activeGame.isEnding = true
+      setTimeout(function(){qpo.activeGame.end()}, 2000*qpo.timeScale);
     }
   }
-  this.phys.animate({"opacity":0}, 2000*qpo.timeScale)
-  setTimeout(function(){ //hide the visage and move it "off the board"
+  this.phys.animate({"opacity":0}, 2000*qpo.timeScale, 'linear', function(){ //hide the visage and move it "off the board"
     this.phys.hide()
     this.x = -1
     this.y = -1
     this.phys.attr({'opacity':1, 'transform':this.trans()})
     this.setLevel(1)
-  }.bind(this), 2000*qpo.timeScale)
+  }.bind(this))
 }
 qpo.Unit.prototype.kill = function(why){
   this.deaths++;
@@ -517,16 +516,14 @@ qpo.Unit.prototype.kill = function(why){
   if(this.team==qpo.playerTeam){ this.showSpawnIcon(); }
   this.icon.attr({'opacity':0});
   this.phys.stop();
-  this.phys.animate({ "opacity":0 }, 2000*qpo.timeScale);
-  this.rect.animate({ 'height':0, 'width':0 , 'x':qpo.board.lw+this.mtr/2, 'y':qpo.board.tw+this.mtr/2}, 2000*qpo.timeScale)
-  setTimeout(function(){ //hide the visage and move it "off the board"
+  this.phys.animate({ "opacity":0 }, 2000*qpo.timeScale, 'linear', function(){ //hide the visage and move it "off the board"
     this.phys.hide();
     this.x = -1;
     this.y = -1;
     this.phys.attr({'opacity':1, 'transform':this.trans()});
-    // this.icon.attr({'opacity': 1}) //tried 
     this.setLevel(1);
-  }.bind(this), 2000);
+  }.bind(this));
+  this.rect.animate({ 'height':0, 'width':0 , 'x':qpo.board.lw+this.mtr/2, 'y':qpo.board.tw+this.mtr/2}, 2000*qpo.timeScale)
   if(qpo.mode == "game"){ //deal with scoreboard, AI, spawn, and ending game
     if(this.team=='blue'){qpo.red.addPoint()}
     else{qpo.blue.addPoint()}
@@ -608,6 +605,7 @@ qpo.Unit.prototype.move = function(dir){
   this.recordMove(dir);
 }
 qpo.Unit.prototype.bomb = function(){
+  if(qpo.tutorial.status==4 && this.team=='blue') {qpo.tutorial.next()}
   this.movingForward = false
   if(this.level<2){this.notify('Level too low.')} //units below level 2 can't bomb.
   else{ //fire a bomb
@@ -625,6 +623,7 @@ qpo.Unit.prototype.bomb = function(){
   }
 }
 qpo.Unit.prototype.shoot = function(){
+  if(qpo.tutorial.status==2 && this.team=='blue') {qpo.tutorial.next()}
   this.movingForward = false;
   var width = 4;
   var height = 20;
