@@ -332,6 +332,13 @@ qpo.viewToggler = { //switch between having 2 panes and having 1.
   }
 }
 
+qpo.quotes = [
+  ["Artificial intelligence", "will reach human levels", "by around 2029.", "- Ray Kurzweil"],
+  ["[...] for us to have a future", "that's exciting and inspiring," , "it has to be one where we're", "a space-bearing civilization.", "- Elon Musk"],
+  ["Genius", "is one percent inspiration", "and ninety-nine percent perspiration.", "- Thomas Edison"],
+  ["A person who never made a mistake", "never tried anything new.", "- Albert Einstein"]
+]
+
 qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating Raphael elements, except the Main Menu's)
 
   qpo.menus = {}
@@ -434,6 +441,8 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
 
   if(render) { //Open the main menu and set qpo.mode to "menu"
+    qpo.quote = c.set()
+    
     qpo.menus['main menu'].open()
     qpo.mode = "menu" // Type of screen that's active -- can be "menu", "game", "tut", or "other"
   }
