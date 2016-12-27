@@ -51,9 +51,11 @@ db.once('open', function() {
       hard: Array
     }
   })
+
   // userSchema.statics.findOne = function(id, callback){
   //   return this.findOne({ _id: new RegExp(id, 'i') }, callback);
   // }
+
   User = mongoose.model('User', userSchema)
 
   // db.close()

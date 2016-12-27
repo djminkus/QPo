@@ -479,83 +479,25 @@ qpo.setup = function(){ // set up global vars and stuff
 }();
 
 qpo.findSpawn = function(color){
-  //CHOOSE A ROW.
-  var foundSpawn
-  var po = qpo.activeGame.po
-  var q = qpo.activeGame.q
-  var demerits = [new Array(), new Array()]; //demerits[0] is rows, demerits[1] is columns
-  for(var i=0; i<q; i++){ //populate demerits with zeros
-    demerits[0].push(0); //rows
-    demerits[1].push(0); //columns
-  }
-
-  //APPLY BLOCKS : enemy side (TODO: enemy proximity, shots/bombs)
-  if (color == "blue"){ //block red side (rows po/2 through po-1)
-    for (var i=0; i<Math.floor(q/2); i++){ demerits[0][i+Math.floor(q/2)]++; }
-    if (q%2 == 1){ demerits[0][q-1]++; } //fix blue spawn glitch (happens for odd q)
-  }
-  else { //block blue side
-    for (var i=0; i<Math.floor(q/2); i++){ demerits[0][i]++; }
-    if (q%2 == 1){ demerits[0][Math.floor(q/2)]++; } //block middle row
-  }
-  //TODO: APPLY BOOSTS : friendly side, friendly proximity
-
-  // console.log("demerits: " + demerits);
-  // console.log("demerits[0]: " + demerits[0]);
-
-  //CHOOSE SPAWN BASED ON DEMERITS
-  var fewestDemerits = [100,100]; //a comparer
-  for (var i=0; i<demerits[0].length;i++){ //find the lowest number of demerits
-    if(demerits[0][i]<fewestDemerits[0]){ fewestDemerits[0] = demerits[0][i]; }
-    if(demerits[1][i]<fewestDemerits[1]){ fewestDemerits[1] = demerits[1][i]; }
-  }
-  //find rows with least demerits and columns with least demerits:
-  var choices = [[],[]]; //rows, columns
-  var utilIndex = [0,0];
-  var increment = [false,false];
-  for (var i=0; i<demerits[0].length; i++){ //0 and 1 have same lengths
-    if(demerits[0][i]==fewestDemerits[0]){ //this row is a candidate.
-      choices[0][utilIndex[0]] = i;
-      increment[0] = true;
-    }
-    if(demerits[1][i]==fewestDemerits[1]){ //this col is a candidate.
-      choices[1][utilIndex[1]] = i;
-      increment[1] = true;
-    }
-    (increment[0] == true) ? (utilIndex[0]+=1) : (null);
-    (increment[1] == true) ? (utilIndex[1]+=1) : (null);
-    increment = [false,false];
-  }
-  //choose random choices from "choices" arrays:
-  var chosenRow = choices[0][Math.floor(Math.random()*choices[0].length)];
-  var chosenColumn = choices[1][Math.floor(Math.random()*choices[1].length)];
-
-  // console.log("choices[0]: " + choices[0]);
-  // console.log("choices[1]: " + choices[1]);
-
-  foundSpawn = [chosenRow,chosenColumn];
-  // console.log(foundSpawn);
-
-  return foundSpawn;
 }
 
 //FUNCTIONS THAT CREATE RAPH ELEMENTS
 qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
-  this.all = c.set();
+  this.all = c.set()
 
-  this.mtr = m || qpo.guiDimens.squareSize; //mtr for meter, or unit size (in pixels)--the length quantum of q-po.
-  qpo.guiDimens.squareSize = this.mtr; //make sure they agree
+  this.mtr = m || qpo.guiDimens.squareSize //mtr for meter, or unit size (in pixels)--the length quantum of q-po.
+  qpo.guiDimens.squareSize = this.mtr //make sure they agree
 
-  this.rows = qpo.guiDimens.rows = rows;
-  this.cols = qpo.guiDimens.columns = cols;
+  this.rows = qpo.guiDimens.rows = rows
+  this.cols = qpo.guiDimens.columns = cols
 
-  this.width = qpo.guiCoords.gameBoard.width = cols * this.mtr;
-  this.height = qpo.guiCoords.gameBoard.height = rows * this.mtr;
+  this.width = qpo.guiCoords.gameBoard.width = cols * this.mtr
+  this.height = qpo.guiCoords.gameBoard.height = rows * this.mtr
 
-  this.lw = x || qpo.guiCoords.gameBoard.leftWall;
-  this.tw = y || qpo.guiCoords.gameBoard.topWall;
-  this.rw = this.lw + this.width;
-  this.bw = this.tw + this.height;
+  this.lw = x || qpo.guiCoords.gameBoard.leftWall
+  this.tw = y || qpo.guiCoords.gameBoard.topWall
+  this.rw = this.lw + this.width
+  this.bw = this.tw + this.height
   this.centerX = this.lw + this.width/2
   this.centerY = this.tw + this.height/2
 
@@ -568,8 +510,8 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     setTimeout(function(){notification.remove()}.bind(this), 2000)
   }
 
-  var vo = 20; //vertical offset (for zs)
-  var ho = 20; //horizontal offset
+  var vo = 20 //vertical offset (for zs)
+  var ho = 20 //horizontal offset
 
   this.background = c.rect(this.lw-ho, this.tw-5, this.width+ho*2, this.height+10)
     .attr({'fill':qpo.COLOR_DICT['background'], 'stroke-width':0});
@@ -580,7 +522,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     'stroke-width':0,
     'opacity':0
   });
-  this.all.push(this.surface);
+  this.all.push(this.surface)
   if(qpo.mode == 'menu'){this.surface.attr({'transform':'t-1000,-1000'})}
 
   var x1 = 20 //curve x adjuster/anchor
@@ -612,12 +554,12 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
 
   // var leftWall = c.path('M'+this.lw+','+(this.tw-1) + 'Q'+this.lw1+','+this.vm+','+this.lw+','+(this.bw+1));
   // var rightWall = c.path('M'+this.rw+','+(this.tw-1) + 'Q'+this.rw1+','+this.vm+','+this.rw+','+(this.bw+1));
-  this.leftWall = c.path('M'+this.lw+','+(this.tw-1) + 'V'+(this.bw+1));
-  this.rightWall = c.path('M'+this.rw+','+(this.tw-1) + 'V'+(this.bw+1));
+  this.leftWall = c.path('M'+this.lw+','+(this.tw-1) + 'V'+(this.bw+1))
+  this.rightWall = c.path('M'+this.rw+','+(this.tw-1) + 'V'+(this.bw+1))
   this.sideWalls = c.set(this.leftWall, this.rightWall)
       .attr({'stroke-width':1, 'stroke':qpo.COLOR_DICT['foreground'], 'opacity':0.6})
       // .transform('t0,-1000');
-  this.all.push(this.sideWalls);
+  this.all.push(this.sideWalls)
   this.moveWalls = function(){
     var amt = 20;
     var easing = 'bounce';
@@ -635,20 +577,20 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     this.rightWall.animate(rwAnim);
   }
 
-  this.blueGoal = c.path('M'+this.lw+','+(this.tw-3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['blue']});
-  this.redGoal = c.path('M'+this.lw +','+(this.bw+3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['red']});
+  this.blueGoal = c.path('M'+this.lw+','+(this.tw-3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['blue']})
+  this.redGoal = c.path('M'+this.lw +','+(this.bw+3) + 'H'+this.rw).attr({'stroke':qpo.COLOR_DICT['red']})
   this.goalLines = c.set().push(this.blueGoal, this.redGoal).attr({'stroke-width':3, 'opacity':1})
-  this.all.push(this.goalLines);
+  this.all.push(this.goalLines)
   // sideWalls.toFront();
 
   var blueGlow = this.blueGoal.glow({'color':qpo.COLOR_DICT['blue']})
   var redGlow = this.redGoal.glow({'color':qpo.COLOR_DICT['red']})
-  qpo.glows = c.set(blueGlow, redGlow).hide(); //the raphael glow sets
+  qpo.glows = c.set(blueGlow, redGlow).hide() //the raphael glow sets
 
-  this.outline = c.set(this.sideWalls, this.goalLines);
+  this.outline = c.set(this.sideWalls, this.goalLines)
 
-  var dotSize = 2;
-  this.dots = c.set();
+  var dotSize = 2
+  this.dots = c.set()
   for (var i=1; i<cols; i++) { //create the grid dots
     for (var j=1; j<rows; j++){
       var xCoord = this.lw + (i*this.mtr);
@@ -657,7 +599,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
       this.dots.push(newDot);
     }
   }
-  this.dots.attr({'fill':qpo.COLOR_DICT['foreground'], 'stroke-width':0, 'opacity':0});
+  this.dots.attr({'fill':qpo.COLOR_DICT['foreground'], 'stroke-width':0, 'opacity':0})
   this.all.push(this.dots)
 
   this.mains = c.set().push(this.goalLines, this.sideWalls, this.curves)
@@ -678,8 +620,8 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
       setTimeout(function(){qpo.glows.show()}, 1000);
     }.bind(this));
   }
-  else{ qpo.glows.show(); }
-  qpo.gui.push(this.all);
+  else{ qpo.glows.show() }
+  qpo.gui.push(this.all)
 
   this.flash = function(first, last){
     if(!first) { //Flash (and deflash) the surface, unless it's the start of the game
@@ -738,8 +680,13 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
       }
    }
 
-  return this; //return the constructed Board object
+  this.findDemeritsBlue = function(){ // 
+
+  }
+
+  return this //return the constructed Board object
 }
+
 
 qpo.makeUnits = function(){ //called at the start of each game (from startGame)
   //  Place U units randomly but symmetrically on an NxM board (N columns, M rows)
