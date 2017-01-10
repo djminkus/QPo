@@ -116,8 +116,9 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.bombStroke = 3;
   qpo.iconStroke = 2;
   qpo.pinchAmount = 20; //pixels for pinch animaton
-  qpo.SHOT_LENGTH = 0.5; //ratio of shot length to unit length
-  qpo.SHOT_WIDTH = 0.1; //ratio of shot width to unit length
+  qpo.SHOT_LENGTH = 20; //length of shot when unit.mtr = 50
+  qpo.SHOT_WIDTH = 4; //width of shot when unit.mtr = 50
+  qpo.SHOT_SPEED = 4; //in boxes per turn
   qpo.MAX_BIT_SIZE = 23;
 
   // (DNA): STATIC DICTS N ARRAYS
@@ -476,10 +477,18 @@ qpo.setup = function(){ // set up global vars and stuff
     // el.attr({'x':el.getBBox().x2, 'y':el.getBBox().y2}); //for y-adjusted text
     return el;
   }
-}();
 
-qpo.findSpawn = function(color){
-}
+  var testing = [[1,2],[3,4]]
+  var testing2 = [[1,1],[2,2]]
+  console.log(testing + testing2)
+
+  qpo.sumGrids = function(arr1, arr2){
+    //assumes two 2-D arrays (nested arrays) as parameters. 
+    var result =
+    return result;
+  }
+
+}();
 
 //FUNCTIONS THAT CREATE RAPH ELEMENTS
 qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
@@ -680,13 +689,15 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
       }
    }
 
-  this.findDemeritsBlue = function(){ // 
+  this.state = new Array()
+  for(var i=0; i<this.rows; i++){ this.state.push(new Array()) }
+
+  this.findDemeritsBlue = function(){ //
 
   }
 
   return this //return the constructed Board object
 }
-
 
 qpo.makeUnits = function(){ //called at the start of each game (from startGame)
   //  Place U units randomly but symmetrically on an NxM board (N columns, M rows)
@@ -870,7 +881,8 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           ( wBOU < eBOS && eBOS < eBOU )) &&
           !(shot.data("hidden")) &&
           (unit.alive)) {
-        shot.hide(); //make the shot disappear
+        // shot.hide(); //make the shot disappear
+        shot.remove()
         switch(unit.coating.data('type')){ //kill unit or remove coating
           case 'none' : { unit.kill(); shot.data('unit').kills++; break;}
           case 'shield':
@@ -878,8 +890,8 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           case 'antimatter': { unit.applyCoating('none'); break;}
           default: {console.log('SOMETHING WEIRD HAPPENED')}
         }
-        shot.data("hidden",true);
-        splicers.push(i);
+        // shot.data("hidden",true)
+        splicers.push(i)
       }
     }//end iterating over units within shots
     if (qpo.bombs.length > 0){ //iterate over bombs within shots (if bombs exist)
@@ -899,11 +911,12 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
                 ( wBOB < eBOS && eBOS < eBOB )) &&
                 !(qpo.shots[i].data("hidden")) &&
                 !(qpo.bombs[j].exploded)) {
-            //console.log("bomb " + j + " hit shot " +i);
-            qpo.shots[i].hide(); //make the shot disappear
-            qpo.bombs[j].explode();
-            qpo.shots[i].data("hidden",true);
-            splicers.push(i);
+            // console.log("bomb " + j + " hit shot " +i);
+            // qpo.shots[i].hide(); //make the shot disappear
+            qpo.shots[i].remove()
+            qpo.bombs[j].explode()
+            // qpo.shots[i].data("hidden",true)
+            splicers.push(i)
           }
         }
       } //end iterating over bombs within shots

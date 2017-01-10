@@ -1,6 +1,10 @@
 qpo.Game = function(args){ //"Game" class.
   //{q, po, type, turns, ppt, customScript, teams}
   qpo.mode = 'game'
+
+  qpo.scr = (qpo.trainingMode ? null : 2)
+  qpo.BCR = (qpo.traningMode ? null : 2)
+
   if (args != undefined) { // Grab args for custom game
     //Grab the arguments (and fill in missing ones with default values):
     this.q = args.q || 7 // Number of rows, columns on the board
@@ -239,6 +243,8 @@ qpo.Game = function(args){ //"Game" class.
       case 2:{this.board.notify('2', qpo.COLOR_DICT['red']); break;}
       case 1:{this.board.notify('1', qpo.COLOR_DICT['red']); break;}
     }
+
+    setTimeout(function(){console.log('7/8')}, 7/8 * 3000 * qpo.timeScale)
 
     qpo.moment = new Date()
 

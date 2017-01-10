@@ -467,67 +467,70 @@ qpo.Unit.prototype.deactivate = function(){
   qpo.user.activeUnit = null;
 }
 qpo.Unit.prototype.findSpawn = function(){
-
     var foundSpawn
     var po = qpo.activeGame.po
     var q = qpo.activeGame.q
-    var demerits = [new Array(), new Array()] //demerits[0] is rows, demerits[1] is columns
-    for(var i=0; i<q; i++){ //populate demerits with zeros
-      demerits[0].push(0)  //rows
-      demerits[1].push(0)  //columns
+    var demerits = new Array()
+    for (var i=0; i<q; i++){ //populate demerits with zeros
+      demerits.push(new Array())
+      for (var j=0; j<q; j++){ demerits[i][j] = 0 }
     }
-    //NOTE: ROWS,COLUMNS INSTEAD OF COLUMNS, ROWS IS LIKE USING Y,X COORDINATES INSTEAD OF X,Y
 
+    //NOTE: ROWS,COLUMNS INSTEAD OF COLUMNS, ROWS IS LIKE USING Y,X COORDINATES INSTEAD OF X,Y
     //APPLY BLOCKS : enemy side (TODO: enemy proximity, shots/bombs)
-    if (this.color == "blue"){ //block red side (rows po/2 through po-1)
-      for (var i=0; i<Math.floor(q/2); i++){ demerits[0][i+Math.floor(q/2)]++; }
-      if (q%2 == 1){ //IF ODD NUMBER OF ROWS, BLOCK BOTTOM ROW TO FIX BLUE SPAWN GLITCH
-        demerits[0][q-1]++
+    if (this.team == "blue"){ //block red side (rows q/2 through q-1)
+      for (var i=0; i<Math.floor(q/2); i++){
+        for (var j=0; j<q; j++){ demerits[q-1-i][j] += 10 }
       }
     }
     else { //block blue side
-      for (var i=0; i<Math.floor(q/2); i++){ demerits[0][i]++ }
-      if (q%2 == 1){ demerits[0][Math.floor(q/2)]++ } //block middle row
+      for (var i=0; i<Math.floor(q/2); i++){
+        for (var j=0; j<q; j++) { demerits[i][j] += 10 }
+      }
     }
+    if (q%2 == 1){ for (var i=0; i<q; i++) {demerits[Math.floor(q/2)][i] += 10 } } //block middle row
+
+    //// UNCOMMENT TO SHOW DEMERITS ON GRID:
+    // for (var i=0; i<q; i++){
+    //   for (var j=0; j<q; j++) {
+    //     var weights = c.set()
+    //     weights.push(c.text(qpo.board.lw + qpo.guiDimens.squareSize*(.5+i), qpo.board.tw + qpo.guiDimens.squareSize*(.5+j), demerits[j][i]).attr({qpoText:[20]}))
+    //   }
+    // }
+    // debugger;
+    // weights.remove()
+
     //TODO: APPLY BOOSTS : friendly side, friendly proximity
 
-    // console.log("demerits: " + demerits);
-    // console.log("demerits[0]: " + demerits[0]);
-
     //CHOOSE SPAWN BASED ON DEMERITS
-    var fewestDemerits = [100,100] //a comparer
-    for (var i=0; i<demerits[0].length; i++){ //find the lowest number of demerits
-      if(demerits[0][i]<fewestDemerits[0]){ fewestDemerits[0] = demerits[0][i] }
-      if(demerits[1][i]<fewestDemerits[1]){ fewestDemerits[1] = demerits[1][i] }
+    var fewestDemerits = 100 //a comparer
+    for (var i=0; i<q; i++){ //find the lowest number of demerits
+      for (var j=0; j<q; j++){
+        if(demerits[i][j]<fewestDemerits) { fewestDemerits = demerits[i][j]}
+      }
     }
-    //find rows with least demerits and columns with least demerits:
+
+    //make a list of spawn points tied for fewest demerits:
     var choices = [ [] , [] ] //rows, columns
-    var utilIndex = [0,0]
-    var increment = [false,false]
-    for (var i=0; i<demerits[0].length; i++){ //0 and 1 have same lengths
-      if(demerits[0][i]==fewestDemerits[0]){ //this row is a candidate.
-        choices[0][utilIndex[0]] = i
-        increment[0] = true
+    for (var i=0; i<q; i++){ //0 and 1 have same lengths
+      for (var j=0; j<q; j++){
+        if (demerits[i][j] == fewestDemerits) { choices[0].push(i); choices[1].push(j) }
       }
-      if(demerits[1][i]==fewestDemerits[1]){ //this col is a candidate.
-        choices[1][utilIndex[1]] = i
-        increment[1] = true
-      }
-      (increment[0] == true) ? (utilIndex[0]+=1) : (false)
-      (increment[1] == true) ? (utilIndex[1]+=1) : (false)
-      increment = [false,false]
     }
-    //choose random choices from "choices" arrays:
-    var chosenRow = choices[0][Math.floor(Math.random()*choices[0].length)];
-    var chosenColumn = choices[1][Math.floor(Math.random()*choices[1].length)];
 
-    // console.log("choices[0]: " + choices[0]);
-    // console.log("choices[1]: " + choices[1]);
+    //// UNCOMMENT TO SHOW MARKERS ON GRID:
+    // for(var i=0; i<choices[0].length; i++){ //mark the possible choices
+    //   var markers = c.set()
+    //   markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[1][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[0][i]), 5).attr({'fill':'pink'}))
+    // }
+    // debugger;
+    // markers.remove()
 
-    foundSpawn = [chosenRow,chosenColumn];
-    // console.log(foundSpawn);
+    //pick one at random:
+    var choice = Math.floor(Math.random()*choices[0].length)
+    foundSpawn = [choices[0][choice], choices[1][choice]]
 
-    return foundSpawn;
+    return foundSpawn
 }
 
 qpo.Unit.prototype.score = function(why){
@@ -687,53 +690,40 @@ qpo.Unit.prototype.bomb = function(){
 }
 qpo.Unit.prototype.shoot = function(){
   if(qpo.tutorial.status==2 && this.team=='blue') {qpo.tutorial.next()}
-  this.movingForward = false;
-  var width = 4;
-  var height = 20;
-  var speed = 4; // in boxes per turn
-  var lw = qpo.board.lw;
-  var tw = qpo.board.tw;
-  var shot, anim;
+  // this.movingForward = false
+  var lw = qpo.board.lw
+  var tw = qpo.board.tw
+  var shot, anim, loc
   switch(this.team){ //create the shot and the correct animation based on if the unit is moving forward
     case "blue":
-      shot = c.rect(lw+this.x*this.mtr + this.mtr*(25-width/2)/50,
+      shot = c.rect(lw+this.x*this.mtr + this.mtr*(25-qpo.SHOT_WIDTH/2)/50,
                     tw+this.y*this.mtr + this.mtr + 2*this.mtr/50,
-                    this.mtr*width/50, this.mtr*2/50, qpo.scr);
-      anim = Raphael.animation({"height":height*this.mtr/50}, 500*qpo.timeScale,
-        function(){ shot.animate({"y": shot.attr('y') + speed*this.mtr*qpo.activeGame.q}, 3000*qpo.activeGame.q*qpo.timeScale);}.bind(this)
+                    this.mtr*qpo.SHOT_WIDTH/50, this.mtr*2/50, qpo.scr);
+      anim = Raphael.animation({"height":qpo.SHOT_LENGTH*this.mtr/50}, 500*qpo.timeScale,
+        function(){ shot.animate({"y": shot.attr('y') + qpo.SHOT_SPEED*this.mtr*qpo.activeGame.q}, 3000*qpo.activeGame.q*qpo.timeScale);}.bind(this)
       );
-      if (this.movingForward){
-        anim = Raphael.animation({"height":height*this.mtr/50, "y": shot.attr('y') + this.mtr/6 + 10*this.mtr/50}, 500*qpo.timeScale,
-          function(){ shot.animate({"y": shot.attr('y') + speed*this.mtr*qpo.activeGame.q},
-            3000*qpo.activeGame.q*qpo.timeScale); //make the shot move at 2.5 units per turn
-        });
-      }
+      loc = [this.x, this.y+1]
       break;
     case "red":
-      shot = c.rect(lw+this.x*this.mtr + this.mtr*(25-width/2)/50,
+      shot = c.rect(lw+this.x*this.mtr + this.mtr*(25-qpo.SHOT_WIDTH/2)/50,
                     tw+this.y*this.mtr - this.mtr*4/50,
-                    this.mtr*width/50, this.mtr*2/50, qpo.scr);
-      anim = Raphael.animation({"height":height*this.mtr/50, "y": shot.attr('y') - 0.5*this.mtr}, 500*qpo.timeScale,
+                    this.mtr*qpo.SHOT_WIDTH/50, this.mtr*2/50, qpo.scr);
+      anim = Raphael.animation({"height":qpo.SHOT_LENGTH*this.mtr/50, "y": shot.attr('y') - 0.5*this.mtr}, 500*qpo.timeScale,
         function(){
-          shot.animate({"y": shot.attr('y') - speed*this.mtr*qpo.activeGame.q}, 3000*qpo.activeGame.q*qpo.timeScale);
+          shot.animate({"y": shot.attr('y') - qpo.SHOT_SPEED*this.mtr*qpo.activeGame.q}, 3000*qpo.activeGame.q*qpo.timeScale);
         }.bind(this)
       );
-      if (this.movingForward){
-        anim = Raphael.animation({"height":height*this.mtr/50, "y": shot.attr('y') - height*this.mtr/50 - this.mtr/6 - 10*this.mtr/50}, 500*qpo.timeScale,
-          function(){
-            shot.animate({"y": shot.attr('y') - speed*this.mtr*qpo.activeGame.q}, 3000*qpo.activeGame.q*qpo.timeScale);
-          }
-        );
-      }
+      loc = [this.x, this.y-1]
       break;
   }
-  shot.attr(qpo.shotAtts);
-  shot.data("team",this.team); //make it remember which team fired it
-  shot.data('unit',this) //and even which unit fired it
-  shot.animate(anim);
-  qpo.gui.push(shot);
-  qpo.shots.push(shot);
-  this.recordMove(6);
+  shot.attr(qpo.shotAtts)
+  shot.data("team", this.team) //make it remember which team fired it
+  shot.data('unit', this) //and even which unit fired it
+  shot.data('location', loc)
+  shot.animate(anim)
+  qpo.gui.push(shot)
+  qpo.shots.push(shot)
+  this.recordMove(6)
 }
 qpo.Unit.prototype.stay = function(){
   this.rect.stop()

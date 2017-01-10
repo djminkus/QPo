@@ -6,25 +6,27 @@ qpo.Bomb = function(su){ //su = source unit
   var INITIAL_SIZE = UNIT * 14/50
   var MARGIN_Y = (UNIT-INITIAL_SIZE)/2
   var MARGIN_X = MARGIN_Y
-  // var INITIAL_RADIUS = 14/50; //multiply by unit to get actual
-  // var MAX_RADIUS = 2; //unused. # of square lengths the explosion takes up
-  var SIDE_RADIUS = 2 //pixels of rounding at the corners
+  // var INITIAL_RADIUS = 14/50   //multiply by unit to get actual
+  // var MAX_RADIUS = 2   //unused. # of square lengths the explosion takes up
+  // var SIDE_RADIUS = 2   //pixels of rounding at the corners
 
   this.team = su.team
   this.timer = 3
   this.exploded = false
+  this.x = su.x
+  this.y = (this.team == "blue" ? su.y+1 : su.y-1)
   var lw = qpo.board.lw
   var tw = qpo.board.tw
   switch(this.team){ //make the "this.phys" and put it in the right place
     case "blue":
       this.phys = c.rect(lw +su.tx() + MARGIN_X,
                     tw + su.ty() + qpo.guiDimens.squareSize + MARGIN_Y,
-                    INITIAL_SIZE, INITIAL_SIZE, SIDE_RADIUS);
+                    INITIAL_SIZE, INITIAL_SIZE, qpo.BCR);
       break;
     case "red":
       this.phys = c.rect(lw+ su.tx() + MARGIN_X,
                   tw + su.ty() - MARGIN_Y - INITIAL_SIZE,
-                  INITIAL_SIZE, INITIAL_SIZE, SIDE_RADIUS);
+                  INITIAL_SIZE, INITIAL_SIZE, qpo.BCR);
       break;
   }
   qpo.gui.push(this.phys)
@@ -91,6 +93,7 @@ qpo.Bomb = function(su){ //su = source unit
             "width": side * shrinkageFactor,
             "height": side * shrinkageFactor
           }, 3000*qpo.timeScale, qpo.bombEasing, function(){this.next()}.bind(this) );
+          this.y += 1
           break;
         case "red":
           bombAnim = Raphael.animation({
@@ -99,6 +102,7 @@ qpo.Bomb = function(su){ //su = source unit
             "width": side * shrinkageFactor,
             "height": side * shrinkageFactor
           }, 3000*qpo.timeScale, function(){this.next()}.bind(this) );
+          this.y -= 1
           break;
       }
       this.phys.animate(bombAnim)
