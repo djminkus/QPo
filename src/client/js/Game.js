@@ -31,7 +31,7 @@ qpo.Game = function(args){ //"Game" class.
     }
   }
 
-  // Do some things with the args:
+  // DO SOME THINGS WITH THE ARGS:
   qpo.red = this.teams.red //convenient pointer
   qpo.blue = this.teams.blue //convenient pointer
 
@@ -244,7 +244,16 @@ qpo.Game = function(args){ //"Game" class.
       case 1:{this.board.notify('1', qpo.COLOR_DICT['red']); break;}
     }
 
-    setTimeout(function(){console.log('7/8')}, 7/8 * 3000 * qpo.timeScale)
+    setTimeout(function(){ //update board state and make all units spawn-ready
+      qpo.board.updateState.call(qpo.board)
+      var demerits = {
+        'blue' : qpo.board.findDemerits.call(qpo.board, 'blue'),
+        'red' : qpo.board.findDemerits.call(qpo.board, 'red')
+      }
+      for (var i=0; i<qpo.units.length; i++){
+        if(qpo.units[i].spawnTimer == 0) {qpo.units[i].findSpawn(demerits[qpo.units[i].team])}
+      }
+    }, 7/8 * 3000 * qpo.timeScale)
 
     qpo.moment = new Date()
 
@@ -279,6 +288,13 @@ qpo.Game = function(args){ //"Game" class.
         ru.updateLevel()
         bu.updateLevel()
       }
+    }
+
+    var shot, i
+    for(i=0; i<qpo.shots.length; i++){ //update shot locations
+      shot = qpo.shots[i]
+      if(shot.data('team') ==  'blue') { shot.data('yLoc', shot.data('yLoc')+qpo.SHOT_SPEED) }
+      else { shot.data('yLoc', shot.data('yLoc')-qpo.SHOT_SPEED) }
     }
 
     if(this.turnNumber == this.turns-1){ // Prepare to end the game. Set a timeout to call Game.end().

@@ -112,6 +112,7 @@ qpo.Unit = function(color, gx, gy, num, player, belongs){ //DEFINE UNIT TYPE/CLA
   this.movingForward = false //checked when this unit fires a shot, for animation purposes
   this.willScore = false
   this.spawnTimer = -1 //how many turns until this unit spawns? (-1 if alive)
+  this.spawnReady = false
   if (qpo.mode !== 'menu' && color == qpo.playerTeam){ // Make the spawn icon.
     var bit = qpo.guiCoords.gameBoard.width/qpo.activeGame.po;
     var six = lw + (this.num*bit) + bit/2 ; //spawn icon x center
@@ -466,41 +467,12 @@ qpo.Unit.prototype.deactivate = function(){
   this.active = false;
   qpo.user.activeUnit = null;
 }
-qpo.Unit.prototype.findSpawn = function(){
+qpo.Unit.prototype.findSpawn = function(demerits){ //pass in a demerits array, set this unit's next spawn
     var foundSpawn
     var po = qpo.activeGame.po
     var q = qpo.activeGame.q
-    var demerits = new Array()
-    for (var i=0; i<q; i++){ //populate demerits with zeros
-      demerits.push(new Array())
-      for (var j=0; j<q; j++){ demerits[i][j] = 0 }
-    }
-
-    //NOTE: ROWS,COLUMNS INSTEAD OF COLUMNS, ROWS IS LIKE USING Y,X COORDINATES INSTEAD OF X,Y
-    //APPLY BLOCKS : enemy side (TODO: enemy proximity, shots/bombs)
-    if (this.team == "blue"){ //block red side (rows q/2 through q-1)
-      for (var i=0; i<Math.floor(q/2); i++){
-        for (var j=0; j<q; j++){ demerits[q-1-i][j] += 10 }
-      }
-    }
-    else { //block blue side
-      for (var i=0; i<Math.floor(q/2); i++){
-        for (var j=0; j<q; j++) { demerits[i][j] += 10 }
-      }
-    }
-    if (q%2 == 1){ for (var i=0; i<q; i++) {demerits[Math.floor(q/2)][i] += 10 } } //block middle row
-
-    //// UNCOMMENT TO SHOW DEMERITS ON GRID:
-    // for (var i=0; i<q; i++){
-    //   for (var j=0; j<q; j++) {
-    //     var weights = c.set()
-    //     weights.push(c.text(qpo.board.lw + qpo.guiDimens.squareSize*(.5+i), qpo.board.tw + qpo.guiDimens.squareSize*(.5+j), demerits[j][i]).attr({qpoText:[20]}))
-    //   }
-    // }
-    // debugger;
-    // weights.remove()
-
-    //TODO: APPLY BOOSTS : friendly side, friendly proximity
+    var demerits = demerits     //demerits[i][j] represents the grid space at column i, row j.
+    // qpo.showGrid(demerits)
 
     //CHOOSE SPAWN BASED ON DEMERITS
     var fewestDemerits = 100 //a comparer
@@ -511,17 +483,17 @@ qpo.Unit.prototype.findSpawn = function(){
     }
 
     //make a list of spawn points tied for fewest demerits:
-    var choices = [ [] , [] ] //rows, columns
+    var choices = [ [] , [] ] //columns, rows
     for (var i=0; i<q; i++){ //0 and 1 have same lengths
       for (var j=0; j<q; j++){
         if (demerits[i][j] == fewestDemerits) { choices[0].push(i); choices[1].push(j) }
       }
     }
 
-    //// UNCOMMENT TO SHOW MARKERS ON GRID:
+    // UNCOMMENT TO SHOW MARKERS ON GRID:
+    // var markers = c.set()
     // for(var i=0; i<choices[0].length; i++){ //mark the possible choices
-    //   var markers = c.set()
-    //   markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[1][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[0][i]), 5).attr({'fill':'pink'}))
+    //   markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[0][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[1][i]), 5).attr({'fill':'pink'}))
     // }
     // debugger;
     // markers.remove()
@@ -530,7 +502,9 @@ qpo.Unit.prototype.findSpawn = function(){
     var choice = Math.floor(Math.random()*choices[0].length)
     foundSpawn = [choices[0][choice], choices[1][choice]]
 
-    return foundSpawn
+    this.x = foundSpawn[0]
+    this.y = foundSpawn[1]
+    this.spawnReady = true
 }
 
 qpo.Unit.prototype.score = function(why){
@@ -717,9 +691,10 @@ qpo.Unit.prototype.shoot = function(){
       break;
   }
   shot.attr(qpo.shotAtts)
-  shot.data("team", this.team) //make it remember which team fired it
+  shot.data('team', this.team) //make it remember which team fired it
   shot.data('unit', this) //and even which unit fired it
-  shot.data('location', loc)
+  shot.data('xLoc', loc[0])
+  shot.data('yLoc', loc[1])
   shot.animate(anim)
   qpo.gui.push(shot)
   qpo.shots.push(shot)
@@ -732,9 +707,7 @@ qpo.Unit.prototype.stay = function(){
 
 qpo.Unit.prototype.spawn = function(){ //call this at the moment you want a new unit to spawn
   this.spawnTimer = -1
-  var spawnLoc = this.findSpawn() //get the [row, column] for the spawn (loc is location)
-  this.x = spawnLoc[1] //update the grid positions, for qpo.snap
-  this.y = spawnLoc[0] //update the grid positions, for qpo.snap
+  this.spawnReady = false
   this.snap()
   this.phys.show()
   this.phys.attr({'opacity':1})

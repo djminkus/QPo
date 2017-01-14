@@ -167,7 +167,7 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.gamesToTrain = 30; // games per batch
   qpo.batchesToTrain = 3; // batches to train
   qpo.trainingData = new Array(); // store sessions (win/loss data)
-  qpo.aiTypes = ["neural","rigid","random", 'null'];
+  qpo.aiTypes = ["neural", "rigid" ,"random", 'null'];
   qpo.aiType = qpo.aiTypes[0]; // controls source of red's moves in singlePlayer
   qpo.trainerOpponent = qpo.aiTypes[2]; // controls source of blue's moves in training mode
   qpo.retrain = function(){ // get ready to train another batch.
@@ -478,14 +478,36 @@ qpo.setup = function(){ // set up global vars and stuff
     return el;
   }
 
-  var testing = [[1,2],[3,4]]
-  var testing2 = [[1,1],[2,2]]
-  console.log(testing + testing2)
-
+  qpo.zerosGrid = function(cols, rows){
+    var arr = new Array()
+    for (var i=0; i<cols; i++){
+      arr.push(new Array())
+      for (var j=0; j<rows; j++){
+        arr[i][j]=0
+      }
+    }
+    return arr
+  }
   qpo.sumGrids = function(arr1, arr2){
-    //assumes two 2-D arrays (nested arrays) as parameters. 
-    var result =
-    return result;
+    //assumes two 2-D arrays (nested arrays) with same dimensions as parameters.
+    var result = new Array()
+    for (var i=0; i<arr1.length; i++){
+      result[i] = new Array()
+      for (var j=0; j<arr1[0].length; j++){
+        result[i][j] = arr1[i][j] + arr2[i][j]
+      }
+    }
+    return result
+  }
+  qpo.showGrid = function(grid){
+    var gridContents = c.set()
+    for (var i=0; i<qpo.board.cols; i++){
+      for (var j=0; j<qpo.board.rows; j++) {
+        gridContents.push(c.text(qpo.board.lw + qpo.guiDimens.squareSize*(.5+i), qpo.board.tw + qpo.guiDimens.squareSize*(.5+j), grid[i][j]).attr({qpoText:[20]}))
+      }
+    }
+    debugger;
+    gridContents.remove()
   }
 
 }();
@@ -689,11 +711,98 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
       }
    }
 
-  this.state = new Array()
+  // Establish static spawn zones for each team:
+  this.redZone = qpo.zerosGrid(this.cols, this.rows)
+  this.blueZone = qpo.zerosGrid(this.cols, this.rows)
+  for (var i=0; i<Math.floor(this.rows/2); i++){ //block enemy zones
+    for (var j=0; j<this.cols; j++){
+      this.redZone[j][i] += 10
+      this.blueZone[j][this.rows-1-i] += 10
+    }
+  }
+  if (this.rows%2 == 1){ //block middle row if q is odd
+    for (var i=0; i<this.cols; i++) {
+      this.redZone[i][Math.floor(this.rows/2)] += 10
+      this.blueZone[i][Math.floor(this.rows/2)] += 10
+    }
+  }
+
+  this.state = new Array() //qpo.board.state tells us where all the shots and bombs will be at the next turn tick
   for(var i=0; i<this.rows; i++){ this.state.push(new Array()) }
 
-  this.findDemeritsBlue = function(){ //
+  this.updateState = function(){ //scan all bombs and shots and update the board's state grid accordingly
+    // The result represents the state of the board at the beginning of the next turn.
+    for (var i=0; i<this.cols; i++){ //set all entries equal to 0
+      for (var j=0; j<this.rows; j++){
+        this.state[i][j] = 0
+      }
+    }
+    var bomb, shot, amt
+    for(var i=0; i<qpo.bombs.length; i++){ //adjust for bombs
+      bomb = qpo.bombs[i]
+      if (bomb.timer > -1){ // Exploded bombs (timer = -1) will be gone by next tick so don't scan them
+        amt = (bomb.team=='blue' ? (3) : (12))
+        this.state[ bomb.x ][ bomb.y ] = amt + 3*bomb.timer
+      }
+    }
+    for(var i=0; i<qpo.shots.length; i++){ //scan shots
+      shot = qpo.shots[i]
+      amt = (shot.data('team')=='blue' ? (1) : (2))
+      this.state[ shot.data('xLoc') ][ shot.data('yLoc') ] += amt
+    }
+    // qpo.showGrid(this.state)
+  }
+  this.findDemerits = function(team){ //return a demerits grid based on bombs, shots, and units
+    var dir = 0
+    var result = (team =='blue' ? (this.blueZone) : (this.redZone))
+    // qpo.showGrid(result)
+    for (var i=0; i<this.cols; i++){ //Look at each grid square and adjust the demerits grid accordingly
+      for (var j=0; j<this.rows; j++){
 
+        // SHOT SECTION
+        // Make dir +1 if the shot is moving down, and -1 if the shot is moving up:
+        if (this.state%3 == 2){dir=1}
+        else if (this.state%3 == 1){dir=-1}
+        // At this point, if dir is not 0, it means there is a shot in the space.
+        if (dir != 0) { //5 demerits to spaces in the way of the shot
+          for (var k=0; k<5; k++){
+            try {result[i][j + k*dir] += 5}
+            catch(e){console.log('shot near wall')} //might throw error if near walls
+          }
+        }
+
+        // BOMB SECTION
+        dir=0 //reset dir to 0
+        // Make dir +1 if the bomb is moving down, and -1 if the bomb is moving up:
+        if (2 < this.state && this.state < 6){ //Bomb will explode in this space.
+          for (var k = -1; k<2; k++){
+            for (var l = -1; l<2; l++){
+              try {result[i+k][j+l] += 5 }
+              catch(e){console.log('exploding bomb near wall')} //might throw error if near walls
+            }
+          }
+        }
+        else if (5 < this.state && this.state < 12){dir=1}
+        else if (11 < this.state && this.state < 18){dir=-1}
+        // At this point, if dir is not 0, it means there is a bomb in the space.
+        if (dir != 0) { //5 demerits to the bomb's space and the one it will move into.
+          try { //might throw error if near walls
+            result[i][j] += 5
+            result[i][j + dir] += 5
+          }
+          catch(e){'moving bomb near wall'}
+        }
+      }
+    }
+    // qpo.showGrid(result)
+
+    var unit
+    for (var i=0; i<qpo.units.length; i++){ //add 5 demerits wherever units are
+      unit = qpo.units[i]
+      if(unit.alive || unit.spawnReady){ result[unit.x][unit.y] += 5 }
+    }
+    // qpo.showGrid(result)
+    return result
   }
 
   return this //return the constructed Board object
@@ -882,7 +991,6 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           !(shot.data("hidden")) &&
           (unit.alive)) {
         // shot.hide(); //make the shot disappear
-        shot.remove()
         switch(unit.coating.data('type')){ //kill unit or remove coating
           case 'none' : { unit.kill(); shot.data('unit').kills++; break;}
           case 'shield':
@@ -890,6 +998,7 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           case 'antimatter': { unit.applyCoating('none'); break;}
           default: {console.log('SOMETHING WEIRD HAPPENED')}
         }
+        shot.remove()
         // shot.data("hidden",true)
         splicers.push(i)
       }
