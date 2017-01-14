@@ -992,7 +992,11 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           (unit.alive)) {
         // shot.hide(); //make the shot disappear
         switch(unit.coating.data('type')){ //kill unit or remove coating
-          case 'none' : { unit.kill(); shot.data('unit').kills++; break;}
+          case 'none' : {
+            unit.kill()
+            qpo[shot.data('team')].units[shot.data('unitNum')].kills++
+            break
+          }
           case 'shield':
           case 'plasma':
           case 'antimatter': { unit.applyCoating('none'); break;}

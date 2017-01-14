@@ -490,7 +490,7 @@ qpo.Unit.prototype.findSpawn = function(demerits){ //pass in a demerits array, s
       }
     }
 
-    // UNCOMMENT TO SHOW MARKERS ON GRID:
+    //// UNCOMMENT TO SHOW MARKERS ON GRID:
     // var markers = c.set()
     // for(var i=0; i<choices[0].length; i++){ //mark the possible choices
     //   markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[0][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[1][i]), 5).attr({'fill':'pink'}))
@@ -692,7 +692,7 @@ qpo.Unit.prototype.shoot = function(){
   }
   shot.attr(qpo.shotAtts)
   shot.data('team', this.team) //make it remember which team fired it
-  shot.data('unit', this) //and even which unit fired it
+  shot.data('unitNum', this.num) //and even which unit fired it
   shot.data('xLoc', loc[0])
   shot.data('yLoc', loc[1])
   shot.animate(anim)
