@@ -27,8 +27,8 @@ gulp.task('htmlpage', function() {
 gulp.task('scripts', function() {
   gulp.src(['./src/client/js/libs/*.js', './src/client/js/qpo.js', './src/client/js/*.js', './src/client/js/title/title.js'])
     .pipe(concat('title_script.js'))
-    // .pipe(stripDebug())
-    // .pipe(uglify())
+    .pipe(stripDebug())
+    .pipe(uglify())
     .pipe(gulp.dest('./build/served/')
   );
   // gulp.src(['./src/client/js/libs/*.js', './src/client/js/qpo.js', './src/client/js/*.js', './src/client/js/menu/menu.js'])

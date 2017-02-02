@@ -94,7 +94,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
 
       var username = $(inputUsername).val()
       // console.log(username)
-      $.post("/menu", {'username': username}, function(data, status){ //create user on client, from data received
+      $.post("/menu", {'username': username}, function(data, status){ //create user session state on client, from data received
         // console.log(data)
         qpo.user = new qpo.User(data)
 
