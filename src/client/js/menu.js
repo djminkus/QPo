@@ -313,7 +313,7 @@ qpo.makeMuteButton = function(){ //make an icon that can mute the music when cli
     qpo.muteButton = c.rect(-5,-5,2,2) //to prevent errors
   }
 }
-qpo.viewToggler = { //switch between having 2 panes and having 1.
+qpo.viewToggler = { //switch between having 2 panes and having 1. Used before/after games.
   'userPaneShown': true,
   'toggle' : function(){
     if (this.userPaneShown){ //hide the user pane
@@ -339,8 +339,9 @@ qpo.quotes = [
   ["A person who never made a mistake", "never tried anything new.", "- Albert Einstein"]
 ]
 
-qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating Raphael elements, except the Main Menu's)
-
+qpo.makeMenus = function(render){
+  //Lay out the menu skeletons. Don't create any Raphael elements, unless render is true.
+  //  If render is true, create the main menu's elements.
   qpo.menus = {}
   qpo.tutorial = new qpo.Tutorial()
   var x = 50,
@@ -373,8 +374,8 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
   qpo.menus['vs. cpu'] = new qpo.Menu('vs. CPU', [
     new qpo.MenuOption(x, yStart + yInt,'1-Po', function(){}, 'vs. CPU', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'2-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 1),
-    new qpo.MenuOption(x, yStart + 3*yInt,'3-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 2),
-    new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'vs. CPU', false, 'stay', 'blue', 3)
+    // new qpo.MenuOption(x, yStart + 3*yInt,'3-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 2),
+    new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'vs. CPU', false, 'stay', 'blue', 2)
   ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29)});
   qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({
     'destination':'game',
@@ -390,14 +391,14 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
       'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
     }
   }, 1000); }
-  qpo.menus['vs. cpu'].cl.list[2].action = function(){ qpo.menus['vs. cpu'].close({
-    'destination':'game',
-    'gameArgs': {
-      'type':'single', 'q':9, 'po':9, 'ppt':3,
-      'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
-    }
-  }, 1000); }
-  qpo.menus['vs. cpu'].cl.list[3].action = qpo.menus['vs. cpu'].up.bind(qpo.menus['vs. cpu'])
+  // qpo.menus['vs. cpu'].cl.list[2].action = function(){ qpo.menus['vs. cpu'].close({
+  //   'destination':'game',
+  //   'gameArgs': {
+  //     'type':'single', 'q':9, 'po':9, 'ppt':3,
+  //     'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
+  //   }
+  // }, 1000); }
+  qpo.menus['vs. cpu'].cl.list[2].action = qpo.menus['vs. cpu'].up.bind(qpo.menus['vs. cpu'])
 
   qpo.menus['matchmaking'] = new qpo.Menu('Matchmaking', [
     new qpo.MenuOption(x, yStart + yInt,'coming soon', function(){}, 'Matchmaking', true, 'stay', 'blue', 0),
@@ -442,7 +443,7 @@ qpo.makeMenus = function(render){ //Lay out the menu skeletons (without creating
 
   if(render) { //Open the main menu and set qpo.mode to "menu"
     qpo.quote = c.set()
-    
+
     qpo.menus['main menu'].open()
     qpo.mode = "menu" // Type of screen that's active -- can be "menu", "game", "tut", or "other"
   }

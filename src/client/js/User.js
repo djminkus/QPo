@@ -53,7 +53,7 @@ qpo.User = function(stats){ //An entity within the ranking system. Has a name, a
     this.player = new qpo.Player(args.unitList, this.username, this.type, args.team, args.number)
     return this.player
   }
-  this.minUnit = null //minimum index in
+  this.minUnit = null
   this.maxUnit = null
 
   this.activeUnit = null

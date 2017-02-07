@@ -8,10 +8,7 @@ How to get familiar with the code:
   0. Open index.html in your browser window.
   1. Understand raphael.js basics.
   2. Look at qpo.setup() first.
-  3. See newMenus.js:
-
-  To understand the first thing you see when you load the page,
-    look at qpo.displayTitleScreen in newMenus.js.
+  3. See menu.js
 
 alpha must contain:
   [  ]  better spawn system
@@ -49,9 +46,11 @@ Contents of this code: (updated June 2, 2015)
   KEYDOWN HANDLER : detects and responds to keyboard input (arrows, spacebar, enter)
 */
 
+
+
 qpo = new Object()
 
-console.log("RESET " + Date())
+console.log("RESET " + Date() + '. Build ID rhino')
 var c = new Raphael("raphContainer", 600, 600) //create the Raphael canvas
 
 var songURL = "./music/timekeeper.mp3"
@@ -988,13 +987,24 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           ( nBOU < sBOS && sBOS < sBOU )) &&
           (( wBOU < wBOS && wBOS < eBOU ) || //horizontal overlap
           ( wBOU < eBOS && eBOS < eBOU )) &&
-          !(shot.data("hidden")) &&
+          // (shot.data("hidden") != true) &&
+          (shot.removed != true) &&
           (unit.alive)) {
-        // shot.hide(); //make the shot disappear
+        // shot.hide() //prevents double-collision glitch... not
+        // shot.data("hidden", true) //prevents double-collision glitch...not
         switch(unit.coating.data('type')){ //kill unit or remove coating
           case 'none' : {
-            unit.kill()
-            qpo[shot.data('team')].units[shot.data('unitNum')].kills++
+            try {
+              unit.kill()
+              qpo[shot.data('team')].units[shot.data('unitNum')].kills++
+            }
+            catch(e) {
+              console.log(e)
+              console.log(shot)
+              console.log(shot.data('team'))
+              console.log(qpo[shot.data('team')])
+              console.log(shot.data('unitNum'))
+            }
             break
           }
           case 'shield':
@@ -1003,7 +1013,6 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           default: {console.log('SOMETHING WEIRD HAPPENED')}
         }
         shot.remove()
-        // shot.data("hidden",true)
         splicers.push(i)
       }
     }//end iterating over units within shots

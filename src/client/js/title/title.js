@@ -1,12 +1,12 @@
 
 qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
-  qpo.activeMenu = "title";
-  qpo.mode = "menu";
+  qpo.activeMenu = "title"
+  qpo.mode = "menu"
   qpo.activeMission = qpo.missions[0] = new qpo.Mission([false,0,false])
 
   //1ST LAYER (background blackness)
-  this.blackness = c.rect(0,0,c.width,c.height).attr({"fill":"black"});
-  this.layer1 = c.set().push(this.blackness);
+  this.blackness = c.rect(0,0,c.width,c.height).attr({"fill":"black"})
+  this.layer1 = c.set().push(this.blackness)
 
   // qpo.makeMuteButton();
 
@@ -76,7 +76,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
     // inputPassword = document.createElement("input"),
     inputSubmit = document.createElement("input")
 
-  // $(form).attr({"action":"menu", "method":"POST"})
+  // Style the new elements:
   $(spacer).css({"height":"200px"}).attr({"display":"block"})
   $(inputUsername).attr({"type":"text", "autocomplete":"off", "autofocus":"on",
     "name":"username", "placeholder":"username"})
@@ -98,14 +98,19 @@ qpo.login = function(){ //prompt the user to create an account or log in.
         // console.log(data)
         qpo.user = new qpo.User(data)
 
-        $("form").hide()
-        $(spacer).hide()
-        $("#raphContainer").show()
-        $("#raphContainer2").show()
+        $("form").fadeOut(400, function(){ //bring the Raph papers back and make the menus
+          $(spacer).hide()
 
-        qpo.makeMenus(true)
+          $("#raphContainer").show()
+          $("#raphContainer2").show()
+
+          qpo.makeMenus(true) //see menu.js.
+          // It's in the main menu's "and" function that the 
+        })
       })
-    }),
+    });
+
+  $(form, inputUsername, inputSubmit).hide().fadeIn()
 
   $("#raphContainer").after(spacer, form)
   $("form").append(inputUsername,
@@ -129,7 +134,7 @@ switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
     break
   }
   case 'easy': { //show "easy" campaign chapter menu (not implemented)
-    break;
+    break
   }
   case 'game': { //start a game immediately
     qpo.user = new qpo.User()

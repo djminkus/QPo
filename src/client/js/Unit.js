@@ -504,6 +504,7 @@ qpo.Unit.prototype.findSpawn = function(demerits){ //pass in a demerits array, s
 
     this.x = foundSpawn[0]
     this.y = foundSpawn[1]
+    if (this.x < 0 || this.y < 0) {console.log('uh-oh. spawn found outside board.')}
     this.spawnReady = true
 }
 
