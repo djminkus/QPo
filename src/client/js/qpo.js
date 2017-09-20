@@ -46,11 +46,9 @@ Contents of this code: (updated June 2, 2015)
   KEYDOWN HANDLER : detects and responds to keyboard input (arrows, spacebar, enter)
 */
 
-
-
 qpo = new Object()
 
-console.log("RESET " + Date() + '. Build ID rhino')
+console.log("RESET " + Date() + '. Build ID hey')
 var c = new Raphael("raphContainer", 600, 600) //create the Raphael canvas
 
 var songURL = "./music/timekeeper.mp3"
@@ -407,6 +405,20 @@ qpo.setup = function(){ // set up global vars and stuff
   }
   qpo.centeredSquare = function(paper, cx, cy, s, atts){
     return paper.rect(cx-s/2, cy-s/2, s,s).attr(atts)
+  }
+  qpo.triangle=function(cx, cy, s, strokeWidth, pointUp, color){
+    if (color===undefined){color = qpo.COLOR_DICT['foreground']}
+    var DY = .289 * s
+    var Z = .577 * s
+    var V1X = cx - s/2
+    var V1Y = cy - DY
+    var V2X = cx + s/2
+    var V2Y = V1Y
+    var V3X = cx
+    var V3Y = cy + Z
+    var tri = c.path("M"+V1X+","+V1Y+"L"+V2X+","+V2Y+"L"+V3X+","+V3Y+"z").attr({'stroke':color, 'stroke-width':strokeWidth})
+    if (pointUp) { tri.attr({'transform':'r180'})}
+    return tri
   }
 
   //TITLE SCREEN STUFF: (previously in menus.js)

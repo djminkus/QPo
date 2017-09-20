@@ -16,7 +16,7 @@ qpo.Tutorial = function(){
 
   this.stringPairs = [
     /* 0 */ ['Welcome, '+qpo.user.username+'!',''],
-    /* 1 */ ['Use w/a/s/d to move your unit.', 'Try crossing the enemy goal line to score.'],
+    /* 1 */ ['Use w/a/s/d to move your unit.', 'Cross the enemy goal line to score.'],
     /* 2 */ ['Press e to shoot.', 'You can also use spacebar.'],
     /* 3 */ ['Keeping a unit alive levels it up,', 'getting it bonus abilities.'],
     /* 4 */ ['Once your unit is level 2 or greater,', 'Press q to bomb.'],
@@ -24,7 +24,7 @@ qpo.Tutorial = function(){
     /* x */ // ['A green shield (lv. 3) will protect', 'your unit from one shot.'],
     /* x */ // ['A purple shield (lv. 4) lets you run into', 'one unshielded unit and kill it.'],
     /* x */ // ["Soon you'll control multiple units.", 'Press x to send a neutral command.'],
-    /* 6 */ ['Now you know the basics.', 'Try playing 1-Po against the CPU.']
+    /* 6 */ ['Now you know the basics.', 'Battle the CPU, or jump into matchmaking.']
   ];
 
   this.start = function(){
@@ -68,6 +68,8 @@ qpo.Tutorial = function(){
     this.status = -1
     qpo.activeGame.end()
     qpo.fadeOut(this.textEls)
+    qpo.user.tutDone = true
+    qpo.user.post('tutDone')
   }
 
   // 'ControlsScreen' : function(){

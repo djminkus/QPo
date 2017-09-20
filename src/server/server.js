@@ -42,14 +42,10 @@ db.once('open', function() {
   var userSchema = mongoose.Schema({
     username: String,
     level: Number,
-    rank: Number,
-    exp: Number,
+    onePoRank: Number,
+    twoPoRank: Number,
     type: String,
-    campaignProgress: {
-      easy: Array,
-      medium: Array,
-      hard: Array
-    }
+    tutDone: Boolean
   })
 
   // userSchema.statics.findOne = function(id, callback){
@@ -62,7 +58,6 @@ db.once('open', function() {
 })
 
 app.post('/menu', function(req, res){ // Save new user or load existing one, and send that data back to the client.
-  // console.log(req)
   var username = req.param('username')
   console.log('username "'+username+'" parsed from form')
 
@@ -71,22 +66,14 @@ app.post('/menu', function(req, res){ // Save new user or load existing one, and
     if (err) {console.log("The user search caused an error")}
     if (user === null) {
       console.log("No user by name %s found--creating new user", username)
-      var newUser = new User({username: username, level:0, rank:0, exp:0, type: 'human',
-        campaignProgress: {easy:[false,false,false], medium:[false,false,false], hard:[false,false,false]}
-      })
-      //Add the new user to the database
-      newUser.save(function (err, newUser) {
+      var newUser = new User({username: username, level:0, onePoRank:0, twoPoRank: 0, type: 'human'})
+      newUser.save(function (err, newUser) { //Add the new user to the database
         if (err) return console.error(err);
         console.log("New user %s saved to database", username)
-        // console.log("newUser:")
-        // console.log(newUser)
         res.json(newUser)
       })
-
-    } else {
+    } else { //User was found in the database
       console.log("User %s found.", username)
-      // console.log(user)
-      // console.dir(user)
       res.json(user)
     }
   })

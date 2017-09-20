@@ -38,7 +38,7 @@ qpo.Bits1 = function(x1, y1, xRange, yRange, colors, number, bye){
     this.bye = function(){
       var DELAY, DISPLACEMENT
       var timeScale = 4,
-        totalLength = 500, //length of closing animation if timeScale is 1
+        totalLength = 1000, //length of closing animation if timeScale is 1
         bitAnimLength = .2
 
       this.circles.forEach(function(item,index){
@@ -146,7 +146,7 @@ qpo.Bits2 = function(midpoint, segregated, colors){
 
   this.bye = function(){
     var timeScale = 4,
-      totalLength = 500, //length of closing animation if timeScale is 1
+      totalLength = 1000, //length of closing animation if timeScale is 1
       bitAnimLength = .2
     var DISPLACEMENT, DELAY
     this.bitsLeft.forEach(function(item, index){

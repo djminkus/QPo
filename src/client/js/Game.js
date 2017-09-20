@@ -153,7 +153,7 @@ qpo.Game = function(args){ //"Game" class.
     // $("#raphContainer2").attr('style','display: block; width: 0px; float: none')
     // qpo.user.leveller.all.remove()
     // qpo.user.leveller = null
-    qpo.viewToggler.toggle()
+    // qpo.viewToggler.toggle()
 
     this.bluePrepElements = c.set()
     this.redPrepElements = c.set()
@@ -344,9 +344,8 @@ qpo.Game = function(args){ //"Game" class.
 
         if(qpo.trainingMode){this.type='training'}
         switch(this.type){ // Display menu or start another game
-          case 'tut': { //set mode back to 'tut' and show the next tutorial scene
-            qpo.mode = 'tut'
-            qpo.tut.tutFuncs.enter()
+          case 'tutorial': {
+            qpo.menus["main menu"].open(1)
             break;
           }
           case 'training': { //If in training mode, decide whether to train another game.

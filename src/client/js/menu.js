@@ -1,8 +1,11 @@
 //Set up the menu objects and open the title screen.
 qpo.Menu = function(titleStr, itemList, parent, placeholder, unwrapDoodad, and){ // A Menu contains a CursorList of MenuOptions
+  // The doodad returned by unwrapDoodad() should have...
+  //   ...a bye() method to be called on menu close, and
+  //   ...an .all property containing a Raphael set
   this.titleStr = titleStr
   this.TITLE_SIZE = 40
-  this.unwrapDoodad = unwrapDoodad || function(){return c.circle(-5,-5, 1)} // A function that returns a raph set
+  this.unwrapDoodad = unwrapDoodad || function(){return c.circle(-5,-5, 1)}
   this.and = and || function(){} //callback to be called when this menu is opened
 
   this.isPlaceholder = placeholder || false
@@ -41,6 +44,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, unwrapDoodad, and){
   this.children = {}
 
   this.close = function(obj, time){ //clear the canvas and open the next screen
+    var time = time || 1500
     qpo.ignore(time)
     this.all.stop()
     try{this.doodad.bye()}
@@ -64,7 +68,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, unwrapDoodad, and){
           // })
           qpo.activeGame = new qpo.Game(obj.gameArgs); break;
         }
-        default : { //open the menu of that name
+        default : { //open the menu of that name (in this case, obj is actually a string)
           try{qpo.menus[obj].open();}
           catch(e){console.log(obj, qpo.menus[obj])}
         }
@@ -360,15 +364,11 @@ qpo.makeMenus = function(render){
     new qpo.MenuOption(x, yStart + 2*yInt,'vs. CPU', function(){}, 'Main Menu', false, 'stay', 'blue', 1),
     new qpo.MenuOption(x, yStart + 3*yInt,'Matchmaking', function(){}, 'Main Menu', false, 'stay', 'blue', 2)
     // , new qpo.MenuOption(x, yStart + 4*yInt,'Settings', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
-  ], 'title', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, qpo.colors, 29)}, function(){
-    qpo.leftPane = $("#raphContainer")
-    qpo.leftPane.css({'float': 'left', 'margin-left': '50px'});
-    if (qpo.user.leveller === undefined || qpo.user.leveller === null) {qpo.user.leveller = new qpo.Leveller(200, 300, 100, qpo.user)}
-  })
+  ], 'title', false, function(){return new qpo.Leveller(350, 250, 150, qpo.user)})
   qpo.menus['main menu'].up = function(){/*qpo.menus['main menu'].close({'destination':'title'})*/}
-  qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close({'destination':'tutorial'}) }
-  qpo.menus['main menu'].cl.list[1].action = function(){ qpo.menus['main menu'].close('vs. cpu') }
-  qpo.menus['main menu'].cl.list[2].action = function(){ qpo.menus['main menu'].close('matchmaking') }
+  qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close({'destination':'tutorial'}, 1000) }
+  qpo.menus['main menu'].cl.list[1].action = function(){ qpo.menus['main menu'].close('vs. cpu', 1000) }
+  qpo.menus['main menu'].cl.list[2].action = function(){ qpo.menus['main menu'].close('matchmaking', 1000) }
   // qpo.menus['main menu'].cl.list[3].action = function(){ qpo.menus['main menu'].close('settings') }
 
   qpo.menus['vs. cpu'] = new qpo.Menu('vs. CPU', [
@@ -439,7 +439,7 @@ qpo.makeMenus = function(render){
       qpo.menus['match complete'].all.toFront()
     }
   );
-  qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}); }
+  qpo.menus['match complete'].cl.list[0].action = function(){ qpo.menus['match complete'].close({'destination':'parent'}, 2000); }
 
   if(render) { //Open the main menu and set qpo.mode to "menu"
     qpo.quote = c.set()

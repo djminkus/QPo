@@ -472,7 +472,7 @@ qpo.Unit.prototype.findSpawn = function(demerits){ //pass in a demerits array, s
     var po = qpo.activeGame.po
     var q = qpo.activeGame.q
     var demerits = demerits     //demerits[i][j] represents the grid space at column i, row j.
-    // qpo.showGrid(demerits)
+    qpo.showGrid(demerits)
 
     //CHOOSE SPAWN BASED ON DEMERITS
     var fewestDemerits = 100 //a comparer
@@ -490,13 +490,13 @@ qpo.Unit.prototype.findSpawn = function(demerits){ //pass in a demerits array, s
       }
     }
 
-    //// UNCOMMENT TO SHOW MARKERS ON GRID:
-    // var markers = c.set()
-    // for(var i=0; i<choices[0].length; i++){ //mark the possible choices
-    //   markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[0][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[1][i]), 5).attr({'fill':'pink'}))
-    // }
-    // debugger;
-    // markers.remove()
+    // UNCOMMENT TO SHOW MARKERS ON GRID:
+    var markers = c.set()
+    for(var i=0; i<choices[0].length; i++){ //mark the possible choices
+      markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[0][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[1][i]), 5).attr({'fill':'pink'}))
+    }
+    debugger;
+    markers.remove()
 
     //pick one at random:
     var choice = Math.floor(Math.random()*choices[0].length)

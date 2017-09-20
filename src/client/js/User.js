@@ -10,36 +10,32 @@ qpo.randomHandle = function(){
   return handle
 }
 
-qpo.User = function(stats){ //An entity within the ranking system. Has a name, a level, a rank, and an exp value.
+qpo.User = function(stats){ //An entity within the ranking system.
   // username is a string like "djminkus"
-  // [il, ir, ix] = [initial level, initial rank, initial exp]
   try { //build user from stats obj
     if (typeof stats === 'string' ) {stats = JSON.parse(stats)} //else it's already an obj
     // console.log(typeof stats)
     this.username = stats.username
     this.level = stats.level
-    this.rank = stats.rank
-    this.exp = stats.exp //experience points
+    this.onePoRank = stats.onePoRank
+    this.twoPoRank = stats.twoPoRank
     this.type = stats.type //human or one of four AI types (null, random, rigid, or neural)
-    this.campaignProgress = stats.campaignProgress //booleans representing completion status of each campign mission
+    this.tutDone = stats.tutDone //booleans representing completion status of each campign mission
     console.log('user ' + this.username + ' loaded.')
   }
   catch(e){ //create new user.
     console.log('new user created.')
     this.username = qpo.randomHandle()
     this.level = 0
-    this.rank = 0
-    this.exp = 0 //experience points
+    this.onePoRank = 200
+    this.twoPoRank = 200
     this.type = 'human' //human or one of four AI types (null, random, rigid, or neural)
-    this.campaignProgress = {'easy':[false,false,false],'medium':[false,false,false],'hard':[false,false,false]} //booleans representing completion status of each campign mission
+    this.tutDone = false
   }
 
-  this.levelUp = function(){this.level++}
-  this.rankUp = function(){this.rank++}
-  this.rankDown = function(){this.rank--}
-  this.addExp = function(amt){
-    this.exp += amt
-  }
+  this.levelUp = function(amt){this.level+=amt}
+  this.onePoAdjust = function(amt){this.onePoRank+=amt}
+  this.twoPoAdjust = function(amt){this.twoPoRank+=amt}
 
   this.post = function(what){
     var statsObj = this.getStats()
@@ -97,10 +93,10 @@ qpo.User = function(stats){ //An entity within the ranking system. Has a name, a
     return {
       'username': this.username,
       'level': this.level,
-      'rank': this.rank,
-      'exp': this.exp,
+      'onePoRank': this.onePoRank,
+      'twoPoRank': this.twoPoRank,
       'type': this.type,
-      'campaignProgress': this.campaignProgress
+      'tutDone': this.tutDone
     }
   }
 
