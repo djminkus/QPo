@@ -14,7 +14,9 @@ Each turn is less than two seconds long. Each turn, a player must give an order 
 ## TECHNOLOGIES SUMMARY
 
 **Graphics:** The game is built on Raphael, a JavaScript library which uses CSS transforms to manipulate SVG HTML elements.
+
 **Networking:** The game is hosted at http://akadjg.com. The user database was created with MongoDB and network interactions occur via Node.
+
 **AI:** The game has a neural-network based AI created with Andrej Karpathy's ConvNetJS. It also has a scripted AI.
 
 
