@@ -244,7 +244,7 @@ qpo.Game = function(args){ //"Game" class.
       case 1:{this.board.notify('1', qpo.COLOR_DICT['red']); break;}
     }
 
-    setTimeout(function(){ //update board state and make all units spawn-ready
+    setTimeout(function(){ //update board state, generate the demerits arrays, and make all units spawn-ready
       qpo.board.updateState.call(qpo.board)
       var demerits = {
         'blue' : qpo.board.findDemerits.call(qpo.board, 'blue'),

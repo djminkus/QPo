@@ -48,7 +48,7 @@ Contents of this code: (updated June 2, 2015)
 
 qpo = new Object()
 
-console.log("RESET " + Date() + '. Build ID hey')
+console.log("RESET " + Date() + '. Build ID spawn4')
 var c = new Raphael("raphContainer", 600, 600) //create the Raphael canvas
 
 var songURL = "./music/timekeeper.mp3"
@@ -725,7 +725,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   // Establish static spawn zones for each team:
   this.redZone = qpo.zerosGrid(this.cols, this.rows)
   this.blueZone = qpo.zerosGrid(this.cols, this.rows)
-  for (var i=0; i<Math.floor(this.rows/2); i++){ //block enemy zones
+  for (var i=0; i<Math.floor(this.rows/2); i++){ //10 demerits in enemy zones
     for (var j=0; j<this.cols; j++){
       this.redZone[j][i] += 10
       this.blueZone[j][this.rows-1-i] += 10
@@ -743,11 +743,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
 
   this.updateState = function(){ //scan all bombs and shots and update the board's state grid accordingly
     // The result represents the state of the board at the beginning of the next turn.
-    for (var i=0; i<this.cols; i++){ //set all entries equal to 0
-      for (var j=0; j<this.rows; j++){
-        this.state[i][j] = 0
-      }
-    }
+    this.state = qpo.zerosGrid(this.cols, this.rows)
     var bomb, shot, amt
     for(var i=0; i<qpo.bombs.length; i++){ //adjust for bombs
       bomb = qpo.bombs[i]
@@ -764,16 +760,20 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
     // qpo.showGrid(this.state)
   }
   this.findDemerits = function(team){ //return a demerits grid based on bombs, shots, and units
-    var dir = 0
-    var result = (team =='blue' ? (this.blueZone) : (this.redZone))
+    var dir
+    var result = qpo.zerosGrid(this.cols, this.rows)
+    if (team == 'blue') { result = qpo.sumGrids(this.blueZone, result) }
+    else { result = qpo.sumGrids(this.redZone, result) }
+
     // qpo.showGrid(result)
     for (var i=0; i<this.cols; i++){ //Look at each grid square and adjust the demerits grid accordingly
       for (var j=0; j<this.rows; j++){
+        dir = 0 //reset dir
 
         // SHOT SECTION
         // Make dir +1 if the shot is moving down, and -1 if the shot is moving up:
-        if (this.state%3 == 2){dir=1}
-        else if (this.state%3 == 1){dir=-1}
+        if (this.state[i][j]%3 == 2){dir = -1}
+        else if (this.state[i][j]%3 == 1){dir = 1}
         // At this point, if dir is not 0, it means there is a shot in the space.
         if (dir != 0) { //5 demerits to spaces in the way of the shot
           for (var k=0; k<5; k++){
@@ -785,7 +785,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
         // BOMB SECTION
         dir=0 //reset dir to 0
         // Make dir +1 if the bomb is moving down, and -1 if the bomb is moving up:
-        if (2 < this.state && this.state < 6){ //Bomb will explode in this space.
+        if (2 < this.state[i][j] && this.state[i][j] < 6){ //Bomb will explode in this space. Add 5 demerits to the space and each adjacent space.
           for (var k = -1; k<2; k++){
             for (var l = -1; l<2; l++){
               try {result[i+k][j+l] += 5 }
@@ -793,15 +793,15 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
             }
           }
         }
-        else if (5 < this.state && this.state < 12){dir=1}
-        else if (11 < this.state && this.state < 18){dir=-1}
+        else if (5 < this.state[i][j] && this.state[i][j] < 12){dir=1}
+        else if (11 < this.state[i][j] && this.state[i][j] < 18){dir=-1}
         // At this point, if dir is not 0, it means there is a bomb in the space.
         if (dir != 0) { //5 demerits to the bomb's space and the one it will move into.
           try { //might throw error if near walls
             result[i][j] += 5
             result[i][j + dir] += 5
           }
-          catch(e){'moving bomb near wall'}
+          catch(e){console.log('moving bomb near wall')}
         }
       }
     }

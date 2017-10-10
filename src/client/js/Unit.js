@@ -468,11 +468,16 @@ qpo.Unit.prototype.deactivate = function(){
   qpo.user.activeUnit = null;
 }
 qpo.Unit.prototype.findSpawn = function(demerits){ //pass in a demerits array, set this unit's next spawn
+
+    // qpo.showGrid(qpo.board.state);
+    // debugger;
+
     var foundSpawn
     var po = qpo.activeGame.po
     var q = qpo.activeGame.q
     var demerits = demerits     //demerits[i][j] represents the grid space at column i, row j.
-    qpo.showGrid(demerits)
+    // qpo.showGrid(demerits)
+    // debugger;
 
     //CHOOSE SPAWN BASED ON DEMERITS
     var fewestDemerits = 100 //a comparer
@@ -490,13 +495,13 @@ qpo.Unit.prototype.findSpawn = function(demerits){ //pass in a demerits array, s
       }
     }
 
-    // UNCOMMENT TO SHOW MARKERS ON GRID:
-    var markers = c.set()
-    for(var i=0; i<choices[0].length; i++){ //mark the possible choices
-      markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[0][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[1][i]), 5).attr({'fill':'pink'}))
-    }
-    debugger;
-    markers.remove()
+    // // UNCOMMENT TO SHOW MARKERS ON GRID:
+    // var markers = c.set()
+    // for(var i=0; i<choices[0].length; i++){ //mark the possible choices
+    //   markers.push(c.circle(qpo.board.lw + qpo.guiDimens.squareSize*(.5+choices[0][i]), qpo.board.tw + qpo.guiDimens.squareSize*(.5+choices[1][i]), 5).attr({'fill':'pink'}))
+    // }
+    // debugger;
+    // markers.remove()
 
     //pick one at random:
     var choice = Math.floor(Math.random()*choices[0].length)
@@ -514,7 +519,8 @@ qpo.Unit.prototype.score = function(why){
   this.alive = false
   this.willScore = false
   this.scores++
-  this.deactivate()
+  if(this.active){ qpo.user.updateActiveUnit('death')}
+  // this.deactivate()
   this.spawnTimer = qpo.spawnTimers[qpo.activeGame.unitsPerPlayer]
   if (this.team==qpo.playerTeam){this.showSpawnIcon()}
   if(qpo.mode == "game"){ //deal with scoreboard, AI, spawn, and ending game
