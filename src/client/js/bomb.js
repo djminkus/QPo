@@ -15,8 +15,8 @@ qpo.Bomb = function(su){ //su = source unit
   this.exploded = false
   this.x = su.x
   this.y = (this.team == "blue" ? su.y+1 : su.y-1)
-  var lw = qpo.board.lw
-  var tw = qpo.board.tw
+  var lw = qpo.board.lw //left wall
+  var tw = qpo.board.tw //top wall
   switch(this.team){ //make the "this.phys" and put it in the right place
     case "blue":
       this.phys = c.rect(lw +su.tx() + MARGIN_X,

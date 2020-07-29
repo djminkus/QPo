@@ -9,5 +9,10 @@
     "gulp-minify-html": "^1.0.6",
     "gulp-strip-debug": "^1.1.0"
   },
-  "scripts": {}
+  "scripts": {},
+  "dependencies": {
+    "express": "^4.17.1",
+    "lodash": "^4.17.19",
+    "lodash-template": "^1.0.0"
+  }
 }
