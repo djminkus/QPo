@@ -4,13 +4,12 @@ var gulp = require('gulp')
 // include plug-ins
 var changed = require('gulp-changed')
 var minifyHTML = require('gulp-minify-html')
-
 var concat = require('gulp-concat')
 var stripDebug = require('gulp-strip-debug')
 var uglify = require('gulp-uglify')
-
 var autoprefix = require('gulp-autoprefixer')
 var cleanCSS = require('gulp-clean-css')
+//var del = require('del')
 
 // minify new or changed HTML pages
 gulp.task('htmlpage', function() {
@@ -55,7 +54,7 @@ gulp.task('styles', function() {
   );
 });
 
-gulp.task('default', ['htmlpage', 'scripts', 'styles'], function(){
+gulp.task('default', gulp.parallel(['htmlpage', 'scripts', 'styles'], function(){
   // gulp.watch('./src/*.html', function(){
   //   gulp.run('htmlpage')
   // })
@@ -64,8 +63,9 @@ gulp.task('default', ['htmlpage', 'scripts', 'styles'], function(){
   gulp.watch(['./src/client/js/*.js', './src/client/js/title/*.js', './src/server/*.js'], function(){
     gulp.run('scripts')
   })
+
   //
   // gulp.watch('./src/styles/*.css', function(){
   //   gulp.run('styles')
   // })
-})
+}))

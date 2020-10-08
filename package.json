@@ -1,16 +1,19 @@
 {
   "name": "qpo",
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^7.0.1",
     "gulp-changed": "^1.3.2",
     "gulp-clean-css": "^2.0.13",
     "gulp-concat": "^2.6.0",
     "gulp-minify-css": "^1.2.4",
     "gulp-minify-html": "^1.0.6",
-    "gulp-strip-debug": "^1.1.0"
+    "gulp-strip-debug": "^1.1.0",
+    "gulp-uglify": "^3.0.2"
   },
   "scripts": {},
   "dependencies": {
+    "caniuse-lite": "^1.0.30001144",
     "express": "^4.17.1",
     "lodash": "^4.17.19",
     "lodash-template": "^1.0.0"
