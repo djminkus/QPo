@@ -154,7 +154,7 @@ qpo.Game = function(args){ //"Game" class.
 
     //fill empty slots with 0s:
     for(var i=0; i<arr.length; i++){
-      if (arr[i] == undefined || arr[i] == NaN) {arr[i]=0}}
+      if (arr[i] == undefined || isNaN(arr[i]) || arr[i]==null) {arr[i]=0}}
     return arr
   };
 
@@ -311,7 +311,9 @@ qpo.Game = function(args){ //"Game" class.
 
     // Check for NaNs in value net:
     try {
-      if(Object.is(qpo.ali.nn.value_net.layers[0]['in_act']['dw'][0], NaN)) {console.log('NaN issue.')}
+      if(Object.is(qpo.ali.nn.value_net.layers[0]['in_act']['dw'][0], NaN)) {
+        console.log('NaN issue.'); qpo.debugit = true;
+      }
       if(Object.is(qpo.ali.nn.value_net.layers[6]['out_act']['w'][0], NaN)) {console.log('NaN issue 2.')}
     }
     catch(e){console.log(e)}

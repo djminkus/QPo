@@ -143,6 +143,7 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
       // and return the argmax action and its value
       var svol = new convnetjs.Vol(1, 1, this.net_inputs);
       svol.w = s;
+      if(qpo.debugit){debugger;}
       var action_values = this.value_net.forward(svol);
       var maxk = 0;
       var maxval = action_values.w[0];
@@ -250,12 +251,17 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
           var e = this.experience[re]; //experience chosen
           var x = new convnetjs.Vol(1, 1, this.net_inputs);
           x.w = e.state0;
+          if(qpo.debugit){debugger;}
           var maxact = this.policy(e.state1);
+          if(qpo.debugit){debugger;}
           var r = e.reward0 + this.gamma * maxact.value;
+          if(qpo.debugit){debugger;}
           var ystruct = {dim: e.action0, val: r};
+          if(qpo.debugit){debugger;}
           var loss = this.tdtrainer.train(x, ystruct);
+          if(qpo.debugit){debugger;}
           avcost += loss.loss;
-          debugger;
+          if(qpo.debugit){debugger;}
         }
         avcost = avcost/this.tdtrainer.batch_size;
         this.average_loss_window.add(avcost);
