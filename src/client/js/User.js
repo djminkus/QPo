@@ -1,4 +1,4 @@
-qpo.randomHandle = function(){
+qpo.randomHandle = function(){  //Generate a random handle and return it as a string.
   var handle = '',
     part1 = ['pro','noob','random','super','epic',
       'slower','rapid','dextrous','power','uber'],

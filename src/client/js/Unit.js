@@ -525,12 +525,13 @@ qpo.Unit.prototype.score = function(why){
   if (this.team==qpo.playerTeam){this.showSpawnIcon()}
   if(qpo.mode == "game"){ //deal with scoreboard, AI, spawn, and ending game
     qpo[this.team].addPoint()
+    this.player.rewardQueue.push(1)
     switch(this.team){ // update scoreboard, prep to reward AI
       case qpo.otherTeam: //enemy team ("red" until server implementation)
-        qpo.redRewardQueue.push(-1) //is this backwards?
+        // qpo.redRewardQueue.push(-1) //is this backwards?
         break
       case qpo.playerTeam: //player team ("blue" until server implementation)
-        qpo.redRewardQueue.push(1) //is this backwards?
+        // qpo.redRewardQueue.push(1) //is this backwards?
         if(this.active){qpo.updateBlueAU(qpo.activeGame.po)}
         break
     }
@@ -576,11 +577,11 @@ qpo.Unit.prototype.kill = function(why){
     else{qpo.blue.addPoint()}
     switch(this.team){ //prep to reward AI, and update blue AU if necessary
       case qpo.otherTeam: //enemy team ("red" until server implementation)
-        qpo.redRewardQueue.push(1); //is this backwards?
+        // qpo.redRewardQueue.push(1); //is this backwards?
         break;
       case qpo.playerTeam: //player team ("blue" until server implementation)
+        // qpo.redRewardQueue.push(-1); //is this backwards?
         var number = this.num;
-        qpo.redRewardQueue.push(-1); //is this backwards?
         if (this.active){qpo.updateBlueAU(qpo.activeGame.po);}
         break;
     }
@@ -739,7 +740,8 @@ qpo.Unit.prototype.generateMove = function(){ //set this.nextAction to a string 
     case "rigid": { generatedMove = qpo.findMove(this); break; }
     case "neural": {
       qpo.inputForNeural[217] = this.num-0.5-(qpo.activeGame.po/2); //generate a zero-mean input representing chosen unit
-      var action = qpo.ali.nn.forward(qpo.inputForNeural); // Have the AI net generate a move (integer)
+      //var action = qpo.ali.nn.forward(qpo.inputForNeural); // Have the AI net generate a move (integer)
+      var action = this.player.brain.forward(qpo.inputForNeural); // Have the AI net generate a move (integer)
       generatedMove = qpo.actions[action]; //get the proper string
       break;
     }

@@ -11,6 +11,7 @@ qpo.Bomb = function(su){ //su = source unit
   // var SIDE_RADIUS = 2   //pixels of rounding at the corners
 
   this.team = su.team
+  this.unit = su
   this.timer = 3
   this.exploded = false
   this.x = su.x
@@ -25,8 +26,8 @@ qpo.Bomb = function(su){ //su = source unit
       break;
     case "red":
       this.phys = c.rect(lw+ su.tx() + MARGIN_X,
-                  tw + su.ty() - MARGIN_Y - INITIAL_SIZE,
-                  INITIAL_SIZE, INITIAL_SIZE, qpo.BCR);
+                    tw + su.ty() - MARGIN_Y - INITIAL_SIZE,
+                    INITIAL_SIZE, INITIAL_SIZE, qpo.BCR);
       break;
   }
   qpo.gui.push(this.phys)

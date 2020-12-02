@@ -18,7 +18,8 @@ c.customAttributes.ratingColor = function(rating){
 function session(sessionType){
   console.log("NEW " + sessionType + " SESSION");
   this.type = sessionType;
-  switch(sessionType){ //get player types from "pvp", "pvn", "nvri", "ravra", etc
+
+  switch(sessionType){ //get this.bluePlayerType and this.redPlayerType from "pvp", "pvn", "nvri", "ravra", etc
     //team assignments: [blue]v[red]
     case "pvp": {
       this.bluePlayerType = "human";
@@ -65,6 +66,10 @@ function session(sessionType){
       this.redPlayerType = "neural";
       break;
     }
+    case 'test': { // Testing mode 11-27-20
+      console.log("We don't care");
+      break;
+    }
     default: {
       console.log("this was unexpected");
     }
@@ -77,6 +82,7 @@ function session(sessionType){
   this.playerRating = 1500; //start at 1500, adjust each time game ends in this.update(),
                             //  only display after single player games
   this.games = 0; //games played
+  this.gamesArr = []
   //returns "blue"/"red"/"tie" depending on blueWins,ties, and redWins
   this.leader = function(){
     if (this.blueWins > this.redWins){
@@ -171,10 +177,12 @@ function session(sessionType){
       return all;
   }
 
-  this.update = function(result){ // Add 1 to one of the running totals.
+  this.update = function(winner, blueScore, redScore){ // Add 1 to one of the running totals.
     qpo.activeSession.set = c.set(this.bluePart,this.greyPart,this.redPart);
     this.games += 1;
-    switch(result){
+    var g = this.games
+    this.gamesArr.push({'gameNum': g, 'blueScore': blueScore, 'redScore': redScore})
+    switch(winner){
       case "blue":
         this.blueWins += 1;
         this.playerRating += 200 ;

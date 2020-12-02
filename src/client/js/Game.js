@@ -2,10 +2,10 @@ qpo.Game = function(args){ //"Game" class.
   //{q, po, type, turns, ppt, customScript, teams}
   qpo.mode = 'game'
 
-  qpo.scr = (qpo.trainingMode ? null : 2)
-  qpo.BCR = (qpo.traningMode ? null : 2)
+  qpo.scr = (qpo.trainingMode ? null : 2) // Do these do anything? 10/13/20
+  qpo.BCR = (qpo.trainingMode ? null : 2)
 
-  if (args != undefined) { // Grab args for custom game
+  if (args != undefined) { // Assign args to properties of 'this' (or set defaults)
     //Grab the arguments (and fill in missing ones with default values):
     this.q = args.q || 7 // Number of rows, columns on the board
     this.po = args.po || 3 // Number of units on each team
@@ -51,6 +51,9 @@ qpo.Game = function(args){ //"Game" class.
   }
   qpo.user.minUnit = qpo.user.player.num   * this.po
   qpo.user.maxUnit =(qpo.user.player.num+1)* this.po - 1
+  // var player1 = (qpo.user.player || qpo.aliP)
+  // qpo.user.minUnit = player1.num * this.po
+  // qpo.user.maxUnit =(player1.num + 1) * this.po - 1
 
   //other misc. setup:
   this.turnNumber = 0 //How far through this game are we?
@@ -76,22 +79,24 @@ qpo.Game = function(args){ //"Game" class.
 
   this.prevState = []
   this.state = []
-  this.getState = function(){ // Returns an array to be stored and passed to the neural network.
+  this.getState = function(){ // Returns an array representing, ideally, the totality of the game's state
     var arr = new Array() // Will contain 216 entries for 4-po game.
     //  We'll format the array properly later. Let's start with the raw values.
     for (var i=0; i<this.po; i++){
+      //principle: keep coords of same obj together
+
       // 16 qpo-grid coords of units (4 per po--red/blue x/y):
       if(qpo.blue.units[i].alive){ //0-7: blue x,y
-        arr[2*i] = qpo.blue.units[i].x //values from 0 to (q-1)
-        arr[2*i + 1] = qpo.blue.units[i].y //principle: keep coords of same obj together
+        arr[2*i] = qpo.blue.units[i].x / qpo.board.cols //values from 0 to (q-1)
+        arr[2*i + 1] = qpo.blue.units[i].y / qpo.board.rows
       }
       else { // -1 if dead
         arr[2*i] = -1
         arr[2*i + 1] = -1
       }
       if(qpo.red.units[i].alive){ //8-15: red x,y
-        arr[2*qpo.activeGame.po + 2*i] = qpo.red.units[i].x
-        arr[2*qpo.activeGame.po + 2*i + 1] = qpo.red.units[i].y
+        arr[2*qpo.activeGame.po + 2*i] = qpo.red.units[i].x / qpo.board.cols
+        arr[2*qpo.activeGame.po + 2*i + 1] = qpo.red.units[i].y / qpo.board.rows
       }
       else { // -1 if dead
         arr[2*qpo.activeGame.po + 2*i] = -1
@@ -107,11 +112,11 @@ qpo.Game = function(args){ //"Game" class.
         zero23 = (i+1) * (j+1) - 1
         one70 = (zero23*3 + 1)
         if(qpo.shots[zero23]) { //if shot exists, load real values
-          //2 things per shot.
-          arr[15 + one70] = qpo.shots[zero23].x
-          arr[15 + one70 + 1] = qpo.shots[zero23].y
-          if (qpo.shots[zero23].data("team")=="blue"){ arr[15 + one70 + 2] = 0.5 }
-          else { arr[15 + one70 + 2] = -0.5 }
+          //3 things per shot.
+          arr[15 + one70] = qpo.shots[zero23].data('xLoc') / qpo.board.cols
+          arr[15 + one70 + 1] = qpo.shots[zero23].data('yLoc') / qpo.board.rows
+          if (qpo.shots[zero23].data("team")=="blue"){ arr[15 + one70 + 2] = 0.25 }
+          else { arr[15 + one70 + 2] = .75 }
         }
         else { // load -1,-1,0 if shot doesn't exist
           arr[15 + one70] = -1
@@ -128,15 +133,15 @@ qpo.Game = function(args){ //"Game" class.
         // (2 teams per po, 4 bombs per team, 4 values per bomb)
         zero31 = (i+1) * (j+1) - 1
         one125 = (zero31*4+1)
-        if(qpo.bombs[zero31]) { //if shot exists, load real values
-          //2 things per shot.
-          arr[15 + 72 + one125] = qpo.bombs[zero31].phys.attr('x')
-          arr[15 + 72 + one125 + 1] = qpo.bombs[zero31].phys.attr('y')
-          if (qpo.bombs[zero31].team == "blue"){ arr[15 + 72 + one125 + 2] = 0.5 }
-          else { arr[15 + 72 + one125 + 2] = -0.5 }
+        if(qpo.bombs[zero31]) { //if bomb exists, load real values
+          //4 things per bomb.
+          arr[15 + 72 + one125] = qpo.bombs[zero31].x / qpo.board.cols
+          arr[15 + 72 + one125 + 1] = qpo.bombs[zero31].y / qpo.board.rows
+          if (qpo.bombs[zero31].team == "blue"){ arr[15 + 72 + one125 + 2] = 0.25 }
+          else { arr[15 + 72 + one125 + 2] = .75 }
           arr[15 + 72 + one125 + 3] = qpo.bombs[zero31].timer
         }
-        else { // load -1,-1,0,-1 if shot doesn't exist
+        else { // load -1,-1,0,-1 if bomb doesn't exist
           arr[15 + 72 + one125] = -1
           arr[15 + 72 + one125 + 1] = -1
           arr[15 + 72 + one125 + 2] = 0
@@ -144,7 +149,12 @@ qpo.Game = function(args){ //"Game" class.
         }
       }
     }
-    arr[216] = Date.now()
+    // arr[216] = Date.now()  // Why did I include this?
+    arr[216] = 0.0001 // to prevent array from being clipped
+
+    //fill empty slots with 0s:
+    for(var i=0; i<arr.length; i++){
+      if (arr[i] == undefined || arr[i] == NaN) {arr[i]=0}}
     return arr
   };
 
@@ -245,7 +255,7 @@ qpo.Game = function(args){ //"Game" class.
     }
 
     setTimeout(function(){ //update board state, generate the demerits arrays, and make all units spawn-ready
-      qpo.board.updateState.call(qpo.board)
+      qpo.board.updateState.call(qpo.board) // does not involve Game.getState
       var demerits = {
         'blue' : qpo.board.findDemerits.call(qpo.board, 'blue'),
         'red' : qpo.board.findDemerits.call(qpo.board, 'red')
@@ -257,18 +267,54 @@ qpo.Game = function(args){ //"Game" class.
 
     qpo.moment = new Date()
 
-    //// AI REWARD SECTION
+    //// AI SECTION
+    // REWARD
     // Record reward events that happened this turn:
-    qpo.sixty.list[qpo.sixty.cursor] = qpo.redRewardQueue.reduce(qpo.add, 0)
-    qpo.sixty.cursor = (qpo.sixty.cursor == 59) ? 0 : (qpo.sixty.cursor + 1) //cycle the cursor
-    qpo.redRewardQueue = []
-    // Each turn, reward AI for favorable events, and convert the game state to inputs for the neural nets:
-    try{qpo.ali.nn.backward(qpo.sixty.list.reduce(qpo.add, 0))}  // Try to reward...
-    catch(err){console.log("Can't train without having acted.")} // ...but will fail if no actions have been taken
+    // === old weird logic ===
+    // qpo.sixty.list[qpo.sixty.cursor] = qpo.redRewardQueue.reduce(qpo.add, 0) //sum the queue and load result into the cursorlist
+    // qpo.sixty.cursor = (qpo.sixty.cursor == 59) ? 0 : (qpo.sixty.cursor + 1) //cycle the cursor
+    // qpo.redRewardQueue = [] //clear the queue
+    // === end old weird ===
+    // Each turn, reward AIs for favorable events, and convert the game state to inputs for the neural nets:
+    for(var i=0, player; i<qpo.red.players.length; i++){ // do reward propagation logic for each player
+      player = qpo.red.players[i]
+      if (player.type == 'neural'){
+        try {
+          var reward = player.rewardQueue.reduce(qpo.add, 0)
+          // console.log('reward: ' + reward)
+          player.brain.backward(reward)
+          player.rewardQueue = [] //clear the reward queue
+        }  // Try to reward...
+        catch(err){console.log("Can't train without having acted.")} // ...but will fail if no actions have been taken
+      }
+      player = qpo.blue.players[i]
+      if (player.type == 'neural'){
+        try{
+          var reward = player.rewardQueue.reduce(qpo.add, 0)
+          // console.log('reward: ' + reward)
+          player.brain.backward(reward)
+          player.rewardQueue = [] //clear the reward queue
+        }  // Try to reward...
+        catch(err){console.log("Can't train without having acted.")} // ...but will fail if no actions have been taken
+      }
+    }
+    // === MORE old weird ===
+    // try{qpo.ali.nn.backward(qpo.sixty.list.reduce(qpo.add, 0))}  // Try to reward...
+    // catch(err){console.log("Can't train without having acted.")} // ...but will fail if no actions have been taken
+
+    // PREPARE STATE
     // Manage the game state variables and get input array for nn:
     this.prevState = this.state
     this.state = this.getState()
-    qpo.inputForNeural = qpo.convertStateToInputs(this.state)
+    // qpo.inputForNeural = qpo.convertStateToInputs(this.state) //used before modifying getState() on Nov 30 2020
+    qpo.inputForNeural = this.state
+
+    // Check for NaNs in value net:
+    try {
+      if(Object.is(qpo.ali.nn.value_net.layers[0]['in_act']['dw'][0], NaN)) {console.log('NaN issue.')}
+      if(Object.is(qpo.ali.nn.value_net.layers[6]['out_act']['w'][0], NaN)) {console.log('NaN issue 2.')}
+    }
+    catch(e){console.log(e)}
 
     //// MOVE GENERATION/EXECUTION SECTION
     if(this.turnNumber != this.turns){ //unless it's the end of the game, generate and execute moves.
@@ -334,7 +380,7 @@ qpo.Game = function(args){ //"Game" class.
       qpo.units = [];
       // (winner == "red") ? (qpo.ali.nn.value_net.backward(2)) : (qpo.ali.nn.value_net.backward(0)) //reward AI for winning, not losing
       // (winner == "tie") ? (qpo.ali.nn.value_net.backward(1)) : (qpo.ali.nn.value_net.backward(0)) //reward it a little for tying
-      try{qpo.activeSession.update(winner)} //add to the proper tally. Will throw error in tut mode.
+      try{qpo.activeSession.update(winner, qpo.scoreboard.blueScore, qpo.scoreboard.redScore)} //add to the proper tally. Will throw error in tut mode.
       catch(e){;} //don't bother adding to the proper tally in tut mode.
 
       setTimeout(function(){ // Clear the paper and display menu or start another game
@@ -365,7 +411,57 @@ qpo.Game = function(args){ //"Game" class.
               }
               else { qpo.retrain() }// If batch counter not exceeded, train another batch
             }
-            else { qpo.startGame([8,4]) }// If game counter not satisfied, train another game
+            else {  // If game counter not satisfied, train another game
+              // qpo.startGame([8,4])
+              qpo.activeGame = new qpo.Game({
+                'q':8,
+                'po':4,
+                'type':'training',
+                'ppt':2,
+                'bluePlayers': [qpo.aliP, qpo.bryanP],
+                'redPlayers':[qpo.calebP, qpo.daltonP]
+              })
+            }
+            break
+          }
+          case 'testing': { //If in testing mode, decide whether to test another game.
+            qpo.testingCounter++
+            console.log('tested game ' + qpo.testingCounter + ' out of ' + qpo.gamesToTest)
+            if (qpo.testingCounter >= qpo.gamesToTest){ // If game counter satisfied, check batch counter
+              qpo.batchCounter++
+              var batch = new qpo.Batch(qpo.activeSession)
+              qpo.saveSend('ali', true, true) // Save/send the neural net after each batch.
+              qpo.testingData.push(batch)
+              console.log('Batch ' + qpo.batchCounter + ' completed.')
+              console.log(batch)
+              if (qpo.batchCounter >= qpo.batchesToTest){ // If batch counter satisfied, exit testingMode
+                qpo.testingMode = false
+                qpo.menus["Match Complete"].open()
+                for (var i=0; i<qpo.batchesToTest; i++){ // log each batch's data to console
+                  console.log(qpo.testingData[i])
+                }
+              }
+              else { qpo.retest() }// If batch counter not exceeded, test another batch (reset testingCounter)
+            }
+            else {  // If game counter not satisfied, test another game
+              // qpo.activeGame = new qpo.Game({
+              //   'q':8,
+              //   'po':4,
+              //   'type':'testing',
+              //   'ppt':2,
+              //   'bluePlayers': [qpo.aliP, qpo.bryanP],
+              //   'redPlayers':[new qpo.Player(null, 'Rigid 1', qpo.testOpponent, 'red', 0),
+              //                 new qpo.Player(null, 'Rigid 2', qpo.testOpponent, 'red', 1)]
+              // })
+              qpo.activeGame = new qpo.Game({
+                'q':6,
+                'po':2,
+                'type':'testing',
+                'ppt':1,
+                'bluePlayers': [qpo.aliP],
+                'redPlayers':[new qpo.Player(null, qpo.testOpponentName, qpo.testOpponent, 'red', 0)]
+              });
+            }
             break
           }
           case 'campaign': { //If in campaign mode, reopen the campaign menu, with the next mission highlighted.
@@ -387,9 +483,7 @@ qpo.Game = function(args){ //"Game" class.
   //Start actually doing things:
   qpo.activeGame = this
   this.customScript()
-  if(this.type=='tutorial'){
-    this.start()
-  }
+  if(this.type=='tutorial'){ this.start() }
   else { this.prep() } //initialize it with pregame screen.
 
   return this

@@ -12,7 +12,8 @@ var cleanCSS = require('gulp-clean-css')
 //var del = require('del')
 
 // minify new or changed HTML pages
-gulp.task('htmlpage', function() {
+gulp.task('htmlpage', function(d) {
+  // The 'd' callback signals async completion, preventing an error. 
   var htmlSrc = './src/client/*.html',
       htmlDst = './build/served/'
 
@@ -20,10 +21,12 @@ gulp.task('htmlpage', function() {
     .pipe(changed(htmlDst))
     .pipe(minifyHTML())
     .pipe(gulp.dest(htmlDst));
+
+  d()
 })
 
 // JS concat, strip debugging and minify
-gulp.task('scripts', function() {
+gulp.task('scripts', function(d) {
   gulp.src(['./src/client/js/libs/*.js', './src/client/js/qpo.js', './src/client/js/*.js', './src/client/js/title/title.js'])
     .pipe(concat('title_script.js'))
     // .pipe(stripDebug())
@@ -42,30 +45,50 @@ gulp.task('scripts', function() {
     // .pipe(uglify())
     .pipe(gulp.dest('./build/')
   );
+
+  d()
+});
+
+// package.json update
+gulp.task('package', function(d) {
+  gulp.src(['./src/server/package.json'])
+    .pipe(concat('package.json'))
+    // .pipe(stripDebug())
+    // .pipe(uglify())
+    .pipe(gulp.dest('./build/')
+  );
+
+  d()
 });
 
 // CSS concat, auto-prefix and minify
-gulp.task('styles', function() {
+gulp.task('styles', function(d) {
   gulp.src(['./src/client/css/*.css'])
     .pipe(concat('style.css'))
     .pipe(autoprefix('last 2 versions'))
     .pipe(cleanCSS())
     .pipe(gulp.dest('./build/served/')
   );
+
+  d()
 });
 
-gulp.task('default', gulp.parallel(['htmlpage', 'scripts', 'styles'], function(){
-  // gulp.watch('./src/*.html', function(){
-  //   gulp.run('htmlpage')
-  // })
-  //
-  // //Note: libraries are not watched for changes.
-  gulp.watch(['./src/client/js/*.js', './src/client/js/title/*.js', './src/server/*.js'], function(){
-    gulp.run('scripts')
+gulp.task('default', gulp.parallel(['htmlpage', 'scripts', 'package', 'styles'], function(d){
+  gulp.watch('./src/*.html', function(){
+    gulp.run('htmlpage')
   })
 
-  //
-  // gulp.watch('./src/styles/*.css', function(){
-  //   gulp.run('styles')
-  // })
+  gulp.watch(['./src/client/js/*.js', './src/client/js/title/*.js', './src/server/*.js'], function(){
+    gulp.run('scripts');
+  })
+
+  gulp.watch(['./src/server/package.json'], function(){
+    gulp.run('package');
+  })
+
+  gulp.watch('./src/styles/*.css', function(){
+     gulp.run('styles')
+  })
+
+  d()
 }))

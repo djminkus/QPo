@@ -32,8 +32,10 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
 
     // number of steps we will learn for
     this.learning_steps_total = typeof opt.learning_steps_total !== 'undefined' ? opt.learning_steps_total : 100000;
+
     // how many steps of the above to perform only random actions (in the beginning)?
     this.learning_steps_burnin = typeof opt.learning_steps_burnin !== 'undefined' ? opt.learning_steps_burnin : 3000;
+
     // what epsilon value do we bottom out on? 0.0 => purely deterministic policy at end
     this.epsilon_min = typeof opt.epsilon_min !== 'undefined' ? opt.epsilon_min : 0.05;
     // what epsilon to use at test time? (i.e. when learning is disabled)
@@ -244,8 +246,8 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
       if(this.experience.length > this.start_learn_threshold) {
         var avcost = 0.0;
         for(var k=0;k < this.tdtrainer.batch_size;k++) {
-          var re = convnetjs.randi(0, this.experience.length);
-          var e = this.experience[re];
+          var re = convnetjs.randi(0, this.experience.length); //random experience index
+          var e = this.experience[re]; //experience chosen
           var x = new convnetjs.Vol(1, 1, this.net_inputs);
           x.w = e.state0;
           var maxact = this.policy(e.state1);
@@ -253,6 +255,7 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
           var ystruct = {dim: e.action0, val: r};
           var loss = this.tdtrainer.train(x, ystruct);
           avcost += loss.loss;
+          debugger;
         }
         avcost = avcost/this.tdtrainer.batch_size;
         this.average_loss_window.add(avcost);

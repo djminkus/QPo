@@ -401,7 +401,7 @@ qpo.makeMenus = function(render){
   qpo.menus['vs. cpu'].cl.list[2].action = qpo.menus['vs. cpu'].up.bind(qpo.menus['vs. cpu'])
 
   qpo.menus['matchmaking'] = new qpo.Menu('Matchmaking', [
-    new qpo.MenuOption(x, yStart + yInt,'coming soon', function(){}, 'Matchmaking', true, 'stay', 'blue', 0),
+    new qpo.MenuOption(x, yStart + yInt,'coming soon?', function(){}, 'Matchmaking', true, 'stay', 'blue', 0),
     // new qpo.MenuOption(x, yStart + yInt,'2-Po', function(){}, 'Matchmaking', true, 'stay', 'blue', 0),
     // new qpo.MenuOption(x, yStart + 2*yInt,'3-Po', function(){}, 'Matchmaking', false, 'stay', 'blue', 1),
     // new qpo.MenuOption(x, yStart + 3*yInt,'4-Po', function(){}, 'Matchmaking', false, 'stay', 'blue', 2),
@@ -449,51 +449,130 @@ qpo.makeMenus = function(render){
   }
 }
 
-//----------OLD LOCAL MODE STUFF---------
+//----------localStorage stuff, Old local mode stuff---------
 qpo.freshUser = true
 if (qpo.freshUser){ localStorage['stats'] = undefined }
 qpo.devMode = true
-qpo.freshStart = true // for neural nets
+qpo.freshStart = false // for neural nets
+qpo.neuralSource = 'server' // 'server' or 'local'
 
-qpo.openingCode = function(){ //get an AI net ready, either from storage or fresh
-  if(qpo.freshStart){ //delete Ali from local storage.
-    localStorage['aliNN']=null
-    // console.log("Ali was deleted")
-  }
+if(qpo.freshStart){ //delete Ali from local storage.
+  localStorage.removeItem('aliNN')
+  localStorage.removeItem('aliCopy')
+  localStorage.removeItem('aliCopy2')
+  localStorage.removeItem('aliAge')
+  console.log("Ali was deleted from localStorage")
+  localStorage.removeItem('bryanNN')
+  localStorage.removeItem('bryanAge')
+  console.log("Bryan was deleted from localStorage")
+}
 
-  // console.log('opening code!')
+//  get an AI net ready, either from storage or fresh
 
-  try { //retrieve saved AI or generate new one
-    qpo.ali = {'nn': null,  "team": "red"}
-    qpo.ali.nn = new deepqlearn.Brain(num_inputs, num_actions, opt)
-    if(localStorage['aliNN'] !== "null"){ //retrieve saved network from local storage
-      // console.log("generating Ali's net from localStorage");
-      qpo.ali.nn.value_net.fromJSON(JSON.parse(localStorage['aliNN']))
-      // (JSON.stringify(qpo.ali.nn) == localStorage['aliCopy']) ? (console.log("ali successfully reconstructed.")) : console.log("ali reconstruction failed.");
-      // (JSON.stringify(qpo.ali.nn.value_net.toJSON()) == localStorage['aliCopy2']) ? (console.log("ali value net successfully reconstructed.")) : console.log("ali value net reconstruction failed.");
+try {  //retrieve saved AIs or generate new ones
+  //Ali
+  qpo.ali = {'nn': null,  "team": "blue", 'name': 'Ali'}
+  qpo.ali.nn = new deepqlearn.Brain(num_inputs, num_actions, opt)
+  switch(qpo.neuralSource){
+    case 'local': {
+      if(localStorage['aliNN']){ //retrieve saved network from local storage
+        console.log("generating Ali's net from localStorage");
+        qpo.ali.nn.value_net.fromJSON(JSON.parse(localStorage['aliNN']));
+        // ;(JSON.stringify(qpo.ali.nn) == localStorage['aliCopy']) ? (console.log("ali successfully reconstructed.")) : console.log("ali reconstruction failed.");
+        qpo.ali.nn.age = Number.parseInt(localStorage['aliAge'], 10);
+        qpo.ali.nn.experience = JSON.parse(localStorage['aliExp'])//get Array from string
+        if (isNAN(qpo.ali.nn.age)) {qpo.ali.nn.age = 0}
+        ;(JSON.stringify(qpo.ali.nn.value_net.toJSON()) == localStorage['aliNN']) ? (console.log("ali value net successfully restored.")) : console.log("ali value net restoration failed.");
+      }
+      else { //make Ali from scratch.
+        console.log("no Ali net found in localStorage. making new one.") //no net found in localStorage
+        var brain = new deepqlearn.Brain(num_inputs, num_actions, opt) // start fresh
+        // console.log(brain);
+        qpo.ali = {  "nn" : brain, "team" : "blue", 'name': 'Ali'}
+      }
+      break;
     }
-    else { //make Ali from scratch.
-      // console.log("no net found in localStorage. making new one.") //no net found in localStorage
-      var brain = new deepqlearn.Brain(num_inputs, num_actions, opt) // start fresh
-      // console.log(brain);
-      qpo.ali = {  "nn" : brain, "team" : "red" }
+    case 'server': {
+      console.log('asking server for Ali')
+      $.post('/neuralGet', {name: 'Ali'}, function(data, status){
+        console.log('Ali data from server: ');
+        console.log(data);
+        // console.log(status);  // "success" if good
+        // console.log('something');
+        qpo.ali.nn.value_net.fromJSON(data.value_net);
+        qpo.ali.nn.age = data.age;
+        qpo.ali.nn.experience = data.experience;
+      })
+      break;
     }
+    default: {console.log('check yourself')}
   }
-  catch(err){ console.log(err) }
 
-  return null
-};
-window.onload = qpo.openingCode
-
-qpo.closingCode = function(){ //save the net
-  try{ //save the AI net to local storage
-    localStorage['aliNN'] = JSON.stringify(qpo.ali.nn.value_net.toJSON()) //stores network to local storage for persistence
-    localStorage['aliCopy'] = JSON.stringify(qpo.ali.nn)
-    localStorage['aliCopy2'] = JSON.stringify(qpo.ali.nn.value_net.toJSON())
+  //Bryan
+  qpo.bryan = {'nn': null,  "team": "blue", 'name': 'Bryan'}
+  qpo.bryan.nn = new deepqlearn.Brain(num_inputs, num_actions, opt)
+  if(localStorage['bryanNN']){ //retrieve saved network from local storage
+    console.log("generating Bryan's net from localStorage");
+    qpo.bryan.nn.value_net.fromJSON(JSON.parse(localStorage['bryanNN']));
+    ;(JSON.stringify(qpo.bryan.nn) == localStorage['bryanCopy']) ? (console.log("bryan successfully reconstructed.")) : console.log("bryan reconstruction failed.");
+    ;(JSON.stringify(qpo.bryan.nn.value_net.toJSON()) == localStorage['bryanCopy2']) ? (console.log("bryan value net successfully reconstructed.")) : console.log("bryan value net reconstruction failed.");
   }
-  catch(err){ console.log("uh-oh. Looks like there's no network to store.") }
+  else { //make Bryan from scratch.
+    // console.log("no 'Bryan' net found in localStorage. making new one.") //no net found in localStorage
+    var brain = new deepqlearn.Brain(num_inputs, num_actions, opt) // start fresh
+    // console.log("Bryan's nn: ");
+    // console.log(brain);
+    qpo.bryan = {"nn" : brain, "team" : "blue" , 'name': 'Bryan'}
+  }
+
+  //Caleb
+  qpo.caleb = {'nn': null,  "team": "red", 'name': 'Caleb'}
+  qpo.caleb.nn = new deepqlearn.Brain(num_inputs, num_actions, opt)
+  if(localStorage['calebNN']){ //retrieve saved network from local storage
+    console.log("generating Caleb's net from localStorage");
+    qpo.caleb.nn.value_net.fromJSON(JSON.parse(localStorage['calebNN']));
+    ;(JSON.stringify(qpo.ali.nn) == localStorage['calebCopy']) ? (console.log("caleb successfully reconstructed.")) : console.log("caleb reconstruction failed.");
+    ;(JSON.stringify(qpo.ali.nn.value_net.toJSON()) == localStorage['calebCopy2']) ? (console.log("caleb value net successfully reconstructed.")) : console.log("caleb value net reconstruction failed.");
+  }
+  else { //make Caleb from scratch.
+    // console.log("no Caleb net found in localStorage. making new one.") //no net found in localStorage
+    var brain = new deepqlearn.Brain(num_inputs, num_actions, opt) // start fresh
+    // console.log(brain);
+    qpo.caleb = {  "nn" : brain, "team" : "red", 'name': 'Caleb'}
+  }
+
+  //Dalton
+  qpo.dalton = {'nn': null,  "team": "red", 'name': 'Dalton'}
+  qpo.dalton.nn = new deepqlearn.Brain(num_inputs, num_actions, opt)
+  if(localStorage['daltonNN']){ //retrieve saved network from local storage
+    console.log("generating Dalton's net from localStorage");
+    qpo.dalton.nn.value_net.fromJSON(JSON.parse(localStorage['daltonNN']));
+    ;(JSON.stringify(qpo.dalton.nn) == localStorage['daltonCopy']) ? (console.log("dalton successfully reconstructed.")) : console.log("Dalton reconstruction failed.");
+    ;(JSON.stringify(qpo.dalton.nn.value_net.toJSON()) == localStorage['daltonCopy2']) ? (console.log("dalton value net successfully reconstructed.")) : console.log("dalton value net reconstruction failed.");
+  }
+  else { //make Dalton from scratch.
+    // console.log("no Dalton net found in localStorage. making new one.") //no net found in localStorage
+    var brain = new deepqlearn.Brain(num_inputs, num_actions, opt) // start fresh
+    // console.log(brain);
+    qpo.dalton = {  "nn" : brain, "team" : "red", 'name': 'Dalton' }
+  }
+}
+catch(err){ console.log(err) }
+
+qpo.closingCode = function(){ //save the nets
+  //save the AI nets to the database and to local storage
+  try{ qpo.saveSend('ali', true, true) }
+  catch(err){console.log(err) }
   // localStorage['stats'] = JSON.stringify(qpo.user.getStats())
   // localStorage['yes'] = 'YES'
   return null
 }
-window.onbeforeunload = qpo.closingCode
+
+window.addEventListener("beforeunload", function(e){
+  qpo.closingCode();
+
+  (e || window.event).returnValue = null;
+  return null;
+});
+
+//window.onbeforeunload = qpo.closingCode

@@ -105,7 +105,6 @@ qpo.setup = function(){ // set up global vars and stuff
   // TOP-LEVEL SETTINGS:
   qpo.timeScale = 0.75; // Bigger means longer turns/slower gameplay; 1 is original 3-seconds-per-turn
   qpo.playMusic = false;
-  qpo.trainingMode = false;
   qpo.deflashLength = 400
   qpo.flashLength = qpo.timeScale*3000-qpo.deflashLength
   qpo.waitTime = 10; // minimum ms between move submission
@@ -158,7 +157,9 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.missions = new Array();
 
   // NEURAL STUFF:
-  (qpo.trainingMode) ? (qpo.timeScale=0.05) : (false) ;
+  qpo.trainingMode = false;
+  qpo.faster = 0.35; // how fast to go in training and testing modes
+  (qpo.trainingMode) ? (qpo.timeScale=qpo.faster) : (false) ;
   qpo.trainingCounter = 0;
   qpo.batchCounter = 0;
   qpo.gamesToTrain = 30; // games per batch
@@ -170,7 +171,53 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.retrain = function(){ // get ready to train another batch.
     qpo.trainingCounter = 0;
     qpo.trainingMode = true;
-  }
+  };
+  // NEURAL TESTING STUFF:
+  qpo.testingMode = true;
+  (qpo.testingMode) ? (qpo.timeScale=qpo.faster) : (false) ;
+  qpo.testingCounter = 0; // how many games have been tested.
+  // batchCounter is set to 0 above in training part
+  qpo.gamesToTest = 5; // games per batch
+  qpo.batchesToTest = 10; // batches to test
+  qpo.testingData = new Array(); // store sessions (win/loss data)
+  qpo.aiTypes = ["neural", "rigid" ,"random", 'null'];
+  qpo.aiType = qpo.aiTypes[0]; // controls source of red's moves in singlePlayer
+  qpo.trainerOpponent = qpo.aiTypes[2]; // controls source of blue's moves in training mode
+  qpo.retest = function(){ // get ready to test another batch.
+    qpo.testingCounter = 0;
+    qpo.testingMode = true;
+    console.log("Ali's epsilon: " +qpo.ali.nn.epsilon)
+    console.log("Ali's age: " + qpo.ali.nn.age)
+    console.log("Ali remembers "+ qpo.ali.nn.experience.length + " experiences")
+    // qpo.activeGame = new qpo.Game({
+    //   'q':8,
+    //   'po':4,
+    //   'type':'testing',
+    //   'ppt':2,
+    //   'bluePlayers': [qpo.aliP, qpo.bryanP],
+    //   'redPlayers':[new qpo.Player(null, 'Rigid 1', qpo.testOpponent, 'red', 0),
+    //                 new qpo.Player(null, 'Rigid 2', qpo.testOpponent, 'red', 1)]
+    // });
+    qpo.activeGame = new qpo.Game({
+      'q':6,
+      'po':2,
+      'type':'testing',
+      'ppt':1,
+      'bluePlayers': [qpo.aliP],
+      'redPlayers':[new qpo.Player(null, qpo.testOpponentName, qpo.testOpponent, 'red', 0)]
+    })
+    qpo.activeSession = new session('test')
+    var blueTot = 0
+    var redTot = 0
+    for (var i=0; i<qpo.testingData[qpo.batchCounter-1].games.length; i++){
+      gar = qpo.testingData[qpo.batchCounter-1].games // games Array
+      redTot += gar[i].redScore
+      blueTot += gar[i].blueScore;
+    }
+    console.log('Total red score for that batch: ' + redTot)
+    console.log('Total blue score for that batch: ' + blueTot)
+  };
+
 
   //MISC (ETC + DYNAMIC/UTILITY ARRAYS)
   qpo.gui = c.set(); // Should contain only elements relevant to the current screen.
@@ -180,7 +227,13 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.board = {};
   playerColor = "blue"; // for now
   opponentColor = "red";
+  qpo.playerTeam = "blue"
+  qpo.otherTeam = "red"
   qpo.glows = c.set(); //separate from GUI for opacity reasons
+  qpo.capitalize = function(str){
+    console.log(str)
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
   (function(){ //SET UP DIMENSIONS AND COORDINATES:
     qpo.guiCoords = { // cp height, gameBoard wall locations, gamePanel vs debugPanel
@@ -789,7 +842,9 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
           for (var k = -1; k<2; k++){
             for (var l = -1; l<2; l++){
               try {result[i+k][j+l] += 5 }
-              catch(e){console.log('exploding bomb near wall')} //might throw error if near walls
+              catch(e){ //might throw error if near walls
+                // console.log('exploding bomb near wall')
+              }
             }
           }
         }
@@ -930,6 +985,9 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
   this.blueSection = c.set().push(this.blueScoreText);
 
   this.update = function(){ //update display from qpo.red.points and qpo.blue.points.
+    this.redScore = qpo.red.points
+    this.blueScore = qpo.blue.points
+    this.gameClock = qpo.activeGame.turns - qpo.activeGame.turnNumber
     this.redScoreText.attr({'text':qpo.red.points});
     this.gameClockText.attr({'text':qpo.activeGame.turns - qpo.activeGame.turnNumber});
     this.blueScoreText.attr({'text':qpo.blue.points});
@@ -982,8 +1040,8 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
     //CHECK FOR COLLISION WITH ANOTHER OBJECT:
     for (var j=0; j<qpo.units.length; j++) { //iterate over units within shots
       /*
-      When a shot and a unit collide, hide both
-      the shot and the unit from the board,
+      When a shot and a unit collide,
+      hide both the shot and the unit from the board,
       tell them they're hidden (Element.data("hidden",true))
       and remove them from their respective arrays
       */
@@ -1000,15 +1058,21 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
           (( wBOU < wBOS && wBOS < eBOU ) || //horizontal overlap
           ( wBOU < eBOS && eBOS < eBOU )) &&
           // (shot.data("hidden") != true) &&
-          (shot.removed != true) &&
+          (shot.removed != true) && //shot has not already been "removed"
           (unit.alive)) {
         // shot.hide() //prevents double-collision glitch... not
         // shot.data("hidden", true) //prevents double-collision glitch...not
         switch(unit.coating.data('type')){ //kill unit or remove coating
           case 'none' : {
-            try {
+            try { //kill the unit and do reward logic
               unit.kill()
-              qpo[shot.data('team')].units[shot.data('unitNum')].kills++
+              if (unit.team == shot.data('team')) { //punish it for killing its own team
+                qpo[shot.data('team')].units[shot.data('unitNum')].player.rewardQueue.push(-1)
+                // console.log('I think a ' + unit.team + ' unit shot its own team')
+              } else { //reward it for killing the other team
+                qpo[shot.data('team')].units[shot.data('unitNum')].kills++
+                qpo[shot.data('team')].units[shot.data('unitNum')].player.rewardQueue.push(1)
+              }
             }
             catch(e) {
               console.log(e)
@@ -1089,6 +1153,11 @@ qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
               ( wBOB < eBOU && eBOU < eBOB )) &&
               (qpo.units[j].alive)) {
             qpo.units[j].kill();
+            if (qpo.units[j].team == qpo.bombs[i].unit.team) { //punish it for bombing its own team
+              qpo.bombs[i].unit.player.rewardQueue.push(-1)
+            } else { //reward it for bombing the other team
+              qpo.bombs[i].unit.player.rewardQueue.push(1)
+            }
             if ( !(qpo.bombs[i].exploded)){ qpo.bombs[i].explode(); }
           }
         }//end iterating over units within bombs

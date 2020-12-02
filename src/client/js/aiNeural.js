@@ -1,6 +1,6 @@
 var num_inputs = 218;
 var num_actions = 7; // 7 possible choices for a move
-var temporal_window = 1; // amount of temporal memory. 0 = agent lives in-the-moment
+var temporal_window = 4; // amount of temporal memory. 0 = agent lives in-the-moment
 var network_size = num_inputs*temporal_window + num_actions*temporal_window + num_inputs;
 
 // the value function network computes a value of taking any of the possible actions
@@ -15,22 +15,68 @@ layer_defs.push({type:'regression', num_neurons:num_actions});
 
 // options for the Temporal Difference learner that trains the above net
 // by backpropping the temporal difference learning rule.
-var tdtrainer_options = {learning_rate:0.001, momentum:0.0, batch_size:64, l2_decay:0.01};
+var tdtrainer_options = {
+  batch_size:10,
+  l2_decay:0.01,
+  learning_rate:0.001,
+  momentum:0.0
+};
 
 var opt = { //more options for the neural net
-  'temporal_window': temporal_window,
-  'experience_size' : 30000,
-  'start_learn_threshold' : 1000,
-  'gamma' : 0.7,
-  'learning_steps_total' : 200000,
-  'learning_steps_burnin' : 3000,
-  'epsilon_min' : 0.05,
+  'experience_size' : 500,
+  'epsilon_min' : 0.05,  // Curiosity level when age = learning_steps_total
+  'gamma' : 0.7,  // Discount rate
   'epsilon_test_time' : 0.05,
   'layer_defs' : layer_defs,
-  'tdtrainer_options' : tdtrainer_options
+  'learning_steps_total' : 2500,
+  'learning_steps_burnin' : 250,
+  'start_learn_threshold' : 25,
+  'tdtrainer_options' : tdtrainer_options,
+  'temporal_window': temporal_window
 }
 
-qpo.convertStateToInputs = function(state){
+qpo.actions = ["moveLeft","moveUp","moveRight","moveDown","shoot","bomb","stay"]
+qpo.saveSend = function(name, save, send){ // Send a net to server and/or save it
+  // pass 'ali', 'bryan', etc. and two Bools
+  var value_net = qpo[name].nn.value_net.toJSON();
+  var age = qpo[name].nn.age;
+  var experience = qpo[name].nn.experience
+  var name = qpo.capitalize(name);
+
+  try { nancheck = qpo.ali.nn.value_net.layers[0]['in_act']['dw'][0] }
+  catch(e){console.log(e); nancheck='ok'}
+  try { nancheck2 = qpo.ali.nn.value_net.layers[6]['out_act']['w'][0] }
+  catch(e){console.log(e); nancheck2='ok'}
+
+  // If no NaN issue, send the net to server and/or save it
+  if( !Object.is(nancheck, NaN) && ! Object.is(nancheck2, NaN)) {
+    if(send){ // Send neural data to server:
+      $.post("/neuralSend", {'name': name, 'age': age, 'value_net':value_net, 'experience': experience}, function(data, status){
+        console.log(data)
+        console.log(status)
+      })
+      console.log('ali net sent to server. ')
+    }
+    if(save){ //Save network in localStorage:
+      // Store network in localStorage:
+      try{
+        localStorage['aliAge'] = JSON.stringify(qpo.ali.nn.age)
+        console.log('ali age saved to localStorage. Saving value nets...')
+        localStorage['aliNN'] = JSON.stringify(qpo.ali.nn.value_net.toJSON()) //stores network to local storage for persistence
+        console.log('ali value net saved to localStorage. Saving experiences...')
+        // localStorage['aliCopy'] = JSON.stringify(qpo.ali.nn)
+        // localStorage['aliCopy2'] = JSON.stringify(qpo.ali.nn.value_net.toJSON())
+        localStorage['aliExp'] = JSON.stringify(qpo.ali.nn.experience)
+        console.log('ali experiences saved to localStorage.')
+      }
+      catch(e){ console.log(e) }
+    }
+  }
+  else { console.log('NaN issue found when preparing to send/save Ali.') }
+}
+
+// ------- OLD CODE
+qpo.convertStateToInputs = function(state){ // out of use as of Nov 30 2020
   var arr = new Array(), //final array to be fed to network as input
   q = qpo.activeGame.q,
   gridAdj = (q+1)/2, //grid adjustment
@@ -77,7 +123,6 @@ qpo.convertStateToInputs = function(state){
                                       //a turn that's elapsed since state was acquired.
   return arr
 };
-qpo.actions = ["moveLeft","moveUp","moveRight","moveDown","shoot","bomb","stay"]
 
 qpo.redRewardQueue = new Array()
 qpo.sixty = {"list" : new Array(), "cursor" : 0}

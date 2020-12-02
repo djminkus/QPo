@@ -105,7 +105,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
           $("#raphContainer2").show()
 
           qpo.makeMenus(true) //see menu.js.
-          // It's in the main menu's "and" function that the 
+          // It's in the main menu's "and" function that the
         })
       })
     });
@@ -118,7 +118,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
     inputSubmit)
 }
 
-qpo.devOption = 'title'
+qpo.devOption = 'testing'
 switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
   case 'main': { //open main menu
     qpo.user = new qpo.User()
@@ -139,6 +139,61 @@ switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
   case 'game': { //start a game immediately
     qpo.user = new qpo.User()
     qpo.activeGame = new qpo.Game()
+    qpo.makeMenus(false)
+    break
+  }
+  case 'training': { // Train AI agents.
+    qpo.user = new qpo.User()
+
+    //Make player objects corresponding to each neural net.
+    qpo.aliP = new qpo.Player(null, qpo.ali.name, 'neural', qpo.ali.team, 0, qpo.ali.nn)
+    qpo.bryanP = new qpo.Player(null, qpo.bryan.name, 'neural', qpo.bryan.team, 1, qpo.bryan.nn)
+    qpo.calebP = new qpo.Player(null, qpo.caleb.name, 'neural', qpo.caleb.team, 0, qpo.caleb.nn)
+    qpo.daltonP = new qpo.Player(null, qpo.dalton.name, 'neural', qpo.dalton.team, 1, qpo.dalton.nn)
+
+    qpo.user.player = qpo.aliP  //just to get things up and running smoothly
+
+    qpo.activeGame = new qpo.Game({
+      'q':8,
+      'po':4,
+      'type':'training',
+      'ppt':2,
+      'bluePlayers': [qpo.aliP, qpo.bryanP],
+      'redPlayers':[qpo.calebP, qpo.daltonP]
+    })
+    qpo.makeMenus(false)
+    break
+  }
+  case 'testing':{
+    qpo.user = new qpo.User()
+    qpo.activeSession = new session('test')
+    qpo.testOpponent = 'random'  // (null, random, rigid, or neural)
+    qpo.testOpponentName = 'Randy'
+
+    //Make player objects corresponding to each neural net.
+    qpo.aliP = new qpo.Player(null, qpo.ali.name, 'neural', qpo.ali.team, 0, qpo.ali.nn)
+    // qpo.bryanP = new qpo.Player(null, qpo.bryan.name, 'neural', qpo.bryan.team, 1, qpo.bryan.nn)
+
+    qpo.user.player = qpo.aliP  //just to get things up and running smoothly
+
+    // qpo.activeGame = new qpo.Game({
+    //   'q':8,
+    //   'po':4,
+    //   'type':'testing',
+    //   'ppt':2,
+    //   'bluePlayers': [qpo.aliP, qpo.bryanP],
+    //   'redPlayers':[new qpo.Player(null, 'Rigid 1', qpo.testOpponent, 'red', 0),
+    //                 new qpo.Player(null, 'Rigid 2', qpo.testOpponent, 'red', 1)]
+    // })
+    qpo.activeGame = new qpo.Game({
+      'q':6,
+      'po':2,
+      'type':'testing',
+      'ppt':1,
+      'bluePlayers': [qpo.aliP],
+      'redPlayers':[new qpo.Player(null, qpo.testOpponentName, qpo.testOpponent, 'red', 0)]
+    });
+
     qpo.makeMenus(false)
     break
   }
