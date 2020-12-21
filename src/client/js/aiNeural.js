@@ -24,9 +24,9 @@ var tdtrainer_options = {
 
 var opt = { //more options for the neural net
   'experience_size' : 500,
-  'epsilon_min' : 0.05,  // Curiosity level when age = learning_steps_total
+  'epsilon_min' : 0.05,  // Curiosity level when age = learning_steps_total (see lines 184-189 of deepqlearn.js)
   'gamma' : 0.7,  // Discount rate
-  'epsilon_test_time' : 0.05,
+  'epsilon_test_time' : 0.05, // Curiosity level when learning is set to false (see lines 184-189 of deepqlearn)
   'layer_defs' : layer_defs,
   'learning_steps_total' : 2500,
   'learning_steps_burnin' : 250,
@@ -49,13 +49,13 @@ qpo.saveSend = function(name, save, send){ // Send a net to server and/or save i
   catch(e){console.log(e); nancheck2='ok'}
 
   // If no NaN issue, send the net to server and/or save it
-  if( !Object.is(nancheck, NaN) && ! Object.is(nancheck2, NaN)) {
+  if( !Object.is(nancheck, NaN) && ! Object.is(nancheck2, NaN) && qpo.netsChanged) {
     if(send){ // Send neural data to server:
       $.post("/neuralSend", {'name': name, 'age': age, 'value_net':value_net, 'experience': experience}, function(data, status){
         console.log(data)
         console.log(status)
       })
-      console.log('ali net sent to server. ')
+      console.log('Ali net & exp sent to server. Wait for "success" message before continuing or value net/experiences may be lost.')
     }
     if(save){ //Save network in localStorage:
       // Store network in localStorage:

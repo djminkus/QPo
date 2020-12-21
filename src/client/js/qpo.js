@@ -157,6 +157,7 @@ qpo.setup = function(){ // set up global vars and stuff
   qpo.missions = new Array();
 
   // NEURAL STUFF:
+  qpo.netsChanged = false;
   qpo.trainingMode = false;
   qpo.faster = 0.35; // how fast to go in training and testing modes
   (qpo.trainingMode) ? (qpo.timeScale=qpo.faster) : (false) ;
@@ -217,7 +218,6 @@ qpo.setup = function(){ // set up global vars and stuff
     console.log('Total red score for that batch: ' + redTot)
     console.log('Total blue score for that batch: ' + blueTot)
   };
-
 
   //MISC (ETC + DYNAMIC/UTILITY ARRAYS)
   qpo.gui = c.set(); // Should contain only elements relevant to the current screen.

@@ -358,25 +358,30 @@ qpo.makeMenus = function(render){
   bitsXR = 270,
   bitsYR = 400
 
-  //make all the menus:
+
+  //Make top-level menu:
   qpo.menus['main menu'] = new qpo.Menu('Main Menu', [
     new qpo.MenuOption(x, yStart + yInt,'Tutorial', function(){}, 'Main Menu', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'vs. CPU', function(){}, 'Main Menu', false, 'stay', 'blue', 1),
-    new qpo.MenuOption(x, yStart + 3*yInt,'Matchmaking', function(){}, 'Main Menu', false, 'stay', 'blue', 2)
+    new qpo.MenuOption(x, yStart + 3*yInt,'Matchmaking', function(){}, 'Main Menu', false, 'stay', 'blue', 2),
+    new qpo.MenuOption(x, yStart + 4*yInt,'Train ANN', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
     // , new qpo.MenuOption(x, yStart + 4*yInt,'Settings', function(){}, 'Main Menu', false, 'stay', 'blue', 3)
-  ], 'title', false, function(){return new qpo.Leveller(350, 250, 150, qpo.user)})
+  ], 'title', false, function(){return new qpo.Leveller(350, 250, 150, qpo.user)});
   qpo.menus['main menu'].up = function(){/*qpo.menus['main menu'].close({'destination':'title'})*/}
-  qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close({'destination':'tutorial'}, 1000) }
-  qpo.menus['main menu'].cl.list[1].action = function(){ qpo.menus['main menu'].close('vs. cpu', 1000) }
-  qpo.menus['main menu'].cl.list[2].action = function(){ qpo.menus['main menu'].close('matchmaking', 1000) }
+  qpo.menus['main menu'].cl.list[0].action = function(){ qpo.menus['main menu'].close({'destination':'tutorial'}, 1000) };
+  qpo.menus['main menu'].cl.list[1].action = function(){ qpo.menus['main menu'].close('vs. cpu', 1000) };
+  qpo.menus['main menu'].cl.list[2].action = function(){ qpo.menus['main menu'].close('matchmaking', 1000) };
+  qpo.menus['main menu'].cl.list[3].action = function(){ qpo.menus['main menu'].close('train ann', 1000) };
+
   // qpo.menus['main menu'].cl.list[3].action = function(){ qpo.menus['main menu'].close('settings') }
 
+  // Make "vs. CPU" menu
   qpo.menus['vs. cpu'] = new qpo.Menu('vs. CPU', [
     new qpo.MenuOption(x, yStart + yInt,'1-Po', function(){}, 'vs. CPU', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'2-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 1),
     // new qpo.MenuOption(x, yStart + 3*yInt,'3-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'vs. CPU', false, 'stay', 'blue', 2)
-  ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29)});
+  ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29);});
   qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({
     'destination':'game',
     'gameArgs': {
@@ -400,6 +405,59 @@ qpo.makeMenus = function(render){
   // }, 1000); }
   qpo.menus['vs. cpu'].cl.list[2].action = qpo.menus['vs. cpu'].up.bind(qpo.menus['vs. cpu'])
 
+  // Make "Train ANN" menu
+  qpo.menus['train ann'] = new qpo.Menu('Train ANN', [
+    new qpo.MenuOption(x, yStart + yInt,'5 games', function(){}, 'Train ANN', true, 'stay', 'blue', 0),
+    new qpo.MenuOption(x, yStart + 2*yInt,'25 games', function(){}, 'Train ANN', false, 'stay', 'blue', 1),
+    new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'Train ANN', false, 'stay', 'blue', 2)
+  ], 'Main Menu', false, function(){
+    // Stuff copied from testing mode switch in title.js
+    qpo.activeSession = new session('test');
+    qpo.testOpponent = 'random';             // (null, random, rigid, or neural)
+    qpo.testOpponentName = 'Randy';
+
+    //Make player objects corresponding to each neural net.
+    qpo.aliP = new qpo.Player(null, qpo.ali.name, 'neural', qpo.ali.team, 0, qpo.ali.nn)
+    // qpo.bryanP = new qpo.Player(null, qpo.bryan.name, 'neural', qpo.bryan.team, 1, qpo.bryan.nn)
+
+    qpo.user.player = qpo.aliP  //just to get things up and running smoothly
+
+    return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29);
+  });
+  qpo.menus['train ann'].cl.list[0].action = function(){
+    qpo.menus['train ann'].close({
+      'destination':'game',
+      'gameArgs': {
+        'type':'testing', 'q':6, 'po':2, 'ppt': 1,
+        'bluePlayers': [qpo.aliP],
+        'redPlayers': [new qpo.Player(null, qpo.testOpponentName, qpo.testOpponent, 'red', 0)]
+      }
+    }, 1000);
+    qpo.gamesToTest=5;
+    qpo.batchesToTest=1;
+  };
+  qpo.menus['train ann'].cl.list[1].action = function(){
+    qpo.menus['train ann'].close({
+      'destination':'game',
+      'gameArgs': {
+        'type':'testing', 'q':6, 'po':2, 'ppt': 1,
+        'bluePlayers': [qpo.aliP],
+        'redPlayers': [new qpo.Player(null, qpo.testOpponentName, qpo.testOpponent, 'red', 0)]
+      }
+    }, 1000);
+    qpo.gamesToTest=5;
+    qpo.batchesToTest=5;
+  };
+  // qpo.menus['vs. cpu'].cl.list[2].action = function(){ qpo.menus['vs. cpu'].close({
+  //   'destination':'game',
+  //   'gameArgs': {
+  //     'type':'single', 'q':9, 'po':9, 'ppt':3,
+  //     'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
+  //   }
+  // }, 1000); }
+  qpo.menus['train ann'].cl.list[2].action = qpo.menus['train ann'].up.bind(qpo.menus['train ann'])
+
+  // Make "Matchmaking" menu
   qpo.menus['matchmaking'] = new qpo.Menu('Matchmaking', [
     new qpo.MenuOption(x, yStart + yInt,'coming soon?', function(){}, 'Matchmaking', true, 'stay', 'blue', 0),
     // new qpo.MenuOption(x, yStart + yInt,'2-Po', function(){}, 'Matchmaking', true, 'stay', 'blue', 0),
@@ -421,6 +479,7 @@ qpo.makeMenus = function(render){
   // }, 1000); }
   qpo.menus['matchmaking'].cl.list[1].action = qpo.menus['matchmaking'].up.bind(qpo.menus['matchmaking'])
 
+  // Make "Settings" menu
   // qpo.menus['settings'] = new qpo.Menu('Settings', [
   //   new qpo.MenuOption(x, yStart + 1*yInt,'coming', function(){}, 'Settings', true, 'stay', 'blue', 0),
   //   new qpo.MenuOption(x, yStart + 2*yInt,'soon', function(){}, 'Settings', false, 'stay', 'blue', 1),
@@ -430,6 +489,7 @@ qpo.makeMenus = function(render){
   // qpo.menus['settings'].cl.list[1].action = function(){ qpo.menus['settings'].close({'destination':'parent'}); }
   // qpo.menus['settings'].cl.list[2].action = qpo.menus['settings'].up.bind(qpo.menus['settings'])
 
+  // Make "Match Complete" menu
   qpo.menus['match complete'] = new qpo.Menu('Match Complete',
     [new qpo.MenuOption(x, yStart + 1*yInt, 'Main Menu', function(){}, 'Match Complete', true, 'stay', 'blue', 0)],
     'Main Menu', false,
@@ -453,6 +513,8 @@ qpo.makeMenus = function(render){
 qpo.freshUser = true
 if (qpo.freshUser){ localStorage['stats'] = undefined }
 qpo.devMode = true
+
+// Neural stuff
 qpo.freshStart = false // for neural nets
 qpo.neuralSource = 'server' // 'server' or 'local'
 
@@ -561,7 +623,7 @@ catch(err){ console.log(err) }
 
 qpo.closingCode = function(){ //save the nets
   //save the AI nets to the database and to local storage
-  try{ qpo.saveSend('ali', true, true) }
+  try{ qpo.saveSend('ali', true, true) } // defined in aiNeural.js
   catch(err){console.log(err) }
   // localStorage['stats'] = JSON.stringify(qpo.user.getStats())
   // localStorage['yes'] = 'YES'
@@ -574,5 +636,7 @@ window.addEventListener("beforeunload", function(e){
   (e || window.event).returnValue = null;
   return null;
 });
+
+
 
 //window.onbeforeunload = qpo.closingCode

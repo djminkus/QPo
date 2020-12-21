@@ -251,15 +251,15 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
           var e = this.experience[re]; //experience chosen
           var x = new convnetjs.Vol(1, 1, this.net_inputs);
           x.w = e.state0;
-          if(qpo.debugit){debugger;}
+          // if(qpo.debugit){debugger;}
           var maxact = this.policy(e.state1);
-          if(qpo.debugit){debugger;}
+          // if(qpo.debugit){debugger;}
           var r = e.reward0 + this.gamma * maxact.value;
-          if(qpo.debugit){debugger;}
+          // if(qpo.debugit){debugger;}
           var ystruct = {dim: e.action0, val: r};
-          if(qpo.debugit){debugger;}
+          // if(qpo.debugit){debugger;}
           var loss = this.tdtrainer.train(x, ystruct);
-          if(qpo.debugit){debugger;}
+          // if(qpo.debugit){debugger;}
           avcost += loss.loss;
           if(qpo.debugit){debugger;}
         }

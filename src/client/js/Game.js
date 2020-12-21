@@ -9,7 +9,7 @@ qpo.Game = function(args){ //"Game" class.
     //Grab the arguments (and fill in missing ones with default values):
     this.q = args.q || 7 // Number of rows, columns on the board
     this.po = args.po || 3 // Number of units on each team
-    this.type = args.type || 'single' //What kind of game is this? (tutorial, single, multi, campaign)
+    this.type = args.type || 'single' //What kind of game is this? (tutorial, single, multi, campaign, training, testing)
     this.turns = (args.turns || 50) //How many turns does this game consist of?
     this.ppt = args.ppt || 1 //players per team
     this.customScript = args.customScript || function(){}
@@ -45,9 +45,9 @@ qpo.Game = function(args){ //"Game" class.
   qpo.bombSize = 2 * qpo.guiDimens.squareSize
   this.scaling = qpo.guiDimens.squareSize/50 // Visual scaling
 
-  for(var i=0; i<this.ppt; i++){ //fill empty player slots with computer players (of type 'random', for now)
-    if(typeof qpo.red.players[i] != 'object'){qpo.red.players[i] = new qpo.Player(null, 'Randy '+i, 'random', 'red', i)}
-    if(typeof qpo.blue.players[i] != 'object'){qpo.blue.players[i] = new qpo.Player(null, 'Blandy '+i, 'random', 'blue', i)}
+  for(var i=0; i<this.ppt; i++){ //fill empty player slots with computer players
+    if(typeof qpo.red.players[i] != 'object'){qpo.red.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'red', i)}
+    if(typeof qpo.blue.players[i] != 'object'){qpo.blue.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'blue', i)}
   }
   qpo.user.minUnit = qpo.user.player.num   * this.po
   qpo.user.maxUnit =(qpo.user.player.num+1)* this.po - 1
@@ -278,24 +278,32 @@ qpo.Game = function(args){ //"Game" class.
     // Each turn, reward AIs for favorable events, and convert the game state to inputs for the neural nets:
     for(var i=0, player; i<qpo.red.players.length; i++){ // do reward propagation logic for each player
       player = qpo.red.players[i]
-      if (player.type == 'neural'){
+      if (player.type == 'neural'){ // Try to reward...
         try {
           var reward = player.rewardQueue.reduce(qpo.add, 0)
           // console.log('reward: ' + reward)
           player.brain.backward(reward)
+          qpo.netsChanged = true;
           player.rewardQueue = [] //clear the reward queue
-        }  // Try to reward...
-        catch(err){console.log("Can't train without having acted.")} // ...but will fail if no actions have been taken
+        }
+        catch(err){ // ...but will fail if no actions have been taken
+          // console.log("Can't train without having acted, or...");
+          console.log(err)
+        }
       }
       player = qpo.blue.players[i]
-      if (player.type == 'neural'){
+      if (player.type == 'neural'){ // Try to reward...
         try{
           var reward = player.rewardQueue.reduce(qpo.add, 0)
           // console.log('reward: ' + reward)
           player.brain.backward(reward)
+          qpo.netsChanged = true;
           player.rewardQueue = [] //clear the reward queue
-        }  // Try to reward...
-        catch(err){console.log("Can't train without having acted.")} // ...but will fail if no actions have been taken
+        }
+        catch(err){ // ...but will fail if no actions have been taken
+          // console.log("Can't train without having acted, or...");
+          console.log(err)
+        }
       }
     }
     // === MORE old weird ===
@@ -309,12 +317,21 @@ qpo.Game = function(args){ //"Game" class.
     // qpo.inputForNeural = qpo.convertStateToInputs(this.state) //used before modifying getState() on Nov 30 2020
     qpo.inputForNeural = this.state
 
-    // Check for NaNs in value net:
+    // Check for NaNs in value net, and make a backup every 17 turns:
     try {
-      if(Object.is(qpo.ali.nn.value_net.layers[0]['in_act']['dw'][0], NaN)) {
-        console.log('NaN issue.'); qpo.debugit = true;
+      if (this.turnNumber % 16 == 0){ //back up the value net every so often
+        qpo.ali.backup = JSON.stringify(qpo.ali.nn.value_net);
+        console.log("Ali's value net was backed up. ")
       }
-      if(Object.is(qpo.ali.nn.value_net.layers[6]['out_act']['w'][0], NaN)) {console.log('NaN issue 2.')}
+      if(Object.is(qpo.ali.nn.value_net.layers[0]['in_act']['dw'][0], NaN)) {
+        console.log('NaN issue. Restoring value net from backup. ');
+        qpo.debugit = true;
+        // qpo.ali.nn.value_net = JSON.parse(JSON.stringify(qpo.ali.backup));
+        qpo.ali.nn.value_net.fromJSON(JSON.parse(qpo.ali.backup));
+      }
+      if(Object.is(qpo.ali.nn.value_net.layers[6]['out_act']['w'][0], NaN)) {
+        console.log('NaN issue 2.') // This shouldn't happen after backup.
+      }
     }
     catch(e){console.log(e)}
 

@@ -36,7 +36,7 @@ mongoose.connect(url)
 var db = mongoose.connection
 db.on('error', console.error)
 var User, Neural
-db.once('open', function() {
+db.once('open', function() { // define Schemas and create models
   var userSchema = mongoose.Schema({
     username: String,
     level: Number,
@@ -50,7 +50,7 @@ db.once('open', function() {
   //   return this.findOne({ _id: new RegExp(id, 'i') }, callback);
   // }
 
-  User = mongoose.model('User', userSchema)
+  User = mongoose.model('User', userSchema);
 
   var neuralSchema = mongoose.Schema({
     name: String,
@@ -60,8 +60,17 @@ db.once('open', function() {
     experience: Array
   })
 
-  Neural = mongoose.model('Neural', neuralSchema)
+  Neural = mongoose.model('Neural', neuralSchema);
 
+  var abstractSchema = mongoose.Schema({
+    str: String,
+    num: Number,
+    obj: Object,
+    arr: Array,
+    bool: Boolean
+  })
+
+  Abstract = mongoose.model('Abstract', abstractSchema);
   // db.close()
 })
 
@@ -165,4 +174,9 @@ app.post('/neuralGet', function(req, res){ // Client wants to get a neural net f
   })
 
   db.once('close', function(){console.log("database closed.")})
+})
+
+app.post('/email', function(req,res){
+  var email = 'djminkus@gmail.com';
+  res.json({'email':email});
 })

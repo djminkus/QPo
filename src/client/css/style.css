@@ -1,6 +1,8 @@
 body{
   /*padding-top: 20px;*/
   overflow:hidden;
+  color: white;
+  background-color: black;
 }
 
 /*failed color ribbon*/
@@ -37,14 +39,21 @@ body{
   background-repeat: repeat-X;
 }*/
 
-/*p {
+p {
   font-family:"Open Sans",sans-serif;
   font-size: 20px;
-}*/
+}
 
-/*#header{
+#header{
   margin:0px;
-}*/
+  color: white;
+  background-color: black
+}
+
+#bs-example-navbar-collapse-1{
+  color: white;
+  background-color: black
+}
 
 /*.navbar-brand{
   font-family: "Open Sans",sans-serif;

@@ -13,7 +13,7 @@ var cleanCSS = require('gulp-clean-css')
 
 // minify new or changed HTML pages
 gulp.task('htmlpage', function(d) {
-  // The 'd' callback signals async completion, preventing an error. 
+  // The 'd' callback signals async completion, preventing an error.
   var htmlSrc = './src/client/*.html',
       htmlDst = './build/served/'
 
@@ -29,6 +29,13 @@ gulp.task('htmlpage', function(d) {
 gulp.task('scripts', function(d) {
   gulp.src(['./src/client/js/libs/*.js', './src/client/js/qpo.js', './src/client/js/*.js', './src/client/js/title/title.js'])
     .pipe(concat('title_script.js'))
+    // .pipe(stripDebug())
+    // .pipe(uglify())
+    .pipe(gulp.dest('./build/served/')
+  );
+  gulp.src(['./src/client/js/libs/jquery-1.11.1.min.js', './src/client/js/title/2.js'])
+  // gulp.src(['./src/client/js/libs/*.js', './src/client/js/qpo.js', './src/client/js/2.js'])
+    .pipe(concat('2.js'))
     // .pipe(stripDebug())
     // .pipe(uglify())
     .pipe(gulp.dest('./build/served/')

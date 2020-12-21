@@ -72,9 +72,9 @@ qpo.login = function(){ //prompt the user to create an account or log in.
   $("#raphContainer2").hide()
   var form = document.createElement("form"),
     spacer = document.createElement("div"),
-    inputUsername = document.createElement("input"),
+    inputUsername = document.createElement("input"), // The text input box
     // inputPassword = document.createElement("input"),
-    inputSubmit = document.createElement("input")
+    inputSubmit = document.createElement("input") // The button below the text input box
 
   // Style the new elements:
   $(spacer).css({"height":"200px"}).attr({"display":"block"})
@@ -92,7 +92,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
     .click(function(e){ // SUBMIT FORM, MAKE MENUS
       e.preventDefault() //keeps URL from changing
 
-      var username = $(inputUsername).val()
+      var username = $(inputUsername).val() // Get the value from the text input box
       // console.log(username)
       $.post("/menu", {'username': username}, function(data, status){ //create user session state on client, from data received
         // console.log(data)
@@ -110,7 +110,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
       })
     });
 
-  $(form, inputUsername, inputSubmit).hide().fadeIn()
+  $(form, inputUsername, inputSubmit).hide().fadeIn() // Hide the elements and do the initial fade-in
 
   $("#raphContainer").after(spacer, form)
   $("form").append(inputUsername,
@@ -118,7 +118,7 @@ qpo.login = function(){ //prompt the user to create an account or log in.
     inputSubmit)
 }
 
-qpo.devOption = 'testing'
+qpo.devOption = 'title'
 switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
   case 'main': { //open main menu
     qpo.user = new qpo.User()
@@ -195,7 +195,7 @@ switch(qpo.devOption){ // **ENTRY POINT** ---------------------------
     });
 
     qpo.makeMenus(false)
-    break
+    break;
   }
   default: {
     qpo.titleScreen = new qpo.displayTitleScreen()
