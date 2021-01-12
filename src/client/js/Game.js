@@ -445,7 +445,9 @@ qpo.Game = function(args){ //"Game" class.
           }
           case 'testing': { //If in testing mode, decide whether to test another game.
             qpo.testingCounter++
-            console.log('tested game ' + qpo.testingCounter + ' out of ' + qpo.gamesToTest)
+            console.log('tested game ' + qpo.testingCounter + ' out of ' +
+              qpo.gamesToTest + "; winner was " + winner + ";, score was " +
+              qpo.scoreboard.blueScore + '-' + qpo.scoreboard.redScore)
             if (qpo.testingCounter >= qpo.gamesToTest){ // If game counter satisfied, check batch counter
               qpo.batchCounter++
               var batch = new qpo.Batch(qpo.activeSession)
@@ -455,10 +457,10 @@ qpo.Game = function(args){ //"Game" class.
               console.log(batch)
               if (qpo.batchCounter >= qpo.batchesToTest){ // If batch counter satisfied, exit testingMode
                 qpo.testingMode = false
-                qpo.menus["Match Complete"].open()
-                for (var i=0; i<qpo.batchesToTest; i++){ // log each batch's data to console
+                for (var i=0; i<qpo.batchesToTest; i++){ // log the batch's data to console
                   console.log(qpo.testingData[i])
                 }
+                qpo.menus["match complete"].open();
               }
               else { qpo.retest() }// If batch counter not exceeded, test another batch (reset testingCounter)
             }
@@ -499,9 +501,10 @@ qpo.Game = function(args){ //"Game" class.
     // qpo.menuMusic()
   }
 
-  //Start actually doing things:
+  // Start actually doing things:
   qpo.activeGame = this
   this.customScript()
+
   if(this.type=='tutorial'){ this.start() }
   else { this.prep() } //initialize it with pregame screen.
 

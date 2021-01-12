@@ -55,7 +55,7 @@ qpo.saveSend = function(name, save, send){ // Send a net to server and/or save i
         console.log(data)
         console.log(status)
       })
-      console.log('Ali net & exp sent to server. Wait for "success" message before continuing or value net/experiences may be lost.')
+      console.log('Ali net & exp sent to server. WAIT for "success" message before continuing or value net/experiences may be lost.')
     }
     if(save){ //Save network in localStorage:
       // Store network in localStorage:
@@ -63,11 +63,13 @@ qpo.saveSend = function(name, save, send){ // Send a net to server and/or save i
         localStorage['aliAge'] = JSON.stringify(qpo.ali.nn.age)
         console.log('ali age saved to localStorage. Saving value nets...')
         localStorage['aliNN'] = JSON.stringify(qpo.ali.nn.value_net.toJSON()) //stores network to local storage for persistence
-        console.log('ali value net saved to localStorage. Saving experiences...')
+        console.log('ali value net saved to localStorage. Saving arw...')
+        localStorage['aliARW'] = JSON.stringify(qpo.ali.nn.average_reward_window)
+        console.log('ali average_reward_window saved to localStorage.')
+        // localStorage['aliExp'] = JSON.stringify(qpo.ali.nn.experience)
+        // console.log('ali experiences saved to localStorage.')
         // localStorage['aliCopy'] = JSON.stringify(qpo.ali.nn)
         // localStorage['aliCopy2'] = JSON.stringify(qpo.ali.nn.value_net.toJSON())
-        localStorage['aliExp'] = JSON.stringify(qpo.ali.nn.experience)
-        console.log('ali experiences saved to localStorage.')
       }
       catch(e){ console.log(e) }
     }

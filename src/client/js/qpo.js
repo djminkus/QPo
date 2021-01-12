@@ -48,7 +48,7 @@ Contents of this code: (updated June 2, 2015)
 
 qpo = new Object()
 
-console.log("RESET " + Date() + '. Build ID spawn4')
+console.log("RESET " + Date() + '. Build ID spawn5')
 var c = new Raphael("raphContainer", 600, 600) //create the Raphael canvas
 
 var songURL = "./music/timekeeper.mp3"
@@ -208,16 +208,18 @@ qpo.setup = function(){ // set up global vars and stuff
       'redPlayers':[new qpo.Player(null, qpo.testOpponentName, qpo.testOpponent, 'red', 0)]
     })
     qpo.activeSession = new session('test')
-    var blueTot = 0
-    var redTot = 0
-    for (var i=0; i<qpo.testingData[qpo.batchCounter-1].games.length; i++){
-      gar = qpo.testingData[qpo.batchCounter-1].games // games Array
-      redTot += gar[i].redScore
-      blueTot += gar[i].blueScore;
-    }
-    console.log('Total red score for that batch: ' + redTot)
-    console.log('Total blue score for that batch: ' + blueTot)
+    // 1/1/21 : Moving score totaling to batch.js
+    // var blueTot = 0
+    // var redTot = 0
+    // gar = qpo.testingData[qpo.batchCounter-1].games // games Array
+    // for (var i=0; i<gar.length; i++){
+    //   redTot += gar[i].redScore
+    //   blueTot += gar[i].blueScore;
+    // }
+    // console.log('Total red score for that batch: ' + redTot)
+    // console.log('Total blue score for that batch: ' + blueTot)
   };
+  // qpo.multiBatchData = new Array(); // Store data about multiple batches here.
 
   //MISC (ETC + DYNAMIC/UTILITY ARRAYS)
   qpo.gui = c.set(); // Should contain only elements relevant to the current screen.
@@ -1019,7 +1021,7 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
 qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
   // called every 10 ms once game has begun
   var splicers = []; //used for destroying references to shots once they're gone
-  // OUTLINE
+  // OUTLINE:
   // for each shot, check for collisions with units and bombs
   // for each bomb, check for collisions with bombs and units
   // for each unit, check for collisions with units on the other team

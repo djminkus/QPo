@@ -573,20 +573,21 @@ qpo.Unit.prototype.kill = function(why){
   }.bind(this));
   this.rect.animate({ 'height':0, 'width':0 , 'x':qpo.board.lw+this.mtr/2, 'y':qpo.board.tw+this.mtr/2}, 2000*qpo.timeScale)
   if(qpo.mode == "game"){ //deal with scoreboard, AI, spawn, and ending game
-    if(this.team=='blue'){qpo.red.addPoint()}
-    else{qpo.blue.addPoint()}
-    switch(this.team){ //prep to reward AI, and update blue AU if necessary
-      case qpo.otherTeam: //enemy team ("red" until server implementation)
+    this.team=='blue' ? qpo.red.addPoint() : qpo.blue.addPoint()
+    this.player.rewardQueue.push(-1);
+    switch(this.team){ //update blue AU if necessary
+      // Previously, AI reward was prepped here
+      case qpo.otherTeam: //enemy team ("red" until multiplayer implementation)
         // qpo.redRewardQueue.push(1); //is this backwards?
         break;
-      case qpo.playerTeam: //player team ("blue" until server implementation)
+      case qpo.playerTeam: //player team ("blue" until multiplayer implementation)
         // qpo.redRewardQueue.push(-1); //is this backwards?
         var number = this.num;
         if (this.active){qpo.updateBlueAU(qpo.activeGame.po);}
         break;
     }
     if (qpo.activeGame.type != 'elimination') { this.nextAction = 'recharge' }
-    else if (qpo.scoreboard.redScore >= qpo.activeGame.scoreToWin // otherwise, end the game, if score limit reached.
+    else if (qpo.scoreboard.redScore >= qpo.activeGame.scoreToWin   // otherwise, end the game, if score limit reached.
       || qpo.scoreboard.blueScore >= qpo.activeGame.scoreToWin && qpo.activeGame.isEnding == false){
       var winner;
       setTimeout(function(){ //set winner to "tie","blue",or "red" (after 20 ms to account for performance issues)

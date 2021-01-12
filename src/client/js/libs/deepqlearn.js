@@ -40,6 +40,8 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
     this.epsilon_min = typeof opt.epsilon_min !== 'undefined' ? opt.epsilon_min : 0.05;
     // what epsilon to use at test time? (i.e. when learning is disabled)
     this.epsilon_test_time = typeof opt.epsilon_test_time !== 'undefined' ? opt.epsilon_test_time : 0.01;
+    // DG: what epsilon value do we use when performance is low? (average reward less than 0)
+    this.epsilon_seeking = typeof opt.epsilon_seeking !== 'undefined' ? opt.epsilon_test_time : .35;
 
     // advanced feature. Sometimes a random action should be biased towards some values
     // for example in flappy bird, we may want to choose to not flap more often
@@ -71,7 +73,7 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
 
     // create [state -> value of all possible actions] modeling net for the value function
     var layer_defs = [];
-    if(typeof opt.layer_defs !== 'undefined') {
+    if(typeof opt.layer_defs !== 'undefined') { // DG: Set the layer_defs and check for trouble
       // this is an advanced usage feature, because size of the input to the network, and number of
       // actions must check out. This is not very pretty Object Oriented programming but I can't see
       // a way out of it :(
@@ -85,8 +87,8 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
       if(layer_defs[layer_defs.length-1].num_neurons !== this.num_actions) {
         console.log('TROUBLE! Number of regression neurons should be num_actions!');
       }
-    } else {
-      // create a very simple neural net by default
+    }
+    else { // DG: create a very simple neural net by default
       layer_defs.push({type:'input', out_sx:1, out_sy:1, out_depth:this.net_inputs});
       if(typeof opt.hidden_layer_sizes !== 'undefined') {
         // allow user to specify this via the option, for convenience
@@ -113,12 +115,13 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
     // various housekeeping variables
     this.age = 0; // incremented every backward()
     this.forward_passes = 0; // incremented every forward()
-    this.epsilon = 1.0; // controls exploration exploitation tradeoff. Should be annealed over time
+    this.epsilon = 1.0; // controls exploration/exploitation tradeoff. Should be annealed over time
     this.latest_reward = 0;
     this.last_input_array = [];
-    this.average_reward_window = new cnnutil.Window(1000, 10);
-    this.average_loss_window = new cnnutil.Window(1000, 10);
+    this.average_reward_window = new cnnutil.Window(1000, 10); // comes from util.js
+    this.average_loss_window = new cnnutil.Window(1000, 10);   // 1000 -> size, 10 -> minsize
     this.learning = true;
+    this.exp_is_sparse = true; //becomes false when few or no neutral memories remain
   }
   Brain.prototype = {
     random_action: function() {
@@ -178,19 +181,21 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
 
       // create network input
       var action;
-      if(this.forward_passes > this.temporal_window) {
-        // we have enough to actually do something reasonable
+      if(this.forward_passes > this.temporal_window) { // we have enough to actually do something reasonable
         var net_input = this.getNetInput(input_array);
-        if(this.learning) {
+        if(this.learning && this.average_reward_window.sum >0) { // DG: Compute and select proper epsilon
           // compute epsilon for the epsilon-greedy policy
           this.epsilon = Math.min(1.0, Math.max(this.epsilon_min, 1.0-(this.age - this.learning_steps_burnin)/(this.learning_steps_total - this.learning_steps_burnin)));
-        } else {
+        } else if (this.average_reward_window.sum > 0){
           this.epsilon = this.epsilon_test_time; // use test-time value
+        } else {
+          this.epsilon = this.epsilon_seeking; // DG: average reward is less than 0; use "seeking" value
         }
         var rf = convnetjs.randf(0,1);
         if(rf < this.epsilon) {
           // choose a random action with epsilon probability
           action = this.random_action();
+          console.log("nn is mixing it up (random action chosen)")
         } else {
           // otherwise use our policy to make decision
           var maxact = this.policy(net_input);
@@ -226,18 +231,32 @@ var deepqlearn = deepqlearn || { REVISION: 'ALPHA' };
 
       // it is time t+1 and we have to store (s_t, a_t, r_t, s_{t+1}) as new experience
       // (given that an appropriate number of state measurements already exist, of course)
+      /// DG: ...or do we? how about this:
+      /// DG: Don't delete a random experience. Delete a NEUTRAL one.
+      ///     And/or, decrease epsilon to near-zero when some target
+      ///       reward-over-time threshold is reached, and increase it when reward dips.
       if(this.forward_passes > this.temporal_window + 1) {
         var e = new Experience();
         var n = this.window_size;
         e.state0 = this.net_window[n-2];
         e.action0 = this.action_window[n-2];
-        e.reward0 = this.reward_window[n-2];
+        e.reward0 = this.reward_window[n-2]; //DG: I need to look at reward_window to see how this really works
         e.state1 = this.net_window[n-1];
         if(this.experience.length < this.experience_size) {
           this.experience.push(e);
         } else {
           // replace. finite memory!
           var ri = convnetjs.randi(0, this.experience_size);
+          //DG:
+          var counter = 0;
+          while(this.experience[ri].reward0!=0      // Find a neutral memory and replace it,
+                && counter <= this.experience_size  // but don't get stuck in an infinite loop,
+                && this.exp_is_sparse){             // and skip this loop and replace a random one once most memories are "salient"
+            console.log("That memory wasn't neutral! Finding another.")
+            ri = convnetjs.randi(0, this.experience_size)
+            counter++
+          }
+          if (counter >= this.experience_size) {this.exp_is_sparse = false}
           this.experience[ri] = e;
         }
       }

@@ -409,7 +409,8 @@ qpo.makeMenus = function(render){
   qpo.menus['train ann'] = new qpo.Menu('Train ANN', [
     new qpo.MenuOption(x, yStart + yInt,'5 games', function(){}, 'Train ANN', true, 'stay', 'blue', 0),
     new qpo.MenuOption(x, yStart + 2*yInt,'25 games', function(){}, 'Train ANN', false, 'stay', 'blue', 1),
-    new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'Train ANN', false, 'stay', 'blue', 2)
+    new qpo.MenuOption(x, yStart + 3*yInt,'125 games', function(){}, 'Train ANN', false, 'stay', 'blue', 2),
+    new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'Train ANN', false, 'stay', 'blue', 3)
   ], 'Main Menu', false, function(){
     // Stuff copied from testing mode switch in title.js
     qpo.activeSession = new session('test');
@@ -448,6 +449,18 @@ qpo.makeMenus = function(render){
     qpo.gamesToTest=5;
     qpo.batchesToTest=5;
   };
+  qpo.menus['train ann'].cl.list[2].action = function(){
+    qpo.menus['train ann'].close({
+      'destination':'game',
+      'gameArgs': {
+        'type':'testing', 'q':6, 'po':2, 'ppt': 1,
+        'bluePlayers': [qpo.aliP],
+        'redPlayers': [new qpo.Player(null, qpo.testOpponentName, qpo.testOpponent, 'red', 0)]
+      }
+    }, 1000);
+    qpo.gamesToTest=5;
+    qpo.batchesToTest=25;
+  };
   // qpo.menus['vs. cpu'].cl.list[2].action = function(){ qpo.menus['vs. cpu'].close({
   //   'destination':'game',
   //   'gameArgs': {
@@ -455,7 +468,7 @@ qpo.makeMenus = function(render){
   //     'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
   //   }
   // }, 1000); }
-  qpo.menus['train ann'].cl.list[2].action = qpo.menus['train ann'].up.bind(qpo.menus['train ann'])
+  qpo.menus['train ann'].cl.list[3].action = qpo.menus['train ann'].up.bind(qpo.menus['train ann'])
 
   // Make "Matchmaking" menu
   qpo.menus['matchmaking'] = new qpo.Menu('Matchmaking', [
@@ -542,7 +555,8 @@ try {  //retrieve saved AIs or generate new ones
         qpo.ali.nn.value_net.fromJSON(JSON.parse(localStorage['aliNN']));
         // ;(JSON.stringify(qpo.ali.nn) == localStorage['aliCopy']) ? (console.log("ali successfully reconstructed.")) : console.log("ali reconstruction failed.");
         qpo.ali.nn.age = Number.parseInt(localStorage['aliAge'], 10);
-        qpo.ali.nn.experience = JSON.parse(localStorage['aliExp'])//get Array from string
+        qpo.ali.nn.experience = JSON.parse(localStorage['aliExp']) //get Array from string
+
         if (isNAN(qpo.ali.nn.age)) {qpo.ali.nn.age = 0}
         ;(JSON.stringify(qpo.ali.nn.value_net.toJSON()) == localStorage['aliNN']) ? (console.log("ali value net successfully restored.")) : console.log("ali value net restoration failed.");
       }
@@ -569,6 +583,10 @@ try {  //retrieve saved AIs or generate new ones
     }
     default: {console.log('check yourself')}
   }
+  // Restore the average_reward_window from localStorage regardless:
+  var arwProps = JSON.parse(localStorage['aliARW'])
+  qpo.ali.nn.average_reward_window.v = arwProps.v //the list of rewards
+  qpo.ali.nn.average_reward_window.sum = arwProps.sum
 
   //Bryan
   qpo.bryan = {'nn': null,  "team": "blue", 'name': 'Bryan'}
