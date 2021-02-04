@@ -49,7 +49,7 @@ Contents of this code: (updated June 2, 2015)
 qpo = new Object()
 
 console.log("RESET " + Date() + '. Build ID spawn5')
-var c = new Raphael("raphContainer", 600, 600) //create the Raphael canvas
+var c = new Raphael("raphContainer", 600, 900) //create the Raphael canvas
 
 var songURL = "./music/timekeeper.mp3"
 qpo = {
