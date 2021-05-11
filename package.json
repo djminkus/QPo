@@ -15,7 +15,7 @@
   "dependencies": {
     "caniuse-lite": "^1.0.30001144",
     "express": "^4.17.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "lodash-template": "^1.0.0",
     "mongodb": "^3.6.2",
     "mongoose": "^5.10.8",
