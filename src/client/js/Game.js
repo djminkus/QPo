@@ -2,8 +2,10 @@ qpo.Game = function(args){ //"Game" class.
   //{q, po, type, turns, ppt, customScript, teams}
   qpo.mode = 'game'
 
-  qpo.scr = (qpo.trainingMode ? null : 2) // Do these do anything? 10/13/20
-  qpo.BCR = (qpo.trainingMode ? null : 2)
+  // Do these do anything? 10/13/20
+  // Not found in qpo.js 6/28/21
+  qpo.scr = (qpo.trainingMode ? null : 2) // Shot corner radius
+  qpo.BCR = (qpo.trainingMode ? null : 2) // Bomb corner radius
 
   if (args != undefined) { // Assign args to properties of 'this' (or set defaults)
     //Grab the arguments (and fill in missing ones with default values):

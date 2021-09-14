@@ -746,7 +746,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
           }.bind(this)
         )
 
-        //LINEAR TRACE, NO SCALING:
+        //LINEAR TRACE, NO SCALING: (old)
         // this.leftCharger.animate({'transform':('t'+x2+',-'+y2), 'opacity':1}, qpo.flashLength, '<', function(){ //reset the transform
         //   this.leftCharger.attr({'transform':'', 'opacity':0.1})
         // }.bind(this))
