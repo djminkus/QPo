@@ -1,6 +1,7 @@
 qpo.Game = function(args){ //"Game" class.
   //{q, po, type, turns, ppt, customScript, teams}
   qpo.mode = 'game'
+  this.songURL = "./timekeeper-main.mp3"
 
   // Do these do anything? 10/13/20
   // Not found in qpo.js 6/28/21
@@ -12,7 +13,7 @@ qpo.Game = function(args){ //"Game" class.
     this.q = args.q || 7 // Number of rows, columns on the board
     this.po = args.po || 3 // Number of units on each team
     this.type = args.type || 'single' //What kind of game is this? (tutorial, single, multi, campaign, training, testing)
-    this.turns = (args.turns || 50) //How many turns does this game consist of?
+    this.turns = (args.turns || 95) //How many turns does this game consist of?
     this.ppt = args.ppt || 1 //players per team
     this.customScript = args.customScript || function(){}
     this.teams = { //instantiate red and blue teams
@@ -167,6 +168,11 @@ qpo.Game = function(args){ //"Game" class.
     // qpo.user.leveller = null
     // qpo.viewToggler.toggle()
 
+    qpo.menuSong.pause();
+    qpo.menuSong.currentTime = 0;
+    qpo.makeMuteButton()
+    qpo.gui.push(qpo.muteButton);
+
     this.bluePrepElements = c.set()
     this.redPrepElements = c.set()
 
@@ -199,18 +205,19 @@ qpo.Game = function(args){ //"Game" class.
     }.bind(this), 3000)
   }
   this.start = function(){
-
     // Draw the board, clear the arrays, place the units and start the game
+
     if(qpo.playMusic == true){ // stop menu song and play game song. (implement when game song acquired)
       try { this.song.remove() } //try removing the previously existing song
       catch(err) { ; } //if error is thrown, probably doesn't exist, do nothing
-      //MAKE MUSIC:
-      // qpo.menuSong.pause();
-      // qpo.menuSong.currentTime = 0;
-      // this.song = song;
-      // this.song.play();
-      // console.log("playing game music...");
+      //MAKE MUSIC (unless in tutorial mode)
+      if (this.type != 'tutorial'){
+        this.song = new Audio(this.songURL);
+        setTimeout(function(){this.song.play();}.bind(this), 1500);
+        console.log("playing game music in 1.5 seconds...");
+      }
     }
+
     qpo.mode = 'game'
     qpo.units = new Array()
     qpo.shots = new Array()
@@ -391,6 +398,12 @@ qpo.Game = function(args){ //"Game" class.
     clearInterval(qpo.turnStarter)
     clearInterval(qpo.flashTimeout)
 
+    // Start playing the menu song again after a few seconds
+    setTimeout(function(){
+      qpo.menuSong.currentTime = 0;
+      qpo.menuSong.play();
+    }, 5000)
+
     qpo.gui.stop()
     qpo.gui.exclude(qpo.scoreboard.all)
     qpo.gui.animate({'opacity':0}, 2000, 'linear')
@@ -404,7 +417,7 @@ qpo.Game = function(args){ //"Game" class.
       try{qpo.activeSession.update(winner, qpo.scoreboard.blueScore, qpo.scoreboard.redScore)} //add to the proper tally. Will throw error in tut mode.
       catch(e){;} //don't bother adding to the proper tally in tut mode.
 
-      setTimeout(function(){ // Clear the paper and display menu or start another game
+      setTimeout(function(){ // Clear the qpo gui and display menu or start another game
         qpo.gui.clear()
 
         qpo.gui.push(qpo.scoreboard.all)

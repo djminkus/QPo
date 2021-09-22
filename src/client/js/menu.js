@@ -21,7 +21,7 @@ qpo.Menu = function(titleStr, itemList, parent, placeholder, unwrapDoodad, and){
     this.title = c.text(c.width/2, 60, this.titleStr).attr({qpoText:[this.TITLE_SIZE, qpo.COLOR_DICT['foreground']]});
     this.layer1 = c.set().push(this.background, this.title);
 
-    // qpo.makeMuteButton();
+    qpo.makeMuteButton();
 
     this.cl.render();
 
@@ -311,6 +311,12 @@ qpo.makeMuteButton = function(){ //make an icon that can mute the music when cli
           case 0: { qpo.menuSong.volume = 1; break; }
           default: {console.log("this was unexpected"); break;}
         }
+        switch(qpo.activeGame.song.volume){
+          case 1: { qpo.activeGame.song.volume = 0.2; break;}
+          case 0.2: { qpo.activeGame.song.volume = 0; break; }
+          case 0: { qpo.activeGame.song.volume = 1; break; }
+          default: {console.log("this was unexpected"); break;}
+        }
       }
     )
   } else {
@@ -348,6 +354,7 @@ qpo.makeMenus = function(render){
   //  If render is true, create the main menu's elements.
   qpo.menus = {}
   qpo.tutorial = new qpo.Tutorial()
+
   var x = 50,
   yStart = 100,
   yInt = 50, //vertical distance between menu item anchor points (in pixels)

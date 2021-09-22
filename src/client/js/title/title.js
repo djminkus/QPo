@@ -31,6 +31,8 @@ qpo.displayTitleScreen = function(){ //Called whenever title screen is displayed
   this.close = function(){ //clear screen and make next menu
     this.all.unclick() //disable further clicks
     this.bits.bye()
+    qpo.menuSong.play();
+    qpo.menuSong.loop = true;
 
     var timeScale = 4,
       totalLength = 500 //length of closing animation if timeScale is 1

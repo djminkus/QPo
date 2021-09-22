@@ -51,8 +51,9 @@ qpo = new Object()
 console.log("RESET " + Date() + '. Build ID spawn5')
 var c = new Raphael("raphContainer", 600, 900) //create the Raphael canvas
 
-var songURL = "./music/timekeeper.mp3"
 qpo = {
+  "songURL": "./timekeeper-intro.mp3",
+
   // WEBSOCKET THINGS (NOT SOCKET.IO):
   // "socket" : new WebSocket('ws://q-po-5150.herokuapp.com/socket'), //this url will change
   "socketCodes" : {"bomb":0,"shoot":1,"moveLeft":2,"moveUp":3,"moveRight":4,"moveDown":5,"stay":6},
@@ -65,13 +66,13 @@ qpo = {
 }
 
 qpo.menuMusic = function(){
-  if (!(qpo.menuSong)){ qpo.menuSong = new Audio(songURL); } //load song if it hasn't been loaded yet
+  if (!(qpo.menuSong)){ qpo.menuSong = new Audio(qpo.songURL); } //load song if it hasn't been loaded yet
   if (qpo.activeGame){ //stop game song and reset it
     qpo.activeGame.song.pause();
     qpo.activeGame.song.currentTime=0;
   }
   qpo.menuSong.currentTime = 0;
-  qpo.menuSong.play();
+  //qpo.menuSong.play();
   // if (qpo.playMusic) { // loop the menuSong every 1 minute and 48 seconds
   //   qpo.menuSongInterval = setInterval(function(){
   //     qpo.menuSong.currentTime = 0;
@@ -103,8 +104,8 @@ qpo.setup = function(){ // set up global vars and stuff
   // })(),
 
   // TOP-LEVEL SETTINGS:
-  qpo.timeScale = 0.75; // Bigger means longer turns/slower gameplay; 1 is original 3-seconds-per-turn
-  qpo.playMusic = false;
+  qpo.timeScale = 2/3; // Bigger means longer turns/slower gameplay; 1 is original 3-seconds-per-turn
+  qpo.playMusic = true;
   qpo.deflashLength = 400
   qpo.flashLength = qpo.timeScale*3000-qpo.deflashLength
   qpo.waitTime = 10; // minimum ms between move submission
@@ -174,7 +175,7 @@ qpo.setup = function(){ // set up global vars and stuff
     qpo.trainingMode = true;
   };
   // NEURAL TESTING STUFF:
-  qpo.testingMode = true;
+  qpo.testingMode = false;
   (qpo.testingMode) ? (qpo.timeScale=qpo.faster) : (false) ;
   qpo.testingCounter = 0; // how many games have been tested.
   // batchCounter is set to 0 above in training part
@@ -704,7 +705,7 @@ qpo.Board = function(cols, rows, x, y, m){ //Board class constructor
   this.lowOpacity = 0.3
 
   //ANIMATION FOR GAME BOARD CREATION:
-  if(qpo.mode=='game'){ //slide the walls in from off-screen
+  if(qpo.mode=='game'){
     // sideWalls.transform('t0,-900');
     // goalLines.transform('t-700,0');
     var ANIM_TIME = 1500
