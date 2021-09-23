@@ -389,14 +389,14 @@ qpo.makeMenus = function(render){
     // new qpo.MenuOption(x, yStart + 3*yInt,'3-Po', function(){}, 'vs. CPU', false, 'stay', 'blue', 2),
     new qpo.MenuOption(x, yStart + 4*yInt,'Main Menu', function(){}, 'vs. CPU', false, 'stay', 'blue', 2)
   ], 'Main Menu', false, function(){return new qpo.Bits1(bitsX, bitsY, bitsXR, bitsYR, [qpo.COLOR_DICT.red], 29);});
-  qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({
+  qpo.menus['vs. cpu'].cl.list[0].action = function(){ qpo.menus['vs. cpu'].close({ // "1-Po"
     'destination':'game',
     'gameArgs': {
       'type':'single', 'q':6, 'po':2, 'ppt': 2, // 'turns':3,
       'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
     }
   }, 1000); }
-  qpo.menus['vs. cpu'].cl.list[1].action = function(){ qpo.menus['vs. cpu'].close({
+  qpo.menus['vs. cpu'].cl.list[1].action = function(){ qpo.menus['vs. cpu'].close({ // "2-Po"
     'destination':'game',
     'gameArgs': {
       'type':'single', 'q':8, 'po':4, 'ppt': 2,
@@ -410,7 +410,7 @@ qpo.makeMenus = function(render){
   //     'bluePlayers': [qpo.user.toPlayer({'team':'blue', 'number': 0})]
   //   }
   // }, 1000); }
-  qpo.menus['vs. cpu'].cl.list[2].action = qpo.menus['vs. cpu'].up.bind(qpo.menus['vs. cpu'])
+  qpo.menus['vs. cpu'].cl.list[2].action = qpo.menus['vs. cpu'].up.bind(qpo.menus['vs. cpu']) // "Main Menu "
 
   // Make "Train ANN" menu
   qpo.menus['train ann'] = new qpo.Menu('Train ANN', [

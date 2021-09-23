@@ -48,9 +48,11 @@ qpo.Game = function(args){ //"Game" class.
   qpo.bombSize = 2 * qpo.guiDimens.squareSize
   this.scaling = qpo.guiDimens.squareSize/50 // Visual scaling
 
+  const RIGID_AI_ELO = 500
+
   for(var i=0; i<this.ppt; i++){ //fill empty player slots with computer players
-    if(typeof qpo.red.players[i] != 'object'){qpo.red.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'red', i)}
-    if(typeof qpo.blue.players[i] != 'object'){qpo.blue.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'blue', i)}
+    if(typeof qpo.red.players[i] != 'object'){qpo.red.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'red', i, RIGID_AI_ELO)}
+    if(typeof qpo.blue.players[i] != 'object'){qpo.blue.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'blue', i, RIGID_AI_ELO)}
   }
   qpo.user.minUnit = qpo.user.player.num   * this.po
   qpo.user.maxUnit =(qpo.user.player.num+1)* this.po - 1
@@ -504,8 +506,23 @@ qpo.Game = function(args){ //"Game" class.
             qpo.menus[qpo.activeMission.chapter].open(qpo.activeMission.number)
             break
           }
-          default: { //We're not in tutorial, training, or campaign. Open the match complete menu
+          default: { //We're not in tutorial, training, or campaign. Open the match complete menu, update ELOs.
             qpo.menus["match complete"].open()
+
+            //ELO section. A is blue, B is red. (Sorry.)
+            // Assumes three computer players and one human player. Finds adjustment for human's elo.
+            var p_A = qpo.scoreboard.blueScore // blue team's points
+            var p_B = qpo.scoreboard.redScore  // red team's points
+            var S_A = p_A / (p_A + p_B)   // "score" of blue team in elo terms.
+            var R_A = this.teams.blue.elo // elo of blue team.
+            var R_B = this.teams.red.elo // elo of red team.
+            var SCORE_FACTOR = 400;
+            var E_A = 1 / (1 + 10 ** ((R_B - R_A) / SCORE_FACTOR));
+            var k = 32
+            var elo_correction = k * (S_A - E_A)
+
+            qpo.user.eloAdjust(elo_correction);
+            qpo.menus['main menu'].doodad.updateLevel();
           }
         }
       }.bind(this), 2000)

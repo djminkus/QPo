@@ -21,21 +21,24 @@ qpo.User = function(stats){ //An entity within the ranking system.
     this.twoPoRank = stats.twoPoRank
     this.type = stats.type //human or one of four AI types (null, random, rigid, or neural)
     this.tutDone = stats.tutDone //booleans representing completion status of each campign mission
+    this.elo = stats.elo
     console.log('user ' + this.username + ' loaded.')
   }
   catch(e){ //create new user.
     console.log('new user created.')
     this.username = qpo.randomHandle()
     this.level = 0
-    this.onePoRank = 200
-    this.twoPoRank = 200
+    this.onePoRank = 1
+    this.twoPoRank = 2
     this.type = 'human' //human or one of four AI types (null, random, rigid, or neural)
     this.tutDone = false
+    this.elo = 100
   }
 
   this.levelUp = function(amt){this.level+=amt}
   this.onePoAdjust = function(amt){this.onePoRank+=amt}
   this.twoPoAdjust = function(amt){this.twoPoRank+=amt}
+  this.eloAdjust = function(amt){this.elo += amt}
 
   this.post = function(what){
     var statsObj = this.getStats()
@@ -46,7 +49,7 @@ qpo.User = function(stats){ //An entity within the ranking system.
 
   this.player = null
   this.toPlayer = function(args){ //returns a newly created Player object
-    this.player = new qpo.Player(args.unitList, this.username, this.type, args.team, args.number)
+    this.player = new qpo.Player(args.unitList, this.username, this.type, args.team, args.number, this.elo)
     return this.player
   }
   this.minUnit = null
@@ -96,7 +99,8 @@ qpo.User = function(stats){ //An entity within the ranking system.
       'onePoRank': this.onePoRank,
       'twoPoRank': this.twoPoRank,
       'type': this.type,
-      'tutDone': this.tutDone
+      'tutDone': this.tutDone,
+      'elo': this.elo
     }
   }
 

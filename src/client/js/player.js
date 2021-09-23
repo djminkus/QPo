@@ -1,4 +1,4 @@
-qpo.Player = function(unitList, handle, type, team, num, neural){ //Controls multiple units.
+qpo.Player = function(unitList, handle, type, team, num, neural, elo){ //Controls multiple units.
   // Exists in the context of a game.
   // Units is a list of units that will be this player's squad. Can be passed as null.
   unitList ? (this.squad = new qpo.CursorList(unitList)) : (this.squad = null); //a CursorList of units (the units this player will control)
@@ -8,6 +8,7 @@ qpo.Player = function(unitList, handle, type, team, num, neural){ //Controls mul
   this.team = team || null; // 'red' or 'blue' (at least for now)
   this.brain = neural || null; // the neural net that will play as this player
   this.rewardQueue = new Array();
+  this.elo = elo || 45;
 
   this.num = num //spot on team (index within array team.players)
 
