@@ -650,7 +650,9 @@ qpo.closingCode = function(){ //save the nets
   //save the AI nets to the database and to local storage
   try{
     qpo.saveSend('ali', true, true);
-    qpo.user.post('musicVol'); // Save the user's choice of music volume 
+    console.log('did saveSend')
+    qpo.user.post('musicVol'); // Save the user's choice of music volume
+    console.log('posted musicVol')
   } // defined in aiNeural.js
   catch(err){console.log(err) }
 
