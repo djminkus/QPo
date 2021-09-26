@@ -22,12 +22,13 @@ qpo.User = function(stats){ //An entity within the ranking system.
     this.type = stats.type //human or one of four AI types (null, random, rigid, or neural)
     this.tutDone = stats.tutDone //booleans representing completion status of each campign mission
     this.elo = stats.elo || 100
-    this.musicVol = stats.musicVol
+    this.musicVol = stats.musicVol || 1
     console.log('user ' + this.username + ' loaded.')
     qpo.menuSong.volume = this.musicVol
   }
   catch(e){ //create new user.
-    console.log('new user created.')
+    console.log(e)
+    console.log('Error while loading user. Creating new user.')
     this.username = qpo.randomHandle()
     this.level = 0
     this.onePoRank = 1
