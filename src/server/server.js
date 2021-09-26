@@ -44,7 +44,8 @@ db.once('open', function() { // define Schemas and create models
     twoPoRank: Number,
     type: String,
     tutDone: Boolean,
-    elo: Number
+    elo: Number,
+    musicVol: Number
   })
 
   // userSchema.statics.findOne = function(id, callback){

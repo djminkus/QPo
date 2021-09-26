@@ -22,6 +22,7 @@ qpo.User = function(stats){ //An entity within the ranking system.
     this.type = stats.type //human or one of four AI types (null, random, rigid, or neural)
     this.tutDone = stats.tutDone //booleans representing completion status of each campign mission
     this.elo = stats.elo
+    this.musicVol = stats.musicVol
     console.log('user ' + this.username + ' loaded.')
   }
   catch(e){ //create new user.
@@ -35,12 +36,16 @@ qpo.User = function(stats){ //An entity within the ranking system.
     this.elo = 100
   }
 
+
+
   this.levelUp = function(amt){this.level+=amt}
   this.onePoAdjust = function(amt){this.onePoRank+=amt}
   this.twoPoAdjust = function(amt){this.twoPoRank+=amt}
   this.eloAdjust = function(amt){this.elo += amt}
 
   this.post = function(what){
+    // "what" arg: the name of the key of the value to update in the database
+    // ex. to update elo, pass "elo" to this function  
     var statsObj = this.getStats()
     $.post('/user', {'what': what, 'user': statsObj}, function(data, status){
       console.log('callback 12345 executed')

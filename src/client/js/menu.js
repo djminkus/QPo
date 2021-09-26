@@ -306,15 +306,15 @@ qpo.makeMuteButton = function(){ //make an icon that can mute the music when cli
       .transform("t15,500")
       .click(function(){ //switch between 3 volume settings
         switch(qpo.menuSong.volume){
-          case 1: { qpo.menuSong.volume = 0.2; break;}
-          case 0.2: { qpo.menuSong.volume = 0; break; }
-          case 0: { qpo.menuSong.volume = 1; break; }
+          case 1: { qpo.user.musicVol = qpo.menuSong.volume = 0.2; break;}
+          case 0.2: { qpo.user.musicVol = qpo.menuSong.volume = 0; break; }
+          case 0: { qpo.user.musicVol = qpo.menuSong.volume = 1; break; }
           default: {console.log("this was unexpected"); break;}
         }
         switch(qpo.activeGame.song.volume){
-          case 1: { qpo.activeGame.song.volume = 0.2; break;}
-          case 0.2: { qpo.activeGame.song.volume = 0; break; }
-          case 0: { qpo.activeGame.song.volume = 1; break; }
+          case 1: { qpo.user.musicVol = qpo.activeGame.song.volume = 0.2; break;}
+          case 0.2: { qpo.user.musicVol = qpo.activeGame.song.volume = 0; break; }
+          case 0: { qpo.user.musicVol = qpo.activeGame.song.volume = 1; break; }
           default: {console.log("this was unexpected"); break;}
         }
       }
@@ -648,7 +648,10 @@ catch(err){ console.log(err) }
 
 qpo.closingCode = function(){ //save the nets
   //save the AI nets to the database and to local storage
-  try{ qpo.saveSend('ali', true, true) } // defined in aiNeural.js
+  try{
+    qpo.saveSend('ali', true, true);
+    qpo.user.post('musicVol'); // Save the user's choice of music volume 
+  } // defined in aiNeural.js
   catch(err){console.log(err) }
   // localStorage['stats'] = JSON.stringify(qpo.user.getStats())
   // localStorage['yes'] = 'YES'

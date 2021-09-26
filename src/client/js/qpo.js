@@ -72,6 +72,7 @@ qpo.menuMusic = function(){
     qpo.activeGame.song.currentTime=0;
   }
   qpo.menuSong.currentTime = 0;
+  qpo.menuSong.volume = qpo.user.musicVol
   //qpo.menuSong.play();
   // if (qpo.playMusic) { // loop the menuSong every 1 minute and 48 seconds
   //   qpo.menuSongInterval = setInterval(function(){
