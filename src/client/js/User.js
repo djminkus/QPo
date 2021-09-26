@@ -17,11 +17,11 @@ qpo.User = function(stats){ //An entity within the ranking system.
     // console.log(typeof stats)
     this.username = stats.username
     this.level = stats.level
-    this.onePoRank = stats.onePoRank
-    this.twoPoRank = stats.twoPoRank
+    this.onePoRank = stats.onePoRank || 1
+    this.twoPoRank = stats.twoPoRank || 1.01
     this.type = stats.type //human or one of four AI types (null, random, rigid, or neural)
     this.tutDone = stats.tutDone //booleans representing completion status of each campign mission
-    this.elo = stats.elo
+    this.elo = stats.elo || 100
     console.log('user ' + this.username + ' loaded.')
   }
   catch(e){ //create new user.
@@ -43,7 +43,7 @@ qpo.User = function(stats){ //An entity within the ranking system.
   this.post = function(what){
     var statsObj = this.getStats()
     $.post('/user', {'what': what, 'user': statsObj}, function(data, status){
-      console.log('callback 12345 executed')
+      console.log('callback 12345 executed (stats sent to server?)')
     })
   }
 

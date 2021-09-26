@@ -48,7 +48,8 @@ Contents of this code: (updated June 2, 2015)
 
 qpo = new Object()
 
-console.log("RESET " + Date() + '. Build ID spawn5')
+build_id = 'bahai'
+console.log("RESET " + Date() + '. Build ID ' + build_id)
 var c = new Raphael("raphContainer", 600, 900) //create the Raphael canvas
 
 qpo = {
@@ -463,6 +464,8 @@ qpo.setup = function(){ // set up global vars and stuff
     return paper.rect(cx-s/2, cy-s/2, s,s).attr(atts)
   }
   qpo.triangle=function(cx, cy, s, strokeWidth, pointUp, color){
+    // cx, cy are center-x, center-y
+    // s is side length (?)
     if (color===undefined){color = qpo.COLOR_DICT['foreground']}
     var DY = .289 * s
     var Z = .577 * s

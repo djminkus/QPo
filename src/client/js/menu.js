@@ -650,6 +650,10 @@ qpo.closingCode = function(){ //save the nets
   //save the AI nets to the database and to local storage
   try{ qpo.saveSend('ali', true, true) } // defined in aiNeural.js
   catch(err){console.log(err) }
+
+  // Send the user data to the server
+  qpo.user.post('elo')
+
   // localStorage['stats'] = JSON.stringify(qpo.user.getStats())
   // localStorage['yes'] = 'YES'
   return null
