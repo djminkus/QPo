@@ -389,7 +389,7 @@ qpo.Game = function(args){ //"Game" class.
     }
     else { this.board.flash(false, false)}
   }
-  this.end = function(){
+  this.end = function(){ // Clear GUI, reset arrays, update ELO.
     var winner
     if (qpo.scoreboard.redScore == qpo.scoreboard.blueScore) { winner = "tie" }
     else if (qpo.scoreboard.redScore > qpo.scoreboard.blueScore) { winner = "red" }
@@ -420,7 +420,7 @@ qpo.Game = function(args){ //"Game" class.
       try{qpo.activeSession.update(winner, qpo.scoreboard.blueScore, qpo.scoreboard.redScore)} //add to the proper tally. Will throw error in tut mode.
       catch(e){;} //don't bother adding to the proper tally in tut mode.
 
-      setTimeout(function(){ // Clear the qpo gui and display menu or start another game
+      setTimeout(function(){ // Clear the qpo gui, update ELO, and display menu or start another game
         qpo.gui.clear()
 
         qpo.gui.push(qpo.scoreboard.all)
@@ -519,7 +519,7 @@ qpo.Game = function(args){ //"Game" class.
             var R_B = this.teams.red.elo // elo of red team.
             var SCORE_FACTOR = 400;
             var E_A = 1 / (1 + 10 ** ((R_B - R_A) / SCORE_FACTOR));
-            var k = 32
+            var k = 32 * 6
             var elo_correction = k * (S_A - E_A)
 
             qpo.user.eloAdjust(elo_correction);

@@ -653,6 +653,10 @@ qpo.closingCode = function(){ //save the nets
     qpo.user.post('musicVol'); // Save the user's choice of music volume 
   } // defined in aiNeural.js
   catch(err){console.log(err) }
+
+  // Send the user data to the server
+  qpo.user.post('elo')
+
   // localStorage['stats'] = JSON.stringify(qpo.user.getStats())
   // localStorage['yes'] = 'YES'
   return null

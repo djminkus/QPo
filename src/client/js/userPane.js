@@ -4,11 +4,11 @@ qpo.Leveller = function(cx, cy, r, user){
   this.bigTri = qpo.triangle(cx, cy, r, 3, false)
   this.bigTriGlow = this.bigTri.glow({color:qpo.COLOR_DICT['foreground']})
 
-  this.lvTri = qpo.triangle(cx, cy - (r*3/4), r/3, 2, true)
-  this.lvTxt = c.text(cx, cy - (r*3/4) + 15, this.user.elo).attr({qpoText:[15]})
+  this.lvTri = qpo.triangle(cx, cy - (r*3/4), r/3 * 4/3, 2, true)
+  this.lvTxt = c.text(cx, cy - (r*3/4) + 15, Math.floor(this.user.elo)).attr({qpoText:[15]})
   this.lvTriGlow = this.lvTri.glow({color:qpo.COLOR_DICT['foreground']})
   this.updateLevel = function(){
-    this.lvTxt.attr({'text':this.user.elo})
+    this.lvTxt.attr({'text': Math.floor(this.user.elo)})
   }.bind(this)
 
   this.oneTri = qpo.triangle(cx - 0.65*r, cy+.375*r, r/3, 2, false)
