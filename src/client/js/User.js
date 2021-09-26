@@ -24,6 +24,7 @@ qpo.User = function(stats){ //An entity within the ranking system.
     this.elo = stats.elo || 100
     this.musicVol = stats.musicVol
     console.log('user ' + this.username + ' loaded.')
+    qpo.menuSong.volume = this.musicVol
   }
   catch(e){ //create new user.
     console.log('new user created.')
