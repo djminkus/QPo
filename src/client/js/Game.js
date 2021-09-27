@@ -215,7 +215,7 @@ qpo.Game = function(args){ //"Game" class.
       //MAKE MUSIC (unless in tutorial mode)
       if (this.type != 'tutorial'){
         this.song = new Audio(this.songURL);
-        this.song = qpo.user.musicVol;
+        this.song.volume = qpo.user.musicVol;
         setTimeout(function(){this.song.play();}.bind(this), 1500);
         console.log("playing game music in 1.5 seconds...");
       }
