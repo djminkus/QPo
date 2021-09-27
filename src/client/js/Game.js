@@ -507,7 +507,7 @@ qpo.Game = function(args){ //"Game" class.
             qpo.menus[qpo.activeMission.chapter].open(qpo.activeMission.number)
             break
           }
-          default: { //We're not in tutorial, training, or campaign. Open the match complete menu, update ELOs.
+          default: { //We're not in tutorial, training, or campaign. Open the match complete menu and update ELOs.
             qpo.menus["match complete"].open()
 
             //ELO section. A is blue, B is red. (Sorry.)

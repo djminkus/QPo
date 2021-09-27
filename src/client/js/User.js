@@ -36,6 +36,7 @@ qpo.User = function(stats){ //An entity within the ranking system.
     this.type = 'human' //human or one of four AI types (null, random, rigid, or neural)
     this.tutDone = false
     this.elo = 100
+    this.musicVol = 1
   }
 
 
@@ -107,7 +108,8 @@ qpo.User = function(stats){ //An entity within the ranking system.
       'twoPoRank': this.twoPoRank,
       'type': this.type,
       'tutDone': this.tutDone,
-      'elo': this.elo
+      'elo': this.elo,
+      'musicVol': this.musicVol,
     }
   }
 
