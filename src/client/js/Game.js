@@ -80,6 +80,7 @@ qpo.Game = function(args){ //"Game" class.
     var yAdj = yAdj || 0
     qpo.board = this.board = new qpo.Board(this.q, this.q, 125+xAdj, 90+yAdj) // make the board (with animation if game starting)
     qpo.scoreboard = new qpo.Scoreboard(yAdj, this.turns)
+    qpo.mobileControls = new qpo.MobileControls()
   }
 
   this.prevState = []

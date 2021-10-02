@@ -1022,6 +1022,53 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
   return this;
 };
 
+qpo.MobileControls = function(){
+  this.all = c.set(); // Create Raph set
+
+  // Make arrows and stay commands:
+  var OFFSET = 50
+
+  this.left = qpo.arrow(600/2 - OFFSET, 750, 'white','left')
+  this.up = qpo.arrow(600/2, 750 - OFFSET, 'white','up')
+  this.right = qpo.arrow(600/2 + OFFSET, 750, 'white','right')
+  this.down = qpo.arrow(600/2, 750 + OFFSET, 'white','down')
+  this.stay = c.circle(600/2, 750, 20) //TODO: fill this out
+
+  this.left.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('left');}
+  }) // TODO: Check if this is correct
+  this.up.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('up');}
+  })
+  this.right.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('right');}
+  })
+  this.down.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('down');}
+  })
+  this.stay.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('stay');}
+  })
+
+  this.all.push(this.left, this.up, this.right, this.down, this.stay)
+
+  // Make shoot and bomb commands:
+  this.shoot = c.text(600/2 - 150, 750 - OFFSET, 'shoot').attr({'color':qpo.COLOR_DICT['green']})
+  this.bomb = c.text(600/2 + 150, 750 - OFFSET, 'bomb').attr({'color':qpo.COLOR_DICT['purple']})
+
+  this.shoot.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('shoot');}
+  })
+  this.bomb.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('bomb');}
+  })
+
+  this.all.push(this.shoot, this.bomb)
+
+  qpo.gui.push(this.all)
+  return this.all
+}
+
 //INCREMENT FUNCTIONS (no new Raph elements created)
 qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
   // called every 10 ms once game has begun
