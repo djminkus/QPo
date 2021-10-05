@@ -1,6 +1,6 @@
 body{
   padding-top: 5px;
-  overflow:hidden;
+  overflow:scroll;
   color: white;
   background-color: black;
   padding-left: 10px;

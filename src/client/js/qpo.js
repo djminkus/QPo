@@ -131,7 +131,7 @@ qpo.setup = function(){ // set up global vars and stuff
     68:"moveRight", //d
     83:"moveDown", //s
     88:"stay", //x
-    66:'bomb'
+    66:'bomb', //b
   }
   qpo.COLOR_DICT = { //define colors using hex
     "blue": "#0055ff",
@@ -1027,24 +1027,25 @@ qpo.MobileControls = function(){
 
   // Make arrows and stay commands:
   var OFFSET = 50
+  var MOBILE_Y = 650
 
-  this.left = qpo.arrow(600/2 - OFFSET, 750, 'white','left')
-  this.up = qpo.arrow(600/2, 750 - OFFSET, 'white','up')
-  this.right = qpo.arrow(600/2 + OFFSET, 750, 'white','right')
-  this.down = qpo.arrow(600/2, 750 + OFFSET, 'white','down')
-  this.stay = c.circle(600/2, 750, 20) //TODO: fill this out
+  this.left = qpo.arrow(600/2 - OFFSET, MOBILE_Y, 'white','left')
+  this.up = qpo.arrow(600/2, MOBILE_Y - OFFSET, 'white','up')
+  this.right = qpo.arrow(600/2 + OFFSET, MOBILE_Y, 'white','right')
+  this.down = qpo.arrow(600/2, MOBILE_Y + OFFSET, 'white','down')
+  this.stay = c.circle(600/2, MOBILE_Y, 20).attr({'stroke':'white'}) //TODO: fill this out
 
   this.left.click(function(){
-    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('left');}
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveLeft');}
   }) // TODO: Check if this is correct
   this.up.click(function(){
-    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('up');}
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveUp');}
   })
   this.right.click(function(){
-    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('right');}
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveRight');}
   })
   this.down.click(function(){
-    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('down');}
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveDown');}
   })
   this.stay.click(function(){
     if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('stay');}
@@ -1053,8 +1054,8 @@ qpo.MobileControls = function(){
   this.all.push(this.left, this.up, this.right, this.down, this.stay)
 
   // Make shoot and bomb commands:
-  this.shoot = c.text(600/2 - 150, 750 - OFFSET, 'shoot').attr({'color':qpo.COLOR_DICT['green']})
-  this.bomb = c.text(600/2 + 150, 750 - OFFSET, 'bomb').attr({'color':qpo.COLOR_DICT['purple']})
+  this.shoot = c.text(600/2 - 150, MOBILE_Y - OFFSET, 'shoot').attr({'qpoText':[20, qpo.COLOR_DICT['green']]})
+  this.bomb = c.text(600/2 + 150, MOBILE_Y - OFFSET, 'bomb').attr({'qpoText':[20, qpo.COLOR_DICT['purple']]})
 
   this.shoot.click(function(){
     if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('shoot');}
