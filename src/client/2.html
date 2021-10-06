@@ -26,8 +26,10 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li><a href="index.html"> Q-Po <span class="sr-only">(current)</span > </a></li>
-            <li class="active"><a href='#'> About Me </li></a> <!-- not styled -->
+            <li><a href="index.html"> Q-Po </a></li>
+            <li class="active"><a href='#'> About Me <span class="sr-only">(current)</span > </li></a> <!-- not styled -->
+            <li><a href='contact.html'> Contact </li></a> <!-- not styled -->
+
             <!-- <li><a href="tutorial.html">Tutorial</a></li> -->
             <!-- <li><a href="#">Rankings</a></li> -->
           </ul>
@@ -35,47 +37,85 @@
       </div> <!-- /.container-fluid -->
     </nav>
 
-    <br/>
-    <p> Hi, I'm David J. Garrett. </p> <br/>
+    <div id='main'>
+      <div id='logos'>
+        <a title="DJG's LinkedIn" href="https://www.linkedin.com/in/davidjgarrett/"><img width="64" alt="LinkedIn" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/64px-LinkedIn_logo_initials.png"></a>
+        <div class='spacer'>&nbsp;</div>
+        <a title="DJG's Github" href="https://github.com/djminkus"><img width="64" alt="Github" src="./github.jpg"></a>
+        <a title="Judson Moore on Spotify" href="https://open.spotify.com/artist/2m61v1jcMutIWFFH4X4f37?si=3S3IIf4NQC6IKYYzKxr67Q&dl_branch=1"><img width="64" alt="My Spotify Artist Profile" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/64px-Spotify_logo_without_text.svg.png"></a>
+        <a title="My StackExchange Profile" href="https://stackoverflow.com/users/3658320/djg?tab=profile"><img width="64" alt="Stack Exchange" src="./se-icon.svg"></a>
+        <a title="DJG's Blog" href="http://futurismforfun.blogspot.com/"><img width="64" alt="Blogger" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Blogger.svg/64px-Blogger.svg.png"></a>
+      </div>
 
-    <p> My LinkedIn is <a href="https://www.linkedin.com/in/davidjgarrett/">here.</a>
-      It will tell you about my technical career. I recently received my Master's in Electrical Engineering from Colorado School of Mines, with a focus in Information and Systems Science.
-    </p> <br/>
-    <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="davidjgarrett"><a class="LI-simple-link" href='https://www.linkedin.com/in/davidjgarrett?trk=profile-badge'>David Garrett</a></div>
-    <br/>
+      
 
-    <a href="http://app.maven.co/join/44Ntea6L/consult" class="anchor-white-background"><img src="https://app.maven.co/files/image/maven_consult.png" alt="Consult with me on Maven" title="Consult with me on Maven" width="150" height="30" /></a>
+      <br/>
+      <p> Hi, I'm David J. Garrett. </p> <br/>
 
-    <p> My Twitter is <a href="https://twitter.com/akaDJG">here.</a> My DMs are open. It shows a
-      little more of my everyday life, but it's not really representative.
-    </p> <br/>
-    <p> (I have a <a href="https://www.facebook.com/akaDJG">Facebook</a> as well.) </p> <br/>
-    <p> I have a blog called <a href="http://futurismforfun.blogspot.com/">Futurism For Fun. </a>
-      I mostly wrote in it a few years ago but have started to pick it up again.
-    </p> <br/>
+      <h2 id='sci'> Science and Engineering </h2>
+      <p>In August 2021, I received my Master's in Electrical Engineering from Colorado School of Mines with a focus in Information and Systems Science,
+        becoming what you might call a "software-leaning" electrical engineer. In that program, I did lots of work with Python, MATLAB, signal analysis, data science, and the like.
+      </p> <br/>
+      <!-- <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="davidjgarrett"><a class="LI-simple-link" href='https://www.linkedin.com/in/davidjgarrett?trk=profile-badge'>David Garrett</a></div> -->
+      <!-- <br/> -->
 
-    <p> Here's my <a href="https://github.com/djminkus">Github</a>.
-      It contains the code for this site (in the QPo repo) and a few other projects, including
-      FaceLink, a machine-learning-based face detection and recognition project in Python.
-    </p> <br/>
+      <p> Here's my <a href="https://github.com/djminkus">Github</a>.
+        It contains the code for this site (in the "QPo" repo) and a few other projects, including
+        FaceLink, a machine-learning-based face detection and recognition project in Python.
+      </p> <br/>
 
-    <!-- <p> You want to <a href="David_Garrett_Resume">download my resume?</a> </p> <br/> -->
+      <p> Interested in my perspective? Hire me for a microconsult: <a href="http://app.maven.co/join/44Ntea6L/consult" class="anchor-white-background"><img src="https://app.maven.co/files/image/maven_consult.png" alt="Consult with me on Maven" title="Consult with me on Maven" width="150" height="30" /></a></p>
+      <br/>
 
-    <p> I make some OK music. <a href="https://open.spotify.com/artist/2m61v1jcMutIWFFH4X4f37?si=kZGsV71YTAOwgVGozdeJOg">On Spotify</a> and all other platforms, I go by "Judson Moore." </p> <br/>
-    <!-- Spotify follow button that didn't work"
-      <iframe src="https://open.spotify.com/follow/1/?uri=spotify:artist:2m61v1jcMutIWFFH4X4f37?si=UcgqqGtIQSywZttdphPEHg&size=detail&theme=dark&show-count=0" width="300" height="56" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowtransparency="true"></iframe> -->
-    <!-- Spotify player: -->
-    <iframe src="https://open.spotify.com/embed/artist/2m61v1jcMutIWFFH4X4f37" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-    <br/>
-    <br/>
+      <p> I have a blog called <a href="http://futurismforfun.blogspot.com/">Futurism For Fun. </a>
+        It addresses topics like Artificial Intelligence, Genetics, Space Colonization, Data, and Physics. I mostly wrote in it a few years ago but have recently started to pick it up again.
+      </p> <br/>
 
-    <p> On another note, My files describing some of my extracurricular scientific interests and
-      investigations can be found
-      <a href="https://drive.google.com/drive/folders/1Ui9pFFpbGTqhqyuH7dLrlusA9o_DzDKu?usp=sharing">here</a>.
-      They're open for editing! For an overview, start at "Summary of DJG Scientific Interests".
-    <p> <br/>
+      <p> My numerous extracurricular scientific interests include asteroid mining, carbon nanotubes, and more. Records of my
+        investigations can be found in Google docs
+        <a href="https://drive.google.com/drive/folders/1Ui9pFFpbGTqhqyuH7dLrlusA9o_DzDKu?usp=sharing">here</a>.
+        They're open for editing! For an overview, start at "Summary of DJG Scientific Interests".
+      <p> <br/>
 
-    <!-- <p> If you've come this far, it probably won't hurt to give you my email address. </p> <br/> -->
+      <!-- <p> You want to <a href="David_Garrett_Resume">download my resume?</a> </p> <br/> -->
+
+      <h2 id='music'>Music</h2>
+      <p> On another note (ha), I make music. <a href="https://open.spotify.com/artist/2m61v1jcMutIWFFH4X4f37?si=kZGsV71YTAOwgVGozdeJOg">On Spotify</a> and all other platforms, I go by "Judson Moore". It's generally pop or alternative rock, sometimes with various flavors (dance, blues, jazz, country) mixed in, written about life, faith, love, and feelings.</p> <br/>
+      <!-- Spotify follow button that didn't work"
+        <iframe src="https://open.spotify.com/follow/1/?uri=spotify:artist:2m61v1jcMutIWFFH4X4f37?si=UcgqqGtIQSywZttdphPEHg&size=detail&theme=dark&show-count=0" width="300" height="56" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowtransparency="true"></iframe> -->
+
+      <!-- Spotify player: -->
+      <iframe src="https://open.spotify.com/embed/artist/2m61v1jcMutIWFFH4X4f37" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+
+      <br/>
+      <br/>
+
+      <h2 id='other'>Other</h2>
+      <p> My Twitter is <a href="https://twitter.com/akaDJG">here.</a> My DMs are open.
+      </p> <br/>
+      <p> (I have a <a href="https://www.facebook.com/akaDJG">Facebook</a> as well.) </p> <br/>
+
+      <p> Don't be afraid to drop me a note on the <a href="contact.html">Contact</a> page! </p>
+
+
+      <!-- <p> If you've come this far, it probably won't hurt to give you my email address. </p> <br/> -->
+
+      <br/>
+      <br/>
+
+      <!-- Hit Counters -->
+      <p>Site hits since 10/06/21:
+        <!-- Badge Code - Do Not Change The Code -->
+        <a class="hitCounter" href="https://visitorshitcounter.com/" target="_blank" title="Hit counter" data-name="9e05ea40ca10bcbf06f7fadf6076961c|5|page|1|rgb(0, 0, 0);|#ffffff|large|s-hit">Hit Counter</a><script>document.write("<script type='text/javascript' src='https://visitorshitcounter.com/js/hitCounter.js?v="+Date.now()+"'><\/script>");</script>
+        <!-- Badge Code End Here -->
+        <br/>
+        Unique visitors since 10/06/21:
+        <!-- Badge Code - Do Not Change The Code -->
+        <a class="hitCounter" href="https://visitorshitcounter.com/" target="_blank" title="Hit counter" data-name="9e05ea40ca10bcbf06f7fadf6076961c|5|ip|1|rgb(0, 0, 0);|#ffffff|large|s-hit">Hit Counter</a><script>document.write("<script type='text/javascript' src='https://visitorshitcounter.com/js/hitCounter.js?v="+Date.now()+"'><\/script>");</script>
+        <!-- Badge Code End Here -->
+      </p>
+
+    </div>
 
     <script type="text/javascript" src="2.js"></script>
     <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
