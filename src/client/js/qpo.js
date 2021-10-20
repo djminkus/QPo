@@ -11,11 +11,11 @@ How to get familiar with the code:
   3. See menu.js
 
 alpha must contain:
-  [  ]  better spawn system
+  [ x ]  better spawn system
   [  ]  Functional servers {test for reliability, have someone try to crack or flood them}
   [  ]  PVP ranking system {test for rewardingness and exploitability}
 beta must feature:
-  [  ] Cool music
+  [ x ] Cool music
   [  ] Sound effects
   [  ] Even better gameplay (using feedback from alpha)
   [  ] More reliable servers (via code reviews/consults)
@@ -26,7 +26,7 @@ LONG-TERM TODO:
     https://github.com/djminkus/QPO/issues
   [   ] Improve neural networks AI
   [   ] User login/profile system
-  [   ] Implement Ranking System
+  [ x ] Implement Ranking System
   [   ] Open beta and advertise
   [   ] Improve game based on beta feedback
   [   ] Release 1.0
