@@ -50,7 +50,9 @@ qpo = new Object()
 
 build_id = 'bahai'
 console.log("RESET " + Date() + '. Build ID ' + build_id)
-var c = new Raphael("raphContainer", 600, 900) //create the Raphael canvas
+const WIDTH = 600
+const HEIGHT = 750
+var c = new Raphael("raphContainer", WIDTH, HEIGHT) //create the Raphael canvas
 
 qpo = {
   "songURL": "./timekeeper-intro.mp3",
@@ -131,7 +133,7 @@ qpo.setup = function(){ // set up global vars and stuff
     68:"moveRight", //d
     83:"moveDown", //s
     88:"stay", //x
-    66:'bomb'
+    66:'bomb', //b
   }
   qpo.COLOR_DICT = { //define colors using hex
     "blue": "#0055ff",
@@ -1021,6 +1023,97 @@ qpo.Scoreboard = function(yAdj, initialClockValue){ //draw the scoreboard and pu
   qpo.gui.push(this.all);
   return this;
 };
+
+qpo.MobileControls = function(){
+  this.all = c.set(); // Create Raph set
+
+  // Make arrows and stay commands:
+  var OFFSET = 50
+  var MOBILE_Y = HEIGHT - 100
+  var SQ_S = 47 //square size
+  var SQ_ATTS= {'stroke':'white', 'stroke-width':'3'} //square attributes
+
+  this.left = qpo.arrow(WIDTH/2 - OFFSET, MOBILE_Y, 'white','left')
+  this.up = qpo.arrow(WIDTH/2, MOBILE_Y - OFFSET, 'white','up')
+  this.right = qpo.arrow(WIDTH/2 + OFFSET, MOBILE_Y, 'white','right')
+  this.down = qpo.arrow(WIDTH/2, MOBILE_Y + OFFSET, 'white','down')
+  this.stay = c.circle(WIDTH/2, MOBILE_Y, 10).attr({'stroke':'white'})
+
+  this.left.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveLeft');}
+  })
+  this.up.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveUp');}
+  })
+  this.right.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveRight');}
+  })
+  this.down.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveDown');}
+  })
+  this.stay.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('stay');}
+  })
+
+  this.all.push(this.left, this.up, this.right, this.down, this.stay)
+
+  // Add squares for tapping convenience
+  this.leftSq = c.rect(WIDTH/2 - OFFSET - SQ_S/2, MOBILE_Y - SQ_S/2, SQ_S, SQ_S)
+  this.leftSq.attr(SQ_ATTS)
+  this.leftSq.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveLeft');}
+  })
+  this.upSq = c.rect(WIDTH/2 - SQ_S/2, MOBILE_Y - OFFSET - SQ_S/2, SQ_S, SQ_S)
+  this.upSq.attr(SQ_ATTS)
+  this.upSq.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveUp');}
+  })
+  this.rightSq = c.rect(WIDTH/2 + OFFSET - SQ_S/2, MOBILE_Y - SQ_S/2, SQ_S, SQ_S)
+  this.rightSq.attr(SQ_ATTS)
+  this.rightSq.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveRight');}
+  })
+  this.downSq = c.rect(WIDTH/2 - SQ_S/2, MOBILE_Y + OFFSET - SQ_S/2, SQ_S, SQ_S)
+  this.downSq.attr(SQ_ATTS)
+  this.downSq.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('moveDown');}
+  })
+  this.staySq = c.rect(WIDTH/2 - SQ_S/2, MOBILE_Y - SQ_S/2, SQ_S, SQ_S)
+  this.staySq.attr(SQ_ATTS)
+  this.staySq.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('stay');}
+  })
+  this.all.push(this.leftSq, this.upSq, this.rightSq, this.downSq, this.staySq)
+
+  // Make shoot and bomb commands:
+  this.shoot = c.text(WIDTH/2 + 150, MOBILE_Y - OFFSET, 'shoot').attr({'qpoText':[20, qpo.COLOR_DICT['green']]})
+  this.bomb = c.text(WIDTH/2 - 150, MOBILE_Y - OFFSET, 'bomb').attr({'qpoText':[20, qpo.COLOR_DICT['purple']]})
+
+  this.shoot.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('shoot');}
+  })
+  this.bomb.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('bomb');}
+  })
+
+  this.all.push(this.shoot, this.bomb)
+
+  // Add rects for tapping convenience:
+  this.shootSq = c.rect(WIDTH/2 + 150 - SQ_S, MOBILE_Y - OFFSET - SQ_S/2, SQ_S * 2, SQ_S)
+  this.shootSq.attr(SQ_ATTS)
+  this.shootSq.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('shoot');}
+  })
+  this.bombSq = c.rect(WIDTH/2 - 150 - 4/5 * SQ_S, MOBILE_Y - OFFSET - SQ_S/2, SQ_S * 8/5, SQ_S)
+  this.bombSq.attr(SQ_ATTS)
+  this.bombSq.click(function(){
+    if(qpo.user.activeUnit != null){qpo.user.activeUnit.order('bomb');}
+  })
+  this.all.push(this.shootSq, this.bombSq)
+
+  qpo.gui.push(this.all)
+  return this.all
+}
 
 //INCREMENT FUNCTIONS (no new Raph elements created)
 qpo.detectCollisions = function(ts){ //ts is teamSize, aka po
