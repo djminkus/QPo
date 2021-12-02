@@ -51,8 +51,16 @@ qpo.Game = function(args){ //"Game" class.
   const RIGID_AI_ELO = 500
 
   for(var i=0; i<this.ppt; i++){ //fill empty player slots with computer players
-    if(typeof qpo.red.players[i] != 'object'){qpo.red.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'red', i, RIGID_AI_ELO)}
-    if(typeof qpo.blue.players[i] != 'object'){qpo.blue.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'blue', i, RIGID_AI_ELO)}
+    if(typeof qpo.red.players[i] != 'object'){
+      var newPlayer = new qpo.Player(null, 'Riggy'+i, 'rigid', 'red', i, null, RIGID_AI_ELO);
+      qpo.red.addPlayer(newPlayer);
+      // qpo.red.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'red', i, null, RIGID_AI_ELO)
+    }
+    if(typeof qpo.blue.players[i] != 'object'){
+      var newPlayer = new qpo.Player(null, 'Riggy'+i, 'rigid', 'blue', i, null, RIGID_AI_ELO);
+      qpo.blue.addPlayer(newPlayer);
+      // qpo.blue.players[i] = new qpo.Player(null, 'Riggy'+i, 'rigid', 'blue', i, null, RIGID_AI_ELO)
+    }
   }
   qpo.user.minUnit = qpo.user.player.num   * this.po
   qpo.user.maxUnit =(qpo.user.player.num+1)* this.po - 1
@@ -412,7 +420,7 @@ qpo.Game = function(args){ //"Game" class.
     qpo.gui.exclude(qpo.scoreboard.all)
     qpo.gui.animate({'opacity':0}, 2000, 'linear')
     qpo.scoreboard.gameEnd() //move the text down, make the bits, and stuff
-    qpo.fadeOutGlow(qpo.glows, function(){ //clear GUI, reset arrays, and bring up the next screen
+    qpo.fadeOutGlow(qpo.glows, function(){ //clear GUI, reset arrays, update ELO, and bring up the next screen
       qpo.shots = []
       qpo.bombs = []
       qpo.units = [];
@@ -518,10 +526,12 @@ qpo.Game = function(args){ //"Game" class.
             var S_A = p_A / (p_A + p_B)   // "score" of blue team in elo terms.
             var R_A = this.teams.blue.elo // elo of blue team.
             var R_B = this.teams.red.elo // elo of red team.
-            var SCORE_FACTOR = 400;
-            var E_A = 1 / (1 + 10 ** ((R_B - R_A) / SCORE_FACTOR));
+            var SCORE_FACTOR = 400; // a constant used in ELO system
+            var E_A = 1 / (1 + 10 ** ((R_B - R_A) / SCORE_FACTOR)); // Probability of A winning given current ratings
             var k = 32 * 6
             var elo_correction = k * (S_A - E_A)
+
+            debugger;
 
             qpo.user.eloAdjust(elo_correction);
             qpo.menus['main menu'].doodad.updateLevel();

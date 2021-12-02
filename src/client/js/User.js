@@ -39,8 +39,6 @@ qpo.User = function(stats){ //An entity within the ranking system.
     this.musicVol = 1
   }
 
-
-
   this.levelUp = function(amt){this.level+=amt}
   this.onePoAdjust = function(amt){this.onePoRank+=amt}
   this.twoPoAdjust = function(amt){this.twoPoRank+=amt}
@@ -57,7 +55,7 @@ qpo.User = function(stats){ //An entity within the ranking system.
 
   this.player = null
   this.toPlayer = function(args){ //returns a newly created Player object
-    this.player = new qpo.Player(args.unitList, this.username, this.type, args.team, args.number, this.elo)
+    this.player = new qpo.Player(args.unitList, this.username, this.type, args.team, args.number, null, this.elo)
     return this.player
   }
   this.minUnit = null
